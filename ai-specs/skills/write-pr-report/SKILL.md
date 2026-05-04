@@ -38,7 +38,7 @@ Include:
 Exclude:
 - Internal helper details
 - Refactoring noise
-- Planning artifacts such as `tasks_for_AI` or specs
+- Planning artifacts such as `tasks/` or specs
 - Implementation mechanics unless critical
 
 ### 3. Validation must be credible
@@ -77,7 +77,7 @@ Always produce:
 <2 to 3 sentences max>
 
 ## What Changed
-- grouped by area (API, Services, Domain, Tests)
+- grouped by area (Specs, Docs, Modules, Tests)
 
 ## Validation
 
@@ -108,7 +108,7 @@ Do not add extra sections.
 ### 7. No internal artifacts
 
 Never mention:
-- `tasks_for_AI`
+- `tasks/`
 - planning docs
 - "execution report"
 - "this session"
@@ -117,7 +117,7 @@ Never mention:
 ## Process
 
 1. Inspect repository changes using git diff and git status.
-2. Group changes by responsibility: API, Services, Domain, Tests.
+2. Group changes by responsibility: Specs, Docs, Modules, Tests.
 3. Extract the intent of the change.
 4. Generate the PR description following the strict rules above.
 
