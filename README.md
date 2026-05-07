@@ -6,7 +6,7 @@ Plataforma SaaS de salud mental para profesionales y pacientes. Gestión de expe
 
 ## Qué es Catholizare
 
-Catholizare es una plataforma diseñada para psicólogos, psiquiatras y otros profesionales de salud mental que integra:
+Catholizare es una plataforma diseñada para psicólogos que integra:
 
 - Expediente clínico digital (NOM-004-2012)
 - Procesos terapéuticos configurables por enfoque (general y TCC)
@@ -103,4 +103,4 @@ Los task briefs generados durante el proceso SDD se escriben bajo `tasks/`.
 - No asumir stack tecnológico hasta que esté definido en `docs/`.
 - No asumir detalles clínicos que no estén en `docs/normative-compliance.md` o `docs/domain-glossary.md`.
 - No crear archivos bajo `tasks/` sin un High-Level Technical Contract aprobado.
-- Todo cambio que afecte expedientes clínicos debe verificar cumplimiento con NOM-004-2012.
+- Todo cambio en general y en especial que afecte expedientes clínicos debe verificar cumplimiento con la NOM-004-SSA3-2012 y la NOM-024-SSA3-2012 en lo correspondiente al sistema de expediente
