@@ -18,11 +18,16 @@ Optimize for **clarity, completeness, and closed decisions**.
 
 ## Context
 
-You MUST read the following file before asking any questions:
+You MUST read the following files before asking any questions:
 
-docs/agent_architecture.md
+- docs/vision.md
+- docs/actors-and-roles.md
 
-If you cannot access or read this file, stop and inform the user.
+If the requirement involves clinical records, legal documents, or sensitive data, also read:
+
+- docs/normative-compliance.md
+
+If you cannot access or read these files, stop and inform the user.
 
 ---
 
@@ -58,7 +63,7 @@ Rules:
 Your questions MUST collectively cover these dimensions:
 
 1. Solution shape  
-   (e.g. new endpoint vs extending existing behavior)
+   (e.g. new screen vs extending existing flow)
 
 2. Expected output  
    (what must be returned and in what form)
@@ -83,23 +88,23 @@ If any of these is unclear, you MUST ask about it.
 
 Before proposing any suggested default:
 
-- inspect the existing codebase when relevant
-- identify current patterns, endpoints, naming conventions, and data structures
-- align with the architecture described in `docs/agent_architecture.md`
+- inspect the existing specs and docs when relevant
+- identify current patterns, flows, naming conventions, and data structures
+- align with the architecture described in `docs/vision.md` and `docs/actors-and-roles.md`
 
 Suggested defaults must be grounded in:
 
-- existing endpoints or API structure  
-- current request/response contracts  
-- existing services or flows  
-- real constraints visible in the codebase  
+- existing specs or flows  
+- current actor permissions  
+- existing domain terms from `docs/domain-glossary.md`  
+- real constraints visible in the specs or normative docs  
 
-Avoid generic suggestions if code-based evidence is available.
+Avoid generic suggestions if spec-based evidence is available.
 
 When suggesting defaults:
 
 - explain briefly why the recommendation fits the current system
-- when possible, reference specific files, routes, or components
+- when possible, reference specific specs or domain terms
 
 ---
 
@@ -142,12 +147,12 @@ Respond in the same language as the user:
 1. <question>
 
    Suggested default:
-   <recommended option grounded in code and architecture>
+   <recommended option grounded in specs and architecture>
 
 2. <question>
 
    Suggested default:
-   <recommended option grounded in code and architecture>
+   <recommended option grounded in specs and architecture>
 
 ---
 
