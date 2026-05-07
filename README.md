@@ -1,6 +1,6 @@
 # Catholizare SaaS — Salud Mental
 
-Plataforma SaaS de salud mental para profesionales y pacientes. Gestión de expedientes clínicos, procesos terapéuticos, agenda, portal de paciente, recursos terapéuticos y asistente clínico con IA, con cumplimiento de NOM-004-2012 y NOM-024-2012.
+Plataforma SaaS de salud mental para profesionales y pacientes. Gestión de expedientes clínicos, procesos terapéuticos, agenda, portal de paciente, recursos terapéuticos y asistente clínico con IA, con cumplimiento de NOM-004-SSA3-2012 y NOM-024-SSA3-2012.
 
 ---
 
@@ -8,7 +8,7 @@ Plataforma SaaS de salud mental para profesionales y pacientes. Gestión de expe
 
 Catholizare es una plataforma diseñada para psicólogos que integra:
 
-- Expediente clínico digital (NOM-004-2012)
+- Expediente clínico digital (NOM-004-SSA3-2012 y NOM-024-SSA3-2012)
 - Procesos terapéuticos configurables por enfoque (general y TCC)
 - Agenda sincronizada con Google Calendar
 - Portal del paciente con acceso a su resumen y citas
@@ -35,7 +35,7 @@ catholizare-saas-salud-mental/
 │   ├── vision.md                    # Propósito, problema y propuesta de valor
 │   ├── actors-and-roles.md          # Roles, permisos y reglas de acceso
 │   ├── domain-glossary.md           # Términos clínicos y de negocio
-│   ├── normative-compliance.md      # Requisitos NOM-004-2012 y NOM-024-2012
+│   ├── normative-compliance.md      # Requisitos NOM-004-SSA3-2012 y NOM-024-SSA3-2012
 │   ├── decisions-log.md             # Registro de decisiones de producto cerradas
 │   └── mvp-scope.md                 # Alcance formal del MVP
 │
