@@ -10,8 +10,8 @@ Catholizare define exactamente cuatro roles de usuario (ver D-08 en `docs/decisi
 |---|---|---|
 | Paciente | Usuario que recibe atención | Solo lectura de su propio resumen y citas |
 | Profesional | Psicólogo/terapeuta | Gestión clínica completa de sus pacientes |
-| Administrador | Gestión de cuenta institucional | Configuración de cuenta, usuarios y reportes |
-| Super Administrador | Equipo interno de Catholizare | Acceso completo al sistema |
+| Administrador | Gestión de cuenta institucional | Configuración de cuenta, usuarios y profesioanes, ademas de reportes |
+| Super Administrador | Equipo interno de Catholizare | Acceso completo al sistema, alta de administrador, alta de super administrador, acceso a estadisticas, acceso modificacion de perfiles de pacientes y de administradores |
 
 ---
 
@@ -28,6 +28,11 @@ Persona que recibe atención psicológica de un profesional registrado en Cathol
 - Ver su resumen clínico (lo que el profesional decida publicar)
 - Ver sus citas programadas
 - Acceder al enlace de videollamada (Zoom) de su cita
+- Enviar mesaje a Terapeuta para pedir cancelacion o reprogramacion de citas
+- Acceder a cotnenido completo deacuerdo a su motivo de consulta
+- Evaluar al profesional
+- Aceptar que su caso actual sea referido a otro profesional
+
 
 ### No puede hacer
 - Ver el expediente clínico completo ni las notas del profesional
@@ -46,7 +51,7 @@ Psicólogo, psicoterapeuta o profesional de salud mental que usa Catholizare par
 ### Acceso
 - Panel principal de Catholizare
 - Acceso completo a sus propios pacientes y sus expedientes
-- No tiene acceso a pacientes de otros profesionales salvo que se le asigne explícitamente
+- No tiene acceso a pacientes de otros profesionales salvo que se le asigne explícitamente con autorizacion del paciente y del administrador
 
 ### Puede hacer
 - Crear y gestionar expedientes clínicos de sus pacientes
@@ -60,6 +65,7 @@ Psicólogo, psicoterapeuta o profesional de salud mental que usa Catholizare par
 - Definir qué información del expediente es visible para el paciente en el portal
 - Acceder a recursos terapéuticos de Catholizare Pro
 - Ver materiales y anuncios de Catholizare Pro
+- Ver el calendario de reuniones clinicas y calendario de fe
 
 ### No puede hacer
 - Acceder a expedientes de pacientes de otros profesionales (sin asignación explícita)
@@ -79,7 +85,7 @@ Persona responsable de la cuenta institucional o de la organización en Catholiz
 - Vista de usuarios y configuración institucional
 
 ### Puede hacer
-- Crear, editar y desactivar cuentas de Profesionales y Pacientes dentro de su organización
+- Crear, editar y desactivar cuentas de Profesionales y Pacientes dentro de su organización, 
 - Configurar parámetros de la cuenta institucional
 - Ver reportes de uso y actividad (sin contenido clínico sensible)
 - Asignar pacientes a profesionales
@@ -106,10 +112,12 @@ Miembro del equipo interno de Catholizare. Este rol no se asigna a clientes.
 - Administrar contenido de Catholizare Pro (recursos y anuncios)
 - Acceder a logs de auditoría del sistema
 - Configurar parámetros globales de la plataforma
+- Dar de alta a administradores y otro super administrador
 
 ### Restricciones
 - Las acciones sobre expedientes clínicos de pacientes deben quedar registradas en el log de auditoría (requerimiento NOM-024-SSA3-2012)
 - El acceso a contenido clínico en contexto de soporte técnico debe seguir el protocolo definido en `docs/normative-compliance.md`
+- No puede tenedr acceso al contenido de los expedientes clinicos 
 
 ---
 
