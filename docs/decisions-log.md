@@ -14,19 +14,22 @@ Decisiones cerradas que no requieren revisión salvo cambio significativo en el 
 
 ## D-02 — GPT solo pre-llena campos del proceso terapéutico
 
-**Decisión:** El asistente clínico con GPT únicamente puede pre-llenar campos dentro del proceso terapéutico. El profesional revisa y valida manualmente todo lo que el asistente genera antes de que quede registrado en el expediente. GPT no genera ni modifica notas clínicas de forma autónoma.
+**Decisión:** El asistente clínico con GPT únicamente puede pre-llenar campos dentro del proceso terapéutico. El profesional revisa y valida manualmente todo lo que el asistente genera antes de que quede registrado en el expediente. GPT no genera ni modifica notas clínicas de forma autónoma, GPT no debe de tener acceso a la informacion  de identificacion de paciente.
 
 **Implicaciones de diseño:** No existe flujo de "guardar automático" desde GPT. La interfaz debe mostrar claramente qué contenido es sugerencia de GPT vs. contenido validado por el profesional.
 
 ---
+## D-02.5 — Proceso de prellenado del proceso terapéutico
+**Decisión:** el profesional podra dar especificaciones particulares para dar mejor direccion a GPT, este las tomar en cuenta para la conceptualizacion del caso
+**Implicaciones de diseño:** En un cuadro de texto donde el profesional podra dar algunas direcciones importantes y particulares para guiar a GPT en el presente caso.
 
-## D-03 — Existen dos modelos terapéuticos: General y TCC
+## D-03 — Existen tres modelos terapéuticos: General, y TCC
 
 **Decisión:** El sistema incluye dos modelos terapéuticos diferenciados:
 - **Modelo General**: configurable y editable por el profesional; sirve como base para enfoques no especificados.
 - **Modelo TCC (Terapia Cognitivo-Conductual)**: modelo específico con estructura predefinida alineada a la metodología TCC.
 
-El profesional puede consultar otros modelos, pero solo puede operar con los que tiene asignados.
+El profesional puede consultar otros modelos, pero solo puede operar con los que tiene asignados, en el futuro se adjuntan mas modelos terapéuticos.
 
 ---
 
@@ -40,7 +43,7 @@ El profesional puede consultar otros modelos, pero solo puede operar con los que
 
 ## D-05 — Catholizare Pro muestra recursos exclusivamente al profesional
 
-**Decisión:** Los recursos terapéuticos y anuncios de Catholizare Pro son visibles únicamente en la pantalla del profesional. El paciente no tiene acceso a estos recursos desde su portal.
+**Decisión:** Los recursos terapéuticos y anuncios de Catholizare Pro son visibles únicamente en la pantalla del profesional, como banners en varias secciones de su sistema, el sentido es invitarlos a entrar a Catholizare Pro. El paciente no tiene acceso a estos recursos desde su portal.
 
 **Implicaciones de diseño:** Los recursos Pro no forman parte del portal del paciente. La lógica de visibilidad debe filtrar contenido Pro por rol.
 
