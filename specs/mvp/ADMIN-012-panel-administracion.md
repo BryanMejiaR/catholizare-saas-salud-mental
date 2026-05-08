@@ -64,6 +64,12 @@ Proveer a los roles Administrador y Super Administrador las herramientas para ge
 ### F-08 Estadísticas globales de la plataforma
 - Número total de organizaciones, profesionales y pacientes activos.
 - Uso agregado de módulos (expedientes, citas, etc.) sin datos clínicos.
+- Número de pacientes activos
+- Número de citas realizadas en un periodo
+- Número de expedientes activos y archivados
+- Número de profesionales activos
+- Estadistica de motivos de consulta, duacion de los tratamientos
+- Profesionales que mas tienen registros de pacientes 
 
 ---
 
@@ -74,6 +80,7 @@ Proveer a los roles Administrador y Super Administrador las herramientas para ge
 3. No existe eliminación de datos; todas las operaciones son de activación/desactivación lógica.
 4. El Super Administrador es el único que puede crear cuentas de Administrador y Super Administrador.
 5. El panel de administración es una interfaz separada del panel del Profesional y del portal del Paciente.
+6. GPT no tiene acceso a los datos de identifición del paciente
 
 ---
 
