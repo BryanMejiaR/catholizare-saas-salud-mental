@@ -36,7 +36,7 @@ La norma define las notas que deben existir en un expediente. Catholizare debe s
 - **En Catholizare**: el módulo de expediente clínico debe permitir crear cada tipo de nota. Las notas obligatorias (admisión, evolución, egreso) deben tener flujos claros en la interfaz.
 
 #### Consentimiento informado
-- El expediente debe contener consentimiento informado firmado por el paciente antes del inicio del tratamiento.
+- El expediente debe contener consentimiento informado firmado por el paciente antes del inicio del tratamiento. 
 - **En Catholizare**: debe existir un documento de consentimiento informado asociado al expediente. El sistema debe registrar la fecha de firma y quién lo obtuvo.
 
 #### Conservación del expediente
@@ -62,7 +62,7 @@ La NOM-024-SSA3-2012 aplica a toda la plataforma Catholizare en cuanto a infraes
 ### Requisitos mapeados al sistema
 
 #### Confidencialidad
-- La información clínica del paciente es confidencial y solo accesible a las personas autorizadas.
+- La información clínica del paciente es confidencial y solo accesible a las personas autorizadas, GPT no tenda acceso a la informacion de identifiacion del paciente.
 - **En Catholizare**: implementado mediante autenticación, control de acceso por rol y aislamiento de datos por organización y profesional (ver `docs/actors-and-roles.md`).
 
 #### Integridad
