@@ -354,6 +354,7 @@ Restricciones:
 
 ---
 
+
 ## Reglas de negocio
 
 1. Un expediente pertenece a exactamente un Paciente.
