@@ -170,7 +170,7 @@ La nota de sesión puede incluir:
 Restricciones:
 
 - Las notas de sesión son contenido clínico protegido.
-- No son visibles para el Paciente en el MVP, salvo que el Profesional publique explícitamente un resumen para el portal.
+- No son visibles para el Paciente en el MVP, salvo que el Profesional publique explícitamente un resumen terapéutico compartido para el portal.
 - No son visibles para Administradores ni Super Administradores.
 - Las notas no se eliminan físicamente desde la operación ordinaria.
 - Las modificaciones deben conservar historial, fecha, usuario y motivo de edición.
@@ -226,11 +226,23 @@ Campos mínimos de archivado:
 
 ---
 
-### F-08 Publicar resumen para el Paciente
+### F-08 Publicar resumen terapéutico compartido para el Paciente
 
-El Profesional puede redactar y publicar un resumen visible para el Paciente en su portal.
+El Profesional puede redactar y publicar un resumen terapéutico compartido visible para el Paciente en su portal.
 
-El resumen es un campo de texto libre redactado conscientemente para el Paciente. No es una copia automática del expediente clínico.
+El resumen es un campo de texto libre redactado conscientemente para el Paciente.
+
+No es una copia automática del expediente clínico.
+
+No sustituye las notas clínicas.
+
+No sustituye la conceptualización interna del caso.
+
+El resumen terapéutico compartido puede ser redactado manualmente por el Profesional o generado como borrador con apoyo de GPT-007.
+
+Cuando el resumen sea generado con apoyo de IA, el sistema debe tratarlo como borrador. El Profesional debe revisarlo, corregirlo y aprobarlo antes de publicarlo en el portal del Paciente.
+
+El Paciente nunca ve borradores generados por IA. Solo ve contenido aprobado y publicado por el Profesional.
 
 El resumen puede utilizarse para:
 
@@ -238,14 +250,21 @@ El resumen puede utilizarse para:
 - pautas psicoeducativas;
 - recordatorios terapéuticos;
 - objetivos generales del proceso;
+- tareas o indicaciones no sensibles;
+- recursos personales identificados;
+- recursos espirituales o comunitarios, cuando sean clínicamente pertinentes;
+- próximos pasos del proceso;
 - indicaciones no sensibles que el Profesional decida compartir.
 
 Restricciones:
 
 - No debe incluir notas internas del terapeuta.
 - No debe incluir hipótesis clínicas no comunicadas al Paciente.
+- No debe incluir conceptualizaciones internas completas.
+- No debe incluir diagnósticos no explicados previamente al Paciente.
 - No debe incluir información de terceros.
 - No debe incluir interpretaciones que puedan dañar innecesariamente al Paciente fuera de contexto.
+- No debe publicar automáticamente contenido generado por IA.
 - No sustituye las notas clínicas ni el expediente.
 - Debe poder editarse, actualizarse o despublicarse.
 - Toda publicación, edición o despublicación debe quedar registrada en auditoría.
@@ -290,31 +309,20 @@ El paquete clínico para IA puede incluir:
 - contexto espiritual o religioso, cuando sea clínicamente pertinente y haya sido compartido por el Paciente;
 - directrices, comentarios y observaciones agregadas por el Profesional.
 
-Las directrices clínicas del Profesional pueden incluir:
-
-- aspectos observados durante la entrevista clínica;
-- hipótesis iniciales del Profesional;
-- elementos del lenguaje verbal o no verbal del Paciente;
-- temas que el Profesional desea explorar con mayor profundidad;
-- dudas clínicas;
-- posibles contradicciones detectadas;
-- factores espirituales, familiares, relacionales o personales relevantes;
-- advertencias sobre información que debe interpretarse con prudencia;
-- indicaciones sobre el modelo terapéutico a utilizar, por ejemplo TCC, sistémico, integrativo, humanista, psicodinámico o antropológico-personalista.
-
 La IA puede generar:
 
 - resumen clínico del caso;
 - hipótesis de conceptualización;
 - hipótesis diagnósticas diferenciales;
+- mecanismos originadores;
+- mecanismos mantenedores;
 - factores predisponentes, precipitantes, mantenedores y protectores;
 - creencias nucleares o esquemas relevantes;
 - hipótesis funcional del problema;
 - objetivos terapéuticos sugeridos;
 - posibles líneas de intervención;
 - preguntas clínicas pendientes;
-- elementos que conviene explorar en próximas sesiones;
-- advertencias clínicas para supervisión o derivación.
+- elementos que conviene explorar en próximas sesiones.
 
 Restricciones:
 
@@ -323,7 +331,6 @@ Restricciones:
 - La IA no accede libremente al expediente completo.
 - La IA solo trabaja con el paquete clínico autorizado, las notas de sesiones permitidas y las directrices agregadas por el Profesional.
 - La IA no guarda automáticamente sus resultados en el expediente.
-- El resultado generado por IA se considera borrador clínico hasta que el Profesional lo revise, corrija y apruebe.
 - El Profesional debe revisar, corregir y aprobar cualquier contenido antes de incorporarlo al expediente.
 - Toda solicitud de conceptualización asistida por IA debe quedar registrada en auditoría.
 - El sistema debe registrar qué datos fueron enviados a la IA, qué notas de sesión fueron incluidas, qué directrices agregó el Profesional, qué usuario solicitó el análisis, fecha, hora y resultado generado.
@@ -353,7 +360,6 @@ Restricciones:
 - La responsabilidad clínica del contenido guardado corresponde al Profesional que lo aprueba.
 
 ---
-
 
 ## Reglas de negocio
 
@@ -385,23 +391,29 @@ Restricciones:
 
 14. La IA no sustituye el juicio clínico del Profesional y sus respuestas se consideran borradores o apoyo técnico hasta que sean revisadas y aprobadas.
 
-15. Toda lectura, creación, modificación, archivado, bloqueo o consulta del expediente genera una entrada en el log de auditoría.
+15. El resumen terapéutico compartido para el Paciente puede ser redactado por el Profesional o generado como borrador por IA.
 
-16. Toda modificación de datos sensibles del expediente debe conservar trazabilidad: usuario que modificó, fecha y hora, campo modificado, valor anterior cuando aplique, valor nuevo cuando aplique y motivo de modificación.
+16. El resumen terapéutico compartido generado con apoyo de IA no se publica automáticamente.
 
-17. El Paciente no accede al expediente completo desde el portal en el MVP.
+17. El Paciente nunca ve borradores de IA. Solo ve contenido aprobado y publicado por el Profesional.
 
-18. El Paciente solo puede ver el resumen publicado conscientemente por el Profesional y otros elementos explícitamente autorizados.
+18. Toda lectura, creación, modificación, archivado, bloqueo o consulta del expediente genera una entrada en el log de auditoría.
 
-19. El expediente clínico es confidencial y debe tratarse bajo principio de mínimo privilegio.
+19. Toda modificación de datos sensibles del expediente debe conservar trazabilidad: usuario que modificó, fecha y hora, campo modificado, valor anterior cuando aplique, valor nuevo cuando aplique y motivo de modificación.
 
-20. Las notas de sesión forman parte del contenido clínico protegido del expediente.
+20. El Paciente no accede al expediente completo desde el portal en el MVP.
 
-21. Los resultados de pruebas psicológicas y de personalidad forman parte del contenido clínico protegido del expediente.
+21. El Paciente solo puede ver el resumen terapéutico compartido publicado conscientemente por el Profesional y otros elementos explícitamente autorizados.
 
-22. Los datos de espiritualidad, vida religiosa, creencias o vida moral del Paciente solo deben registrarse cuando hayan sido compartidos libremente por el Paciente y sean clínicamente pertinentes.
+22. El expediente clínico es confidencial y debe tratarse bajo principio de mínimo privilegio.
 
-23. Ningún dato clínico podrá utilizarse para estadísticas administrativas individualizadas, rankings de profesionales o reportes que permitan identificar directa o indirectamente al Paciente.
+23. Las notas de sesión forman parte del contenido clínico protegido del expediente.
+
+24. Los resultados de pruebas psicológicas y de personalidad forman parte del contenido clínico protegido del expediente.
+
+25. Los datos de espiritualidad, vida religiosa, creencias o vida moral del Paciente solo deben registrarse cuando hayan sido compartidos libremente por el Paciente y sean clínicamente pertinentes.
+
+26. Ningún dato clínico podrá utilizarse para estadísticas administrativas individualizadas, rankings de profesionales o reportes que permitan identificar directa o indirectamente al Paciente.
 
 ---
 
@@ -426,10 +438,78 @@ Restricciones:
 | `last_session_note_at` | Fecha de la última nota de sesión registrada |
 | `assessments_count` | Número de evaluaciones psicológicas asociadas |
 | `documents_count` | Número de documentos adjuntos asociados |
-| `patient_summary` | Resumen publicado para el portal del Paciente |
+| `patient_summary` | Resumen terapéutico compartido publicado para el portal del Paciente |
 | `patient_summary_status` | `no_publicado`, `publicado`, `despublicado` |
+| `patient_summary_source` | `manual`, `ia_asistida` |
+| `patient_summary_approved_by_professional_id` | Profesional que aprobó el resumen visible para el Paciente |
+| `patient_summary_published_at` | Fecha de publicación del resumen terapéutico compartido |
 | `status` | `activo`, `archivado`, `bloqueado` |
 | `archive_reason` | Motivo administrativo de archivado, si aplica |
 | `created_at` | Fecha de creación |
 | `updated_at` | Fecha de última modificación |
 | `last_clinical_activity_at` | Fecha del último acto clínico registrado |
+
+---
+
+## Entidades relacionadas
+
+El expediente clínico se relaciona con las siguientes entidades:
+
+| Entidad | Descripción |
+|---|---|
+| `session_notes` | Notas clínicas de sesión vinculadas al expediente |
+| `appointments` | Citas vinculadas al expediente |
+| `therapeutic_processes` | Procesos terapéuticos vinculados al expediente |
+| `psychological_assessments` | Evaluaciones psicológicas y resultados de pruebas |
+| `documents` | Documentos clínicos o administrativos asociados |
+| `consents` | Consentimientos informados asociados |
+| `ai_conceptualizations` | Borradores o conceptualizaciones asistidas por IA |
+| `patient_summaries` | Resúmenes terapéuticos compartidos publicados o despublicados para el Paciente |
+| `audit_logs` | Registros de auditoría relacionados con el expediente |
+
+---
+
+## Requisitos normativos
+
+- NOM-004-SSA3-2012: regula la elaboración, integración, uso, manejo, archivo, conservación, propiedad, titularidad y confidencialidad del expediente clínico.
+- La política de retención mínima será de 5 años contados a partir del último acto clínico registrado.
+- NOM-024-SSA3-2012: se toma como referencia para trazabilidad, seguridad, interoperabilidad y registro electrónico en sistemas de información de salud.
+- Ley Federal de Protección de Datos Personales en Posesión de los Particulares: los datos de salud, creencias religiosas, filosóficas o morales son datos personales sensibles y requieren tratamiento legítimo, informado, proporcional y seguro.
+- Aviso de privacidad de Catholizare: deberá informar las finalidades del tratamiento, datos tratados, derechos ARCO, transferencias, medidas de seguridad y uso de servicios tecnológicos relacionados.
+
+---
+
+## Dependencias
+
+- USERS-002 — gestión de usuarios, Pacientes y Profesionales.
+- AGENDA-008 — historial de citas y actos clínicos relacionados.
+- PROCESO-GENERAL-005 — procesos terapéuticos generales.
+- PROCESO-TCC-006 — procesos terapéuticos basados en TCC, si aplica.
+- PORTAL-011 — visualización limitada de información para el Paciente.
+- ADMIN-012 — estados administrativos mínimos, sin acceso clínico.
+- GPT-007 — asistente clínico con IA para conceptualización, tratamiento, planeación y resumen terapéutico compartido.
+- LOG-014 — auditoría y trazabilidad.
+- PRIV-015 — privacidad, consentimiento, anonimización y tratamiento de datos.
+- AI-016 — reglas de uso de inteligencia artificial clínica asistida, si aplica.
+- ANALYTICS-017 — analítica agregada y anonimizada.
+
+---
+
+## Fuera de alcance del MVP
+
+- Acceso del Paciente al expediente clínico completo.
+- Eliminación física de expedientes desde operación ordinaria.
+- Interoperabilidad completa con otros sistemas clínicos externos.
+- Firma electrónica avanzada.
+- Portal de descarga completa del expediente.
+- Exportación clínica completa en PDF.
+- Solicitudes ARCO automatizadas dentro del sistema.
+- Protocolos legales complejos de bloqueo o supresión.
+- Acceso administrativo al contenido clínico.
+- Uso libre o no supervisado de IA sobre expedientes completos.
+- Diagnóstico automático por IA.
+- Sustitución del juicio clínico del Profesional por IA.
+- Publicación automática de contenido generado por IA en el portal del Paciente.
+- Estadísticas clínicas individualizadas.
+- Rankings clínicos de Profesionales.
+- Compartir expediente entre organizaciones sin autorización explícita.
