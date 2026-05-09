@@ -489,6 +489,53 @@ Reglas:
 - El sistema debe registrar si el contenido guardado provino total o parcialmente de una sugerencia de IA.
 
 ---
+### F-11 Analizar evaluación psicológica por imagen
+
+El Profesional puede solicitar a la IA apoyo para analizar imágenes de hojas, inventarios, protocolos o resultados de evaluaciones psicológicas.
+
+Para iniciar esta función, el Profesional selecciona la acción:
+
+**“Analizar evaluación con IA”**
+
+El sistema permite cargar imágenes proporcionadas por el Profesional.
+
+Estas imágenes pueden incluir:
+
+- hoja de respuestas;
+- inventario contestado;
+- protocolo aplicado;
+- tabla de puntajes;
+- captura de resultados;
+- hoja escaneada;
+- fotografía de formato físico;
+- reporte externo autorizado.
+
+La IA puede apoyar en:
+
+- lectura de información visible;
+- extracción de respuestas;
+- organización de respuestas;
+- sumatoria de puntajes;
+- cálculo de subtotales;
+- identificación de escalas;
+- estructuración de resultados;
+- redacción de interpretación preliminar;
+- integración de resultados a conceptualización;
+- sugerencia de implicaciones terapéuticas.
+
+Restricciones:
+
+- La IA no sustituye el manual de la prueba.
+- La IA no sustituye el juicio clínico del Profesional.
+- La IA no emite diagnóstico definitivo.
+- La IA no debe inventar puntos de corte, baremos o normas.
+- El Profesional debe proporcionar puntos de corte, baremos o criterios de interpretación cuando sean necesarios.
+- El sistema no debe almacenar pruebas completas como banco de instrumentos.
+- Las imágenes se tratan como contenido clínico protegido.
+- Las imágenes deben usarse preferentemente como insumo temporal de análisis.
+- El resultado generado por IA es un borrador.
+- El Profesional debe revisar, corregir y aprobar cualquier resultado antes de incorporarlo al expediente.
+- Toda carga y análisis de imagen debe quedar registrada en auditoría.
 
 ## Restricciones de privacidad
 
@@ -534,6 +581,24 @@ Para planteamiento de tratamiento y planeación de sesiones, puede acceder a:
 - riesgos actuales;
 - directrices clínicas del Profesional;
 - modelo terapéutico seleccionado.
+
+Para análisis de evaluaciones psicológicas por imagen, GPT puede acceder a:
+
+- imágenes cargadas explícitamente por el Profesional para esa solicitud;
+- nombre de la prueba o inventario, si el Profesional lo proporciona;
+- instrucciones clínicas del Profesional;
+- puntos de corte o criterios proporcionados por el Profesional;
+- contexto clínico mínimo necesario;
+- resultados ya registrados, si aplica.
+
+GPT no puede acceder a:
+
+- banco interno de pruebas;
+- manuales completos;
+- reactivos almacenados como plantilla del sistema;
+- claves de corrección protegidas almacenadas como recurso interno;
+- imágenes de evaluaciones no autorizadas para la tarea;
+- evaluaciones de otros Pacientes.
 
 ### GPT no puede acceder a:
 
@@ -588,6 +653,7 @@ El sistema debe registrar qué tipo de información fue incluida en el paquete, 
    - plantear tratamiento;
    - planear sesión;
    - sugerir intervención.
+   - analizar evaluación psicológica por imagen;
 
 2. Sistema abre formulario de directrices clínicas.
 
@@ -604,3 +670,5 @@ El sistema debe registrar qué tipo de información fue incluida en el paquete, 
 8. Solo el contenido aprobado por el Profesional puede guardarse.
 
 9. Sistema registra auditoría del proceso.
+
+
