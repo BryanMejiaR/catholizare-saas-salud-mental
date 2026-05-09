@@ -1,14 +1,16 @@
-# EXPEDIENTE-003 — Expediente Clínico
+# GPT-007 — Asistente Clínico GPT
 
 ## Propósito
 
-Gestionar el expediente clínico digital de cada Paciente conforme a la NOM-004-SSA3-2012, integrando datos de identificación, consentimiento informado, estado del expediente, historia clínica psicológica, notas de sesión, procesos terapéuticos, evaluaciones psicológicas, documentos asociados y trazabilidad de acceso.
+Proveer al Profesional un asistente clínico de inteligencia artificial para apoyar tareas clínicas supervisadas, como prellenado de campos del proceso terapéutico, generación de borradores de conceptualización de caso, planteamiento del plan de tratamiento, planeación de sesiones, generación de borradores de resumen terapéutico compartido para el Paciente, organización de información clínica y sugerencias de líneas de intervención.
 
-El expediente clínico es el contenedor maestro de la información clínica del Paciente. Las notas clínicas, procesos terapéuticos, consentimientos, evaluaciones psicológicas, historial de citas y documentos adjuntos se almacenan como entidades relacionadas.
+El asistente opera únicamente como herramienta de apoyo. No diagnostica de forma definitiva, no decide, no sustituye el juicio clínico del Profesional y no guarda contenido clínico automáticamente.
 
-El módulo debe proteger la confidencialidad, integridad, disponibilidad y trazabilidad de la información clínica.
+Todo contenido generado por IA debe ser revisado, corregido y aprobado por el Profesional antes de incorporarse al expediente clínico, al proceso terapéutico, al plan de tratamiento, a la planeación de sesiones o al portal del Paciente.
 
-Administradores y Super Administradores no tienen acceso al contenido clínico del expediente en operación normal.
+El uso del asistente debe operar bajo consentimiento informado aplicable, principio de mínimo necesario, separación de datos de identificación, trazabilidad, auditoría y supervisión profesional.
+
+La IA debe ayudar al Profesional a pasar de información clínica dispersa a una formulación organizada del caso, identificando mecanismos originadores y mantenedores, y derivando de ellos objetivos, plan de tratamiento y planeación de sesiones.
 
 ---
 
@@ -16,262 +18,135 @@ Administradores y Super Administradores no tienen acceso al contenido clínico d
 
 | Actor | Interacción |
 |---|---|
-| Profesional | Crea, consulta, actualiza, archiva y da seguimiento al expediente clínico de sus Pacientes asignados. |
-| Paciente | No accede al expediente completo en el MVP; solo puede ver elementos explícitamente publicados para él en el portal. |
-| Administrador | No accede al contenido clínico; solo puede ver estados administrativos mínimos. |
-| Super Administrador | No accede al contenido clínico en operación normal; puede auditar actividad administrativa y técnica según permisos. |
-| IA clínica asistida | Puede apoyar al Profesional con borradores clínicos bajo consentimiento, control profesional, minimización de datos y auditoría. |
+| Profesional | Activa el asistente, proporciona directrices clínicas, revisa, edita, aprueba o descarta las sugerencias generadas. |
+| Paciente | No interactúa directamente con el asistente en el MVP. |
+| IA clínica asistida | Genera borradores clínicos bajo control del Profesional, con acceso limitado a un paquete clínico controlado. |
+| Sistema | Prepara el paquete clínico controlado, separa datos identificables, registra auditoría y gestiona el flujo de aceptación o rechazo. |
+
+---
+
+## Principio clínico rector
+
+El asistente clínico con IA no solo apoya la conceptualización del caso, sino también el planteamiento del tratamiento, la planeación de sesiones y la elaboración de resúmenes terapéuticos compartidos, siempre como borradores clínicos supervisados, revisados y aprobados por el Profesional.
+
+La conceptualización de caso es una formulación clínica que organiza la información del expediente, notas de sesiones, pruebas psicológicas y directrices del Profesional para identificar los mecanismos originadores y mantenedores de la problemática, explicar cómo se organiza el sufrimiento actual del Paciente y orientar el plan de tratamiento.
+
+La conceptualización no se reduce a diagnóstico ni a resumen narrativo. Su función principal es explicar:
+
+- qué originó o predispuso la vulnerabilidad clínica;
+- qué mantiene actualmente el problema;
+- qué recursos protegen al Paciente;
+- qué ruta terapéutica conviene seguir;
+- qué objetivos deben trabajarse;
+- qué intervenciones son coherentes con la formulación del caso.
 
 ---
 
 ## Funcionalidades
 
-### F-01 Crear expediente clínico
+### F-01 Activar asistente clínico
 
-El Profesional puede crear un expediente clínico para un Paciente asignado.
+El Profesional puede activar el asistente clínico con IA desde distintos contextos del sistema:
 
-El expediente debe quedar vinculado a:
+1. Desde un paso activo del proceso terapéutico, para recibir sugerencias de prellenado o apoyo en el desarrollo del paso.
+2. Desde el expediente clínico, seleccionando la acción **“Conceptualizar caso con IA”**.
+3. Desde una conceptualización aprobada o en borrador, seleccionando la acción **“Plantear tratamiento con IA”**.
+4. Desde un plan de tratamiento aprobado o en borrador, seleccionando la acción **“Planear sesión con IA”**.
+5. Desde una nota de sesión o seguimiento, para apoyar la continuidad clínica, siempre bajo revisión profesional.
+6. Desde el expediente o portal profesional, seleccionando la acción **“Generar resumen terapéutico para el Paciente con IA”**.
 
-- Paciente;
-- Profesional responsable principal;
-- organización, si aplica;
-- fecha de creación;
-- estado inicial del expediente;
-- consentimiento informado;
-- historial de citas;
-- procesos terapéuticos relacionados;
-- notas de sesión relacionadas;
-- evaluaciones psicológicas relacionadas;
-- documentos adjuntos relacionados.
+En todos los casos, el Profesional conserva el control clínico del contenido generado.
 
 Restricciones:
 
-- Un Paciente puede tener un expediente activo principal dentro de una organización.
-- El expediente solo puede ser creado por un Profesional autorizado.
-- La creación del expediente debe quedar registrada en auditoría.
-- El expediente no debe ser visible para Administradores ni Super Administradores en su contenido clínico.
+- El asistente solo puede ser activado por un Profesional autorizado.
+- El Paciente no interactúa directamente con el asistente.
+- La IA no guarda automáticamente contenido clínico.
+- La IA no modifica expedientes, procesos, notas ni planes por sí misma.
+- La IA no publica automáticamente contenido en el portal del Paciente.
+- Toda activación debe quedar registrada en auditoría.
 
 ---
 
-### F-02 Datos de identificación del Paciente
+### F-02 Escribir directrices clínicas para IA
 
-El expediente debe registrar datos de identificación y contacto suficientes para la correcta integración clínica, administrativa y legal del expediente, conforme a la NOM-004-SSA3-2012, la política interna de Catholizare y el aviso de privacidad.
+Antes de ejecutar una función clínica asistida por IA, el sistema debe permitir que el Profesional agregue directrices clínicas, comentarios, observaciones o énfasis terapéuticos.
 
-Campos mínimos:
+Estas directrices pueden incluir:
 
-- Nombre completo.
-- Fecha de nacimiento.
-- Edad.
-- Sexo.
-- Teléfono de contacto.
-- Correo electrónico.
-- Domicilio o lugar de residencia, según política interna.
-- Contacto de emergencia.
-- Motivo de consulta inicial.
+- aspectos observados durante la entrevista clínica;
+- hipótesis iniciales del Profesional;
+- elementos relevantes del lenguaje verbal o no verbal del Paciente;
+- dudas clínicas;
+- posibles contradicciones detectadas;
+- factores espirituales, familiares, relacionales o personales relevantes;
+- temas que el Profesional desea explorar con mayor profundidad;
+- advertencias sobre información que debe interpretarse con prudencia;
+- modelo terapéutico a utilizar, por ejemplo TCC, sistémico, integrativo, humanista, psicodinámico o antropológico-personalista;
+- indicaciones sobre el tono clínico deseado;
+- límites sobre lo que la IA no debe asumir;
+- objetivos concretos de la consulta a IA.
 
-Campos condicionales:
+Ejemplos de directrices:
 
-- Nombre y teléfono del responsable legal, obligatorio para menores de edad o personas que requieran representación.
-- Datos del familiar o contacto de emergencia.
-- Número de seguridad social, solo si aplica y si la finalidad está justificada.
-- Datos fiscales, solo si son necesarios para procesos administrativos o facturación y pertenecen al módulo correspondiente.
+- “El paciente presenta alta resistencia al cambio.”
+- “Enfocar la conceptualización en el eje de creencias nucleares de abandono.”
+- “Distinguir miedo realista de creencia de incompetencia.”
+- “Explorar mecanismos mantenedores relacionados con evitación y autocrítica.”
+- “Preparar un plan de tratamiento desde TCC.”
+- “Integrar la dimensión espiritual solo como factor protector, no como explicación simplista del problema.”
+- “Evitar lenguaje moralizante.”
+- “Mantener enfoque clínico y antropológico-personalista.”
+- “Redactar un resumen para el Paciente en lenguaje claro y esperanzador, sin revelar hipótesis internas.”
+
+Las directrices del Profesional forman parte del paquete clínico controlado para esa solicitud.
+
+---
+
+### F-03 Prellenar campos del proceso terapéutico
+
+Dentro de un paso activo del proceso terapéutico, el Profesional puede activar el asistente GPT para recibir sugerencias de prellenado.
+
+El asistente puede trabajar con:
+
+- tipo de proceso terapéutico;
+- modelo terapéutico utilizado;
+- paso actual;
+- campos del paso actual;
+- pasos previos completados del mismo proceso;
+- instrucciones previas del Profesional;
+- directrices clínicas agregadas para esa solicitud.
+
+La IA puede sugerir contenido para:
+
+- hipótesis clínicas;
+- objetivos del paso;
+- descripción de avances;
+- preguntas clínicas;
+- tareas terapéuticas;
+- observaciones estructuradas;
+- posibles intervenciones;
+- criterios de seguimiento.
+
+Las sugerencias se presentan como texto editable en la interfaz, visualmente diferenciadas del contenido validado, por ejemplo con etiqueta **“Sugerencia GPT”**.
+
+El Profesional puede:
+
+- aceptar la sugerencia tal como está;
+- editar la sugerencia antes de guardarla;
+- rechazarla completamente;
+- descartarla sin guardar.
 
 Restricciones:
 
-- Los datos de identificación no deben enviarse a servicios de IA salvo que exista una finalidad explícita y justificada.
-- Los datos de identificación no deben mostrarse en reportes agregados.
-- Toda modificación de datos de identificación debe quedar registrada en auditoría.
+- Solo el Profesional puede guardar contenido en los campos del proceso terapéutico.
+- No existe guardado automático desde GPT.
+- Una vez guardado por el Profesional, el contenido tiene carácter clínico y queda registrado con timestamp e ID del Profesional.
+- El sistema debe conservar trazabilidad de si el contenido guardado tuvo origen en una sugerencia de IA.
 
 ---
 
-### F-03 Consentimiento informado
-
-El expediente debe registrar el consentimiento informado antes del inicio del tratamiento psicológico.
-
-Campos mínimos a registrar:
-
-- estado del consentimiento;
-- fecha de firma;
-- modalidad: físico, digital o pendiente;
-- profesional que obtuvo el consentimiento;
-- referencia al documento físico o digital;
-- fecha de carga del documento, si aplica;
-- usuario que registró el consentimiento.
-
-El sistema puede almacenar el documento digitalizado en PDF o imagen, o registrar únicamente la confirmación de que fue firmado en físico.
-
-Sin consentimiento informado registrado, el sistema no permite crear notas clínicas ni iniciar procesos terapéuticos, salvo registro de atención inicial, orientación previa, urgencia o excepción justificada conforme a política interna.
-
-Toda creación, carga, modificación o sustitución del consentimiento informado debe quedar registrada en auditoría.
-
----
-
-### F-04 Historia clínica psicológica
-
-El Profesional puede registrar y actualizar la historia clínica psicológica del Paciente.
-
-La historia clínica puede incluir:
-
-- motivo de consulta;
-- historia del problema actual;
-- antecedentes psicológicos;
-- antecedentes psiquiátricos;
-- antecedentes médicos relevantes;
-- antecedentes familiares relevantes;
-- antecedentes de tratamiento psicológico o psiquiátrico;
-- antecedentes de medicación, si el Paciente los reporta;
-- contexto familiar;
-- contexto relacional;
-- contexto laboral o académico;
-- contexto espiritual o religioso, cuando el Paciente lo comparta y sea clínicamente pertinente;
-- factores de riesgo;
-- factores protectores;
-- recursos personales;
-- observaciones clínicas iniciales.
-
-Restricciones:
-
-- La historia clínica pertenece al contenido clínico protegido.
-- No es visible para Administradores ni Super Administradores.
-- No debe utilizarse en reportes administrativos.
-- No debe enviarse completa a IA de forma libre o automática.
-- Toda modificación debe conservar trazabilidad.
-
----
-
-### F-05 Notas de sesión
-
-El Profesional puede registrar notas clínicas de sesión vinculadas al expediente.
-
-Cada nota de sesión debe estar vinculada a:
-
-- expediente;
-- Paciente;
-- Profesional;
-- cita, si aplica;
-- proceso terapéutico, si aplica;
-- fecha de sesión;
-- fecha de creación de la nota;
-- usuario que creó la nota;
-- fecha de última modificación.
-
-La nota de sesión puede incluir:
-
-- resumen clínico de la sesión;
-- síntomas o dificultades trabajadas;
-- intervenciones realizadas;
-- respuesta del Paciente;
-- tareas o acuerdos terapéuticos;
-- evolución observada;
-- riesgos identificados;
-- plan para la siguiente sesión;
-- observaciones clínicas relevantes.
-
-Restricciones:
-
-- Las notas de sesión son contenido clínico protegido.
-- No son visibles para el Paciente en el MVP, salvo que el Profesional publique explícitamente un resumen terapéutico compartido para el portal.
-- No son visibles para Administradores ni Super Administradores.
-- Las notas no se eliminan físicamente desde la operación ordinaria.
-- Las modificaciones deben conservar historial, fecha, usuario y motivo de edición.
-- Si una nota se usa para conceptualización con IA, debe quedar registrado qué nota o resumen de nota fue incluido.
-
----
-
-### F-06 Evaluaciones psicológicas y documentos asociados
-
-El Profesional puede vincular al expediente evaluaciones psicológicas, resultados de pruebas, documentos adjuntos y archivos clínicamente relevantes.
-
-Elementos permitidos:
-
-- resultados de pruebas psicológicas;
-- resultados de pruebas de personalidad;
-- cuestionarios clínicos;
-- documentos firmados;
-- consentimiento informado;
-- reportes externos;
-- referencias médicas o psicológicas;
-- documentos aportados por el Paciente;
-- archivos clínicos relevantes.
-
-Restricciones:
-
-- Los resultados de pruebas psicológicas son contenido clínico protegido.
-- No deben mostrarse en reportes administrativos.
-- No deben enviarse a IA salvo dentro de una función clínica explícita y autorizada.
-- El sistema debe registrar quién cargó, modificó o consultó cada documento.
-- Los documentos adjuntos deben cumplir las políticas de privacidad, almacenamiento y seguridad del sistema.
-
----
-
-### F-07 Archivar expediente
-
-El Profesional puede archivar un expediente cuando el proceso terapéutico ha concluido o cuando el expediente ya no está activo.
-
-El archivado es lógico: el expediente sigue existiendo y es consultable conforme a permisos, pero no aparece en la lista activa.
-
-No se permite eliminar expedientes desde la operación ordinaria del sistema.
-
-La política de retención mínima será de 5 años contados a partir del último acto clínico registrado, conforme a la NOM-004-SSA3-2012.
-
-Cualquier plazo adicional para menores de edad, procesos legales, solicitudes ARCO, bloqueo, conservación especial o supresión deberá definirse en la política de privacidad y en el procedimiento legal correspondiente.
-
-Campos mínimos de archivado:
-
-- fecha de archivado;
-- usuario que archiva;
-- motivo administrativo de archivado;
-- estado final del expediente;
-- fecha del último acto clínico registrado.
-
----
-
-### F-08 Publicar resumen terapéutico compartido para el Paciente
-
-El Profesional puede redactar y publicar un resumen terapéutico compartido visible para el Paciente en su portal.
-
-El resumen es un campo de texto libre redactado conscientemente para el Paciente.
-
-No es una copia automática del expediente clínico.
-
-No sustituye las notas clínicas.
-
-No sustituye la conceptualización interna del caso.
-
-El resumen terapéutico compartido puede ser redactado manualmente por el Profesional o generado como borrador con apoyo de GPT-007.
-
-Cuando el resumen sea generado con apoyo de IA, el sistema debe tratarlo como borrador. El Profesional debe revisarlo, corregirlo y aprobarlo antes de publicarlo en el portal del Paciente.
-
-El Paciente nunca ve borradores generados por IA. Solo ve contenido aprobado y publicado por el Profesional.
-
-El resumen puede utilizarse para:
-
-- acuerdos generales de seguimiento;
-- pautas psicoeducativas;
-- recordatorios terapéuticos;
-- objetivos generales del proceso;
-- tareas o indicaciones no sensibles;
-- recursos personales identificados;
-- recursos espirituales o comunitarios, cuando sean clínicamente pertinentes;
-- próximos pasos del proceso;
-- indicaciones no sensibles que el Profesional decida compartir.
-
-Restricciones:
-
-- No debe incluir notas internas del terapeuta.
-- No debe incluir hipótesis clínicas no comunicadas al Paciente.
-- No debe incluir conceptualizaciones internas completas.
-- No debe incluir diagnósticos no explicados previamente al Paciente.
-- No debe incluir información de terceros.
-- No debe incluir interpretaciones que puedan dañar innecesariamente al Paciente fuera de contexto.
-- No debe publicar automáticamente contenido generado por IA.
-- No sustituye las notas clínicas ni el expediente.
-- Debe poder editarse, actualizarse o despublicarse.
-- Toda publicación, edición o despublicación debe quedar registrada en auditoría.
-
----
-
-### F-09 Conceptualización asistida por IA
+### F-04 Conceptualizar caso con IA
 
 El Profesional puede solicitar apoyo de IA para generar un borrador de conceptualización clínica del caso.
 
@@ -287,57 +162,132 @@ La IA trabajará con tres fuentes controladas:
 2. **Notas de sesiones previas**, cuando la conceptualización se realice después de la primera sesión o en una etapa posterior del proceso terapéutico.
 3. **Directrices clínicas agregadas por el Profesional**, incluyendo observaciones de entrevista, hipótesis iniciales, dudas clínicas, énfasis terapéuticos o indicaciones sobre el modelo de intervención.
 
-Para esta función, el término “expediente” debe entenderse como:
+Para conceptualización asistida por IA, el término “expediente” debe entenderse como:
 
 **expediente clínico + notas de sesiones disponibles y autorizadas + directrices clínicas del Profesional.**
 
-El paquete clínico para IA puede incluir:
+El paquete clínico para conceptualización puede incluir:
 
 - motivo de consulta;
 - historia del problema;
-- antecedentes relevantes;
+- antecedentes personales relevantes;
+- antecedentes familiares relevantes;
+- antecedentes psicológicos;
+- antecedentes psiquiátricos;
+- antecedentes médicos relevantes;
 - diagnósticos previos;
 - resultados de pruebas psicológicas;
 - resultados de pruebas de personalidad;
 - notas de sesiones seleccionadas o resumidas;
 - evolución observada durante el proceso;
+- síntomas emocionales;
+- síntomas cognitivos;
+- síntomas conductuales;
+- síntomas fisiológicos;
 - factores de riesgo;
 - factores protectores;
-- objetivos terapéuticos;
+- objetivos terapéuticos ya definidos;
 - contexto familiar;
 - contexto relacional;
+- contexto laboral o académico;
 - contexto espiritual o religioso, cuando sea clínicamente pertinente y haya sido compartido por el Paciente;
 - directrices, comentarios y observaciones agregadas por el Profesional.
 
-La IA puede generar:
+La IA debe generar una conceptualización clínica estructurada que incluya:
 
-- resumen clínico del caso;
-- hipótesis de conceptualización;
-- hipótesis diagnósticas diferenciales;
-- mecanismos originadores;
-- mecanismos mantenedores;
-- factores predisponentes, precipitantes, mantenedores y protectores;
-- creencias nucleares o esquemas relevantes;
-- hipótesis funcional del problema;
-- objetivos terapéuticos sugeridos;
-- posibles líneas de intervención;
-- preguntas clínicas pendientes;
-- elementos que conviene explorar en próximas sesiones.
+- historia sintética del caso;
+- información clínica relevante;
+- motivo de consulta;
+- descripción del problema actual;
+- síntomas emocionales, cognitivos, conductuales y fisiológicos;
+- antecedentes relevantes;
+- resultados relevantes de pruebas psicológicas;
+- hipótesis diagnósticas, cuando aplique;
+- factores precipitantes;
+- mecanismos originadores de la problemática;
+- mecanismos mantenedores actuales;
+- formulación transversal del problema;
+- formulación longitudinal del problema;
+- creencias centrales, creencias intermedias y pensamientos automáticos relevantes;
+- patrones conductuales que mantienen el problema;
+- intentos de solución que mantienen la problemática;
+- factores protectores;
+- recursos psicológicos, relacionales y espirituales;
+- hipótesis de trabajo;
+- lista de problemas;
+- objetivos terapéuticos;
+- plan de tratamiento sugerido;
+- intervenciones sugeridas;
+- obstáculos previsibles;
+- criterios de monitoreo y progreso.
 
 Restricciones:
 
 - La IA no emite diagnóstico definitivo.
 - La IA no sustituye el juicio clínico del Profesional.
 - La IA no accede libremente al expediente completo.
-- La IA solo trabaja con el paquete clínico autorizado, las notas de sesiones permitidas y las directrices agregadas por el Profesional.
+- La IA solo trabaja con el paquete clínico controlado, las notas de sesiones permitidas y las directrices agregadas por el Profesional.
 - La IA no guarda automáticamente sus resultados en el expediente.
+- El resultado generado por IA se considera borrador clínico.
 - El Profesional debe revisar, corregir y aprobar cualquier contenido antes de incorporarlo al expediente.
 - Toda solicitud de conceptualización asistida por IA debe quedar registrada en auditoría.
-- El sistema debe registrar qué datos fueron enviados a la IA, qué notas de sesión fueron incluidas, qué directrices agregó el Profesional, qué usuario solicitó el análisis, fecha, hora y resultado generado.
+- El sistema debe registrar qué datos fueron enviados a la IA, qué notas de sesión fueron incluidas, qué directrices agregó el Profesional, qué usuario solicitó el análisis, fecha, hora, modelo utilizado y resultado generado.
 
 ---
 
-### F-10 Guardar conceptualización aprobada
+### F-05 Identificar mecanismos originadores y mantenedores
+
+Dentro de la conceptualización asistida por IA, el sistema debe orientar al asistente para distinguir explícitamente entre mecanismos originadores y mecanismos mantenedores.
+
+Los mecanismos originadores ayudan a explicar cómo se formó la vulnerabilidad clínica.
+
+Pueden incluir:
+
+- experiencias tempranas significativas;
+- heridas afectivas;
+- experiencias de desprotección;
+- invalidación emocional;
+- estilos de apego;
+- aprendizajes familiares;
+- modelos de relación;
+- esquemas tempranos;
+- creencias centrales;
+- experiencias traumáticas;
+- historia espiritual o moral relevante;
+- eventos vitales formativos;
+- patrones de afrontamiento aprendidos.
+
+Los mecanismos mantenedores explican por qué el problema sigue activo en el presente.
+
+Pueden incluir:
+
+- pensamientos automáticos;
+- creencias nucleares activadas;
+- evitación;
+- rumiación;
+- autocrítica;
+- baja activación conductual;
+- inhibición emocional;
+- procrastinación;
+- conflictos relacionales;
+- falta de límites;
+- ambientes laborales, familiares o conyugales invalidantes;
+- síntomas fisiológicos;
+- reforzamiento negativo;
+- intentos de solución que mantienen el problema;
+- dinámicas espirituales mal integradas, como culpa rígida, falsa resignación, escrupulosidad o evitación espiritual.
+
+Restricciones:
+
+- La IA debe diferenciar entre hechos reportados, inferencias clínicas e hipótesis.
+- La IA debe evitar afirmar como hecho aquello que solo es hipótesis.
+- La IA debe señalar qué información falta para fortalecer la conceptualización.
+- La IA debe evitar explicaciones reduccionistas, moralizantes o espiritualmente simplistas.
+- La IA debe mantener una perspectiva clínica respetuosa de la dignidad del Paciente.
+
+---
+
+### F-06 Guardar conceptualización aprobada
 
 Después de recibir un borrador de conceptualización asistida por IA, el Profesional puede:
 
@@ -361,155 +311,364 @@ Restricciones:
 
 ---
 
-## Reglas de negocio
+### F-07 Plantear tratamiento con IA
 
-1. Un expediente pertenece a exactamente un Paciente.
+El Profesional puede solicitar apoyo de IA para generar un borrador de plan de tratamiento a partir de la conceptualización clínica del caso.
 
-2. El expediente puede tener un Profesional responsable principal y, si el sistema lo permite, profesionales autorizados adicionales.
+Para iniciar esta función, el Profesional selecciona la acción:
 
-3. Los expedientes no se eliminan desde la operación ordinaria del sistema; solo pueden archivarse, bloquearse o conservarse conforme a política interna y normatividad aplicable.
+**“Plantear tratamiento con IA”**
 
-4. La política de retención mínima será de 5 años contados a partir del último acto clínico registrado, conforme a la NOM-004-SSA3-2012.
+El plan de tratamiento debe derivarse de los mecanismos identificados en la conceptualización.
 
-5. Cualquier plazo adicional para menores de edad, procedimientos legales, responsabilidades profesionales o solicitudes ARCO deberá definirse en la política de privacidad y procedimiento legal correspondiente.
+La IA puede trabajar con un paquete clínico controlado que incluya:
 
-6. El contenido del expediente no es accesible para Administradores ni Super Administradores en operación normal.
+- expediente clínico autorizado;
+- motivo de consulta;
+- historia del problema;
+- conceptualización del caso aprobada o en borrador;
+- mecanismos originadores identificados;
+- mecanismos mantenedores identificados;
+- diagnósticos previos o hipótesis diagnósticas;
+- resultados de pruebas psicológicas;
+- resultados de pruebas de personalidad;
+- notas de sesiones disponibles y autorizadas;
+- evolución del proceso, si aplica;
+- factores de riesgo;
+- factores protectores;
+- objetivos terapéuticos ya definidos;
+- directrices clínicas agregadas por el Profesional;
+- modelo terapéutico elegido por el Profesional.
 
-7. El Administrador solo puede ver estados administrativos mínimos, como expediente activo, archivado o bloqueado.
+La IA puede proponer:
 
-8. El Super Administrador no accede al contenido clínico del expediente por soporte ordinario.
+- objetivo general del tratamiento;
+- objetivos específicos;
+- objetivos instrumentales;
+- medios de evaluación;
+- prioridades clínicas;
+- fases del tratamiento;
+- intervenciones recomendadas;
+- técnicas sugeridas;
+- tareas terapéuticas;
+- criterios de avance;
+- posibles obstáculos;
+- indicadores de riesgo;
+- indicadores de derivación o supervisión;
+- monitoreo de progreso;
+- criterios para ajustar el plan.
 
-9. Cualquier acceso excepcional al contenido clínico deberá operar bajo protocolo de emergencia o soporte autorizado, con justificación obligatoria, autorización previa, mínimo privilegio, registro en auditoría y notificación interna conforme a política de privacidad.
+Restricciones:
 
-10. Los servicios de IA no tendrán acceso libre, permanente o indiscriminado al expediente clínico completo.
-
-11. Cuando el Profesional seleccione “Conceptualizar caso con IA”, el sistema podrá enviar a la IA un paquete clínico controlado, limitado a los datos necesarios para la tarea solicitada.
-
-12. Antes de ejecutar el análisis con IA, el Profesional podrá agregar directrices clínicas, comentarios de entrevista, hipótesis iniciales, dudas o énfasis terapéuticos para orientar el trabajo de la IA.
-
-13. Para conceptualización asistida por IA, “expediente” significa expediente clínico + notas de sesiones disponibles y autorizadas + directrices clínicas del Profesional.
-
-14. La IA no sustituye el juicio clínico del Profesional y sus respuestas se consideran borradores o apoyo técnico hasta que sean revisadas y aprobadas.
-
-15. El resumen terapéutico compartido para el Paciente puede ser redactado por el Profesional o generado como borrador por IA.
-
-16. El resumen terapéutico compartido generado con apoyo de IA no se publica automáticamente.
-
-17. El Paciente nunca ve borradores de IA. Solo ve contenido aprobado y publicado por el Profesional.
-
-18. Toda lectura, creación, modificación, archivado, bloqueo o consulta del expediente genera una entrada en el log de auditoría.
-
-19. Toda modificación de datos sensibles del expediente debe conservar trazabilidad: usuario que modificó, fecha y hora, campo modificado, valor anterior cuando aplique, valor nuevo cuando aplique y motivo de modificación.
-
-20. El Paciente no accede al expediente completo desde el portal en el MVP.
-
-21. El Paciente solo puede ver el resumen terapéutico compartido publicado conscientemente por el Profesional y otros elementos explícitamente autorizados.
-
-22. El expediente clínico es confidencial y debe tratarse bajo principio de mínimo privilegio.
-
-23. Las notas de sesión forman parte del contenido clínico protegido del expediente.
-
-24. Los resultados de pruebas psicológicas y de personalidad forman parte del contenido clínico protegido del expediente.
-
-25. Los datos de espiritualidad, vida religiosa, creencias o vida moral del Paciente solo deben registrarse cuando hayan sido compartidos libremente por el Paciente y sean clínicamente pertinentes.
-
-26. Ningún dato clínico podrá utilizarse para estadísticas administrativas individualizadas, rankings de profesionales o reportes que permitan identificar directa o indirectamente al Paciente.
-
----
-
-## Datos que maneja
-
-| Campo | Descripción |
-|---|---|
-| `expediente_id` | Identificador único del expediente |
-| `patient_id` | Paciente al que pertenece el expediente |
-| `primary_professional_id` | Profesional responsable principal del expediente |
-| `authorized_professional_ids` | Profesionales autorizados adicionales, si aplica |
-| `organization_id` | Organización a la que pertenece el expediente, si aplica |
-| `identification_data` | Datos de identificación y contacto del Paciente |
-| `clinical_history` | Historia clínica psicológica |
-| `initial_consultation_reason` | Motivo de consulta inicial |
-| `clinical_status` | Estado clínico-administrativo del expediente |
-| `consent_status` | `pendiente`, `firmado_fisico`, `firmado_digital`, `excepcion_justificada` |
-| `consent_date` | Fecha de firma del consentimiento |
-| `consent_obtained_by_user_id` | Usuario/profesional que obtuvo el consentimiento |
-| `consent_document_id` | Documento asociado al consentimiento, si aplica |
-| `session_notes_count` | Número de notas de sesión asociadas |
-| `last_session_note_at` | Fecha de la última nota de sesión registrada |
-| `assessments_count` | Número de evaluaciones psicológicas asociadas |
-| `documents_count` | Número de documentos adjuntos asociados |
-| `patient_summary` | Resumen terapéutico compartido publicado para el portal del Paciente |
-| `patient_summary_status` | `no_publicado`, `publicado`, `despublicado` |
-| `patient_summary_source` | `manual`, `ia_asistida` |
-| `patient_summary_approved_by_professional_id` | Profesional que aprobó el resumen visible para el Paciente |
-| `patient_summary_published_at` | Fecha de publicación del resumen terapéutico compartido |
-| `status` | `activo`, `archivado`, `bloqueado` |
-| `archive_reason` | Motivo administrativo de archivado, si aplica |
-| `created_at` | Fecha de creación |
-| `updated_at` | Fecha de última modificación |
-| `last_clinical_activity_at` | Fecha del último acto clínico registrado |
+- El plan no puede ser genérico.
+- Cada intervención sugerida debe vincularse con uno o más mecanismos identificados en la conceptualización.
+- La IA no define el tratamiento de forma autónoma.
+- La IA no prescribe intervenciones de manera obligatoria.
+- El plan generado es un borrador clínico.
+- El Profesional debe revisar, corregir y aprobar el plan antes de guardarlo.
+- Toda generación de plan de tratamiento con IA debe quedar registrada en auditoría.
 
 ---
 
-## Entidades relacionadas
+### F-08 Planear sesión con IA
 
-El expediente clínico se relaciona con las siguientes entidades:
+El Profesional puede solicitar apoyo de IA para planear una sesión individual o una secuencia de sesiones.
 
-| Entidad | Descripción |
-|---|---|
-| `session_notes` | Notas clínicas de sesión vinculadas al expediente |
-| `appointments` | Citas vinculadas al expediente |
-| `therapeutic_processes` | Procesos terapéuticos vinculados al expediente |
-| `psychological_assessments` | Evaluaciones psicológicas y resultados de pruebas |
-| `documents` | Documentos clínicos o administrativos asociados |
-| `consents` | Consentimientos informados asociados |
-| `ai_conceptualizations` | Borradores o conceptualizaciones asistidas por IA |
-| `patient_summaries` | Resúmenes terapéuticos compartidos publicados o despublicados para el Paciente |
-| `audit_logs` | Registros de auditoría relacionados con el expediente |
+Para iniciar esta función, el Profesional selecciona una de las siguientes acciones:
+
+**“Planear próxima sesión con IA”**
+
+o
+
+**“Planear secuencia de sesiones con IA”**
+
+La planeación debe derivarse de:
+
+- conceptualización clínica;
+- mecanismos mantenedores prioritarios;
+- plan de tratamiento;
+- notas de sesiones previas;
+- avances o dificultades recientes;
+- tareas asignadas previamente;
+- dificultades observadas por el Profesional;
+- directrices clínicas del Profesional.
+
+La IA puede generar:
+
+- objetivo de la sesión;
+- mecanismo clínico a trabajar;
+- estructura sugerida de la sesión;
+- preguntas clínicas;
+- técnica principal;
+- técnica secundaria;
+- tarea para casa;
+- posible resistencia u obstáculo;
+- criterio para evaluar avance;
+- indicaciones de seguimiento;
+- recomendaciones para ajustar el plan;
+- sugerencias de integración prudente entre psicología y vida espiritual, cuando aplique.
+
+El Profesional puede agregar instrucciones como:
+
+- “Centrar la sesión en reestructuración cognitiva.”
+- “Trabajar resistencia al cambio.”
+- “Explorar vínculo entre culpa y espiritualidad.”
+- “Preparar una sesión TCC sobre pensamientos automáticos.”
+- “Planear una sesión de seguimiento después de recaída.”
+- “Proponer preguntas clínicas para evaluar avance.”
+- “Evitar lenguaje moralizante.”
+- “Mantener enfoque antropológico-personalista.”
+- “Trabajar activación conductual.”
+- “Diseñar un experimento conductual.”
+- “Preparar una sesión para revisar tareas incumplidas sin confrontación agresiva.”
+
+Restricciones:
+
+- La IA no conduce la sesión.
+- La IA no interactúa directamente con el Paciente.
+- La IA no sustituye la prudencia clínica del Profesional.
+- El Profesional puede aceptar, editar, rechazar o descartar la planeación sugerida.
+- La planeación generada no se guarda automáticamente en el expediente.
+- Si se guarda, queda registrada como contenido revisado y aprobado por el Profesional.
+- Toda planeación generada por IA debe quedar vinculada al expediente, proceso terapéutico o plan de tratamiento correspondiente, según aplique.
 
 ---
 
-## Requisitos normativos
+### F-09 Sugerir intervenciones clínicas
 
-- NOM-004-SSA3-2012: regula la elaboración, integración, uso, manejo, archivo, conservación, propiedad, titularidad y confidencialidad del expediente clínico.
-- La política de retención mínima será de 5 años contados a partir del último acto clínico registrado.
-- NOM-024-SSA3-2012: se toma como referencia para trazabilidad, seguridad, interoperabilidad y registro electrónico en sistemas de información de salud.
-- Ley Federal de Protección de Datos Personales en Posesión de los Particulares: los datos de salud, creencias religiosas, filosóficas o morales son datos personales sensibles y requieren tratamiento legítimo, informado, proporcional y seguro.
-- Aviso de privacidad de Catholizare: deberá informar las finalidades del tratamiento, datos tratados, derechos ARCO, transferencias, medidas de seguridad y uso de servicios tecnológicos relacionados.
+El Profesional puede solicitar a la IA sugerencias de intervención clínica para un caso, un mecanismo específico o una sesión determinada.
+
+La IA puede sugerir intervenciones relacionadas con:
+
+- activación conductual;
+- reestructuración cognitiva;
+- diálogo socrático;
+- experimentos conductuales;
+- exposición, cuando aplique;
+- resolución de problemas;
+- psicoeducación;
+- regulación emocional;
+- clarificación de valores;
+- trabajo con límites;
+- prevención de recaídas;
+- fortalecimiento de factores protectores;
+- integración prudente de recursos espirituales;
+- derivación o supervisión, cuando se identifiquen indicadores de riesgo.
+
+Restricciones:
+
+- Las sugerencias deben ser congruentes con el modelo terapéutico elegido por el Profesional.
+- Las sugerencias deben vincularse con la conceptualización del caso.
+- La IA debe evitar recomendaciones fuera del alcance profesional del usuario.
+- La IA debe señalar cuando una situación requiere supervisión, derivación, evaluación psiquiátrica o atención urgente.
+- Las sugerencias no son instrucciones obligatorias.
 
 ---
 
-## Dependencias
+### F-10 Generar resumen terapéutico compartido para el Paciente
 
-- USERS-002 — gestión de usuarios, Pacientes y Profesionales.
-- AGENDA-008 — historial de citas y actos clínicos relacionados.
-- PROCESO-GENERAL-005 — procesos terapéuticos generales.
-- PROCESO-TCC-006 — procesos terapéuticos basados en TCC, si aplica.
-- PORTAL-011 — visualización limitada de información para el Paciente.
-- ADMIN-012 — estados administrativos mínimos, sin acceso clínico.
-- GPT-007 — asistente clínico con IA para conceptualización, tratamiento, planeación y resumen terapéutico compartido.
-- LOG-014 — auditoría y trazabilidad.
-- PRIV-015 — privacidad, consentimiento, anonimización y tratamiento de datos.
-- AI-016 — reglas de uso de inteligencia artificial clínica asistida, si aplica.
-- ANALYTICS-017 — analítica agregada y anonimizada.
+El Profesional puede solicitar a la IA un borrador de resumen terapéutico compartido para el Paciente.
+
+Este resumen está destinado a ser visible en el Portal del Paciente, por lo que debe estar redactado en lenguaje claro, prudente, respetuoso y clínicamente responsable.
+
+Para iniciar esta función, el Profesional selecciona la acción:
+
+**“Generar resumen terapéutico para el Paciente con IA”**
+
+La IA puede trabajar con un paquete clínico controlado que incluya:
+
+- objetivos terapéuticos comunicables;
+- acuerdos generales de seguimiento;
+- tareas o indicaciones generales;
+- pautas psicoeducativas;
+- recursos personales identificados;
+- recursos espirituales o comunitarios, cuando sean clínicamente pertinentes;
+- avances que el Profesional considere oportuno comunicar;
+- próximos pasos del proceso;
+- directrices específicas del Profesional sobre qué debe comunicarse y qué debe omitirse.
+
+La IA puede generar:
+
+- resumen terapéutico compartido;
+- recordatorios terapéuticos;
+- pautas psicoeducativas;
+- acuerdos de seguimiento;
+- próximos pasos;
+- mensaje de orientación para el Paciente;
+- recomendaciones generales no sensibles.
+
+Restricciones:
+
+- No debe incluir notas internas del terapeuta.
+- No debe incluir hipótesis clínicas no comunicadas al Paciente.
+- No debe incluir conceptualización interna completa.
+- No debe incluir diagnósticos no explicados previamente.
+- No debe incluir información de terceros.
+- No debe incluir resultados completos de pruebas psicológicas.
+- No debe incluir interpretaciones que puedan dañar o confundir al Paciente fuera del contexto terapéutico.
+- No debe usar lenguaje moralizante.
+- No se publica automáticamente.
+- El resultado se considera borrador.
+- El Profesional debe revisar, corregir y aprobar el texto antes de publicarlo.
+- El Paciente nunca ve borradores generados por IA.
+- Toda generación de resumen terapéutico compartido con IA debe quedar registrada en auditoría.
 
 ---
 
-## Fuera de alcance del MVP
+### F-11 Recibir, revisar y validar sugerencias
 
-- Acceso del Paciente al expediente clínico completo.
-- Eliminación física de expedientes desde operación ordinaria.
-- Interoperabilidad completa con otros sistemas clínicos externos.
-- Firma electrónica avanzada.
-- Portal de descarga completa del expediente.
-- Exportación clínica completa en PDF.
-- Solicitudes ARCO automatizadas dentro del sistema.
-- Protocolos legales complejos de bloqueo o supresión.
-- Acceso administrativo al contenido clínico.
-- Uso libre o no supervisado de IA sobre expedientes completos.
-- Diagnóstico automático por IA.
-- Sustitución del juicio clínico del Profesional por IA.
-- Publicación automática de contenido generado por IA en el portal del Paciente.
-- Estadísticas clínicas individualizadas.
-- Rankings clínicos de Profesionales.
-- Compartir expediente entre organizaciones sin autorización explícita.
+Toda sugerencia generada por IA debe presentarse como borrador editable.
+
+La interfaz debe diferenciar visualmente:
+
+- contenido generado por IA;
+- contenido editado por el Profesional;
+- contenido aprobado y guardado;
+- contenido rechazado o descartado.
+
+El Profesional puede:
+
+- aceptar el contenido tal como fue generado;
+- editarlo antes de guardarlo;
+- complementarlo;
+- rechazarlo;
+- descartarlo sin guardar.
+
+Reglas:
+
+- No existe guardado automático desde IA.
+- Solo el Profesional puede guardar contenido clínico.
+- Solo el Profesional puede publicar contenido visible para el Paciente.
+- Una vez guardado, el contenido forma parte del expediente, proceso, plan, nota o resumen correspondiente.
+- El sistema debe registrar si el contenido guardado o publicado provino total o parcialmente de una sugerencia de IA.
+
+---
+
+## Restricciones de privacidad
+
+El asistente clínico con IA opera con restricciones estrictas de acceso a datos.
+
+### GPT puede acceder a:
+
+Según la función solicitada por el Profesional, GPT puede acceder únicamente al paquete clínico controlado preparado para esa tarea.
+
+Para prellenado de pasos terapéuticos, puede acceder a:
+
+- contenido del proceso terapéutico activo;
+- paso actual;
+- pasos previos completados del mismo proceso;
+- instrucciones del Profesional;
+- tipo de modelo terapéutico;
+- directrices clínicas agregadas para esa solicitud.
+
+Para conceptualización de caso, puede acceder a:
+
+- expediente clínico autorizado;
+- notas de sesiones previas seleccionadas, resumidas o autorizadas;
+- resultados de pruebas psicológicas relevantes;
+- resultados de pruebas de personalidad;
+- diagnósticos previos;
+- historia clínica relevante;
+- evolución del proceso;
+- factores de riesgo;
+- factores protectores;
+- contexto espiritual o religioso cuando sea clínicamente pertinente;
+- directrices clínicas agregadas por el Profesional.
+
+Para planteamiento de tratamiento y planeación de sesiones, puede acceder a:
+
+- conceptualización del caso;
+- mecanismos originadores y mantenedores identificados;
+- plan de tratamiento vigente, si existe;
+- notas de sesiones previas;
+- objetivos terapéuticos;
+- evolución del Paciente;
+- tareas realizadas o no realizadas;
+- obstáculos detectados;
+- riesgos actuales;
+- directrices clínicas del Profesional;
+- modelo terapéutico seleccionado.
+
+Para generación de resumen terapéutico compartido para el Paciente, puede acceder únicamente a información que el Profesional considere comunicable o útil para construir un texto visible al Paciente.
+
+Puede incluir:
+
+- objetivos comunicables;
+- acuerdos de seguimiento;
+- tareas terapéuticas generales;
+- pautas psicoeducativas;
+- recursos personales;
+- próximos pasos;
+- directrices del Profesional sobre tono, límites y contenido permitido.
+
+### GPT no puede acceder a:
+
+- nombre completo del Paciente, salvo necesidad explícita y justificada;
+- domicilio;
+- teléfono;
+- correo electrónico;
+- número de seguridad social;
+- identificadores oficiales;
+- datos fiscales;
+- información de otros pacientes;
+- expediente completo de forma libre, permanente o indiscriminada;
+- notas clínicas no autorizadas para la tarea solicitada;
+- documentos completos si basta con un resumen clínico;
+- información espiritual o religiosa no compartida libremente por el Paciente o no pertinente al caso;
+- contenido interno no apto para ser compartido con el Paciente cuando la tarea sea generar resumen terapéutico compartido.
+
+La separación entre datos clínicos necesarios y datos de identificación debe aplicarse en la capa de preparación del contexto enviado a GPT, antes de cualquier llamada a la API.
+
+---
+
+## Paquete clínico controlado
+
+Antes de llamar a la API, el sistema debe construir un paquete clínico limitado a la tarea solicitada.
+
+El paquete clínico controlado debe incluir únicamente los datos necesarios para cumplir la función seleccionada por el Profesional.
+
+El paquete puede incluir:
+
+- tipo de tarea solicitada;
+- modelo terapéutico;
+- campos que se desean completar;
+- datos clínicos necesarios;
+- notas seleccionadas o resumidas;
+- resultados de pruebas relevantes;
+- conceptualización previa, si existe;
+- plan de tratamiento vigente, si existe;
+- directrices del Profesional;
+- restricciones clínicas o éticas aplicables.
+
+El paquete debe excluir datos de identificación directa que no sean necesarios para la tarea.
+
+El sistema debe registrar qué tipo de información fue incluida en el paquete, sin exponer innecesariamente datos sensibles en logs técnicos.
+
+---
+
+## Flujo general de uso
+
+```text
+1. Profesional selecciona una función de IA:
+   - prellenar paso;
+   - conceptualizar caso;
+   - plantear tratamiento;
+   - planear sesión;
+   - sugerir intervención;
+   - generar resumen terapéutico compartido.
+
+2. Sistema abre formulario de directrices clínicas.
+
+3. Profesional agrega comentarios, hipótesis, observaciones o instrucciones.
+
+4. Sistema construye paquete clínico controlado.
+
+5. Sistema excluye datos identificables innecesarios.
+
+6. IA genera borrador.
+
+7. Profesional revisa, edita, aprueba, rechaza o descarta.
+
+8. Solo el contenido aprobado por el Profesional puede guardarse o publicarse.
+
+9. Sistema registra auditoría del proceso.
