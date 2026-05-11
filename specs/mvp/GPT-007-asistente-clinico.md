@@ -2,15 +2,13 @@
 
 ## Propósito
 
-Proveer al Profesional un asistente clínico de inteligencia artificial para apoyar tareas clínicas supervisadas, como prellenado de campos del proceso terapéutico, generación de borradores de conceptualización de caso, planteamiento del plan de tratamiento, planeación de sesiones, generación de borradores de resumen terapéutico compartido para el Paciente, análisis de evaluaciones psicológicas por imagen, organización de información clínica y sugerencias de líneas de intervención.
+Proveer al Profesional un asistente clínico de inteligencia artificial para apoyar tareas clínicas supervisadas, como prellenado de campos del proceso terapéutico, generación de borradores de conceptualización de caso, planteamiento del plan de tratamiento, planeación de sesiones, generación de borradores de resumen terapéutico compartido para el Paciente, análisis de evaluaciones psicológicas por imagen, actualización de conceptualización TCC y organización de información clínica.
 
 El asistente opera únicamente como herramienta de apoyo. No diagnostica de forma definitiva, no decide, no sustituye el juicio clínico del Profesional y no guarda contenido clínico automáticamente.
 
-Todo contenido generado por IA debe ser revisado, corregido y aprobado por el Profesional antes de incorporarse al expediente clínico, al proceso terapéutico, al plan de tratamiento, a la planeación de sesiones o al portal del Paciente.
+Todo contenido generado por IA debe ser revisado, corregido y aprobado por el Profesional antes de incorporarse al expediente clínico, al proceso terapéutico, al plan de tratamiento, a la planeación de sesiones, a la evaluación o al portal del Paciente.
 
 El uso del asistente debe operar bajo consentimiento informado aplicable, principio de mínimo necesario, separación de datos de identificación, trazabilidad, auditoría y supervisión profesional.
-
-La IA debe ayudar al Profesional a pasar de información clínica dispersa a una formulación organizada del caso, identificando mecanismos originadores y mantenedores, y derivando de ellos objetivos, plan de tratamiento y planeación de sesiones.
 
 ---
 
@@ -27,11 +25,11 @@ La IA debe ayudar al Profesional a pasar de información clínica dispersa a una
 
 ## Principio clínico rector
 
-El asistente clínico con IA no solo apoya la conceptualización del caso, sino también el planteamiento del tratamiento, la planeación de sesiones, el resumen terapéutico compartido y el análisis preliminar de evaluaciones psicológicas por imagen, siempre como borradores supervisados, revisados y aprobados por el Profesional.
+El asistente clínico con IA no solo apoya la conceptualización del caso, sino también el planteamiento del tratamiento, la planeación de sesiones, el resumen terapéutico compartido, el análisis preliminar de evaluaciones psicológicas por imagen y la actualización de conceptualización y plan TCC después de cortes de reevaluación.
 
-La conceptualización de caso es una formulación clínica que organiza la información del expediente, notas de sesiones, pruebas psicológicas y directrices del Profesional para identificar los mecanismos originadores y mantenedores de la problemática, explicar cómo se organiza el sufrimiento actual del Paciente y orientar el plan de tratamiento.
+Toda salida de IA es un borrador supervisado, revisado y aprobado por el Profesional.
 
-La conceptualización no se reduce a diagnóstico ni a resumen narrativo.
+La conceptualización de caso es una formulación clínica que organiza la información del expediente, notas de sesiones, pruebas psicológicas y directrices del Profesional para identificar mecanismos originadores y mantenedores de la problemática, explicar cómo se organiza el sufrimiento actual del Paciente y orientar el plan de tratamiento.
 
 ---
 
@@ -48,13 +46,14 @@ El Profesional puede activar el asistente clínico con IA desde distintos contex
 5. Desde una nota de sesión o seguimiento, para apoyar la continuidad clínica.
 6. Desde el expediente o portal profesional, seleccionando **"Generar resumen terapéutico para el Paciente con IA"**.
 7. Desde EVAL-014, seleccionando **"Analizar evaluación con IA"**.
+8. Desde PROCESO-TCC-006, seleccionando **"Actualizar conceptualización TCC con IA"**.
 
 Restricciones:
 
 - El asistente solo puede ser activado por un Profesional autorizado.
 - El Paciente no interactúa directamente con el asistente.
 - La IA no guarda automáticamente contenido clínico.
-- La IA no modifica expedientes, procesos, notas, planes, evaluaciones ni portal por sí misma.
+- La IA no modifica expedientes, procesos, notas, planes, evaluaciones, agenda ni portal por sí misma.
 - Toda activación debe quedar registrada en auditoría.
 
 ---
@@ -296,7 +295,54 @@ Restricciones:
 
 ---
 
-### F-12 Recibir, revisar y validar sugerencias
+### F-12 Actualizar conceptualización y plan TCC
+
+El Profesional puede solicitar a la IA apoyo para actualizar la conceptualización TCC y el plan de tratamiento después de un corte de reevaluación.
+
+Para iniciar esta función, el Profesional selecciona:
+
+**"Actualizar conceptualización TCC con IA"**
+
+La IA puede trabajar con un paquete clínico controlado que incluya:
+
+- conceptualización TCC vigente;
+- versiones previas de conceptualización;
+- plan de tratamiento vigente;
+- ruta terapéutica por sesiones;
+- notas clínicas seleccionadas o resumidas;
+- resultados validados de evaluaciones psicológicas;
+- registros de estado de ánimo;
+- tareas realizadas o no realizadas;
+- avances observados;
+- obstáculos clínicos;
+- directrices clínicas del Profesional.
+
+La IA puede generar:
+
+- resumen de evolución;
+- cambios detectados en mecanismos mantenedores;
+- mecanismos de cambio activados;
+- hipótesis que se fortalecen;
+- hipótesis que deben revisarse;
+- objetivos que deben mantenerse;
+- objetivos que deben ajustarse;
+- intervenciones sugeridas;
+- ajustes al plan de tratamiento;
+- propuesta de siguientes sesiones;
+- criterios de seguimiento.
+
+Restricciones:
+
+- La IA no modifica automáticamente la conceptualización.
+- La IA no modifica automáticamente el plan de tratamiento.
+- La IA no reprograma citas automáticamente.
+- El resultado generado es borrador.
+- El Profesional debe revisar, corregir y aprobar antes de guardar.
+- Toda actualización asistida por IA debe quedar registrada en auditoría.
+
+---
+
+### F-13 Recibir, revisar y validar sugerencias
 
 Toda sugerencia generada por IA debe presentarse como borrador editable.
 
@@ -324,6 +370,17 @@ Para análisis de evaluaciones psicológicas por imagen, GPT puede acceder a:
 - contexto clínico mínimo necesario;
 - resultados ya registrados, si aplica.
 
+Para actualización de conceptualización y plan TCC, GPT puede acceder a:
+
+- conceptualización TCC vigente y versiones previas;
+- plan de tratamiento vigente;
+- ruta terapéutica por sesiones;
+- notas clínicas seleccionadas o resumidas;
+- evaluaciones validadas;
+- registros de estado de ánimo;
+- corte de reevaluación relacionado;
+- directrices clínicas del Profesional.
+
 GPT no puede acceder a:
 
 - banco interno de pruebas;
@@ -340,7 +397,7 @@ GPT no puede acceder a:
 
 Antes de llamar a la API, el sistema debe construir un paquete clínico limitado a la tarea solicitada.
 
-El paquete puede incluir tipo de tarea, modelo terapéutico, campos a completar, datos clínicos necesarios, notas seleccionadas o resumidas, resultados de pruebas relevantes, conceptualización, plan de tratamiento, imágenes autorizadas y directrices del Profesional.
+El paquete puede incluir tipo de tarea, modelo terapéutico, campos a completar, datos clínicos necesarios, notas seleccionadas o resumidas, resultados de pruebas relevantes, conceptualización, plan de tratamiento, imágenes autorizadas, registros de estado de ánimo y directrices del Profesional.
 
 El paquete debe excluir datos de identificación directa que no sean necesarios.
 
@@ -356,7 +413,8 @@ El paquete debe excluir datos de identificación directa que no sean necesarios.
    - planear sesión;
    - sugerir intervención;
    - generar resumen terapéutico compartido;
-   - analizar evaluación psicológica por imagen.
+   - analizar evaluación psicológica por imagen;
+   - actualizar conceptualización y plan TCC.
 
 2. Sistema abre formulario de directrices clínicas.
 3. Profesional agrega comentarios, hipótesis, observaciones o instrucciones.
@@ -379,7 +437,7 @@ El paquete debe excluir datos de identificación directa que no sean necesarios.
 5. La IA no emite diagnósticos definitivos.
 6. La IA no sustituye el juicio clínico del Profesional.
 7. La IA no puede crear, modificar ni eliminar notas clínicas por sí misma.
-8. No existe guardado automático desde IA hacia expediente, proceso, plan, sesión, evaluación o portal.
+8. No existe guardado automático desde IA hacia expediente, proceso, plan, sesión, evaluación, agenda o portal.
 9. El Profesional puede aceptar, editar, rechazar o descartar sugerencias.
 10. Para conceptualización, el sistema trabaja con expediente clínico + notas de sesiones disponibles y autorizadas + directrices clínicas del Profesional.
 11. El sistema debe construir un paquete clínico controlado antes de llamar a la IA.
@@ -395,6 +453,9 @@ El paquete debe excluir datos de identificación directa que no sean necesarios.
 21. La IA no debe inventar baremos, puntos de corte ni criterios psicométricos.
 22. Los resultados de evaluación generados por IA son borradores hasta que el Profesional los revise y valide.
 23. Las imágenes de evaluaciones se tratan como contenido clínico protegido y deben usarse con mínimo necesario.
+24. La IA puede apoyar la actualización de conceptualización TCC y plan de tratamiento después de cortes de reevaluación.
+25. La IA puede sugerir ajustes a próximas sesiones, pero no modifica agenda ni plan terapéutico sin aprobación del Profesional.
+26. Los registros de estado de ánimo pueden utilizarse como insumo clínico dentro del paquete controlado, pero no sustituyen evaluación psicológica formal.
 
 ---
 
@@ -407,13 +468,16 @@ El paquete debe excluir datos de identificación directa que no sean necesarios.
 | `patient_id` | Paciente relacionado; no enviado necesariamente a la IA |
 | `expediente_id` | Expediente relacionado, si aplica |
 | `process_id` | Proceso terapéutico en el que se activó, si aplica |
+| `tcc_process_id` | Proceso TCC relacionado, si aplica |
 | `step_id` | Paso del proceso en el que se activó, si aplica |
 | `assessment_id` | Evaluación psicológica relacionada, si aplica |
-| `ai_function_type` | `prellenado_paso`, `conceptualizacion_caso`, `plan_tratamiento`, `planeacion_sesion`, `sugerencia_intervencion`, `resumen_terapeutico_paciente`, `analisis_evaluacion_imagen` |
+| `reevaluation_cut_id` | Corte de reevaluación relacionado, si aplica |
+| `ai_function_type` | `prellenado_paso`, `conceptualizacion_caso`, `plan_tratamiento`, `planeacion_sesion`, `sugerencia_intervencion`, `resumen_terapeutico_paciente`, `analisis_evaluacion_imagen`, `actualizacion_conceptualizacion_tcc` |
 | `clinical_context_package` | Paquete clínico controlado preparado para la IA |
 | `uploaded_image_ids` | Imágenes cargadas para análisis, si aplica |
 | `included_session_notes` | Referencias a notas incluidas, seleccionadas o resumidas |
 | `included_assessments` | Referencias a evaluaciones o pruebas incluidas |
+| `mood_tracking_entries` | Registros de estado de ánimo incluidos en el paquete clínico, si aplica |
 | `professional_directives` | Directrices clínicas agregadas por el Profesional |
 | `model_provider` | Proveedor del modelo |
 | `model_name` | Modelo utilizado |
@@ -445,10 +509,12 @@ Restricciones:
 - NOTAS-004 — notas clínicas disponibles y autorizadas.
 - EVAL-014 — evaluaciones psicológicas, carga de imágenes y resultados validados.
 - PROCESO-GENERAL-005 — procesos terapéuticos generales.
-- PROCESO-TCC-006 — procesos terapéuticos basados en TCC.
+- PROCESO-TCC-006 — proceso TCC, conceptualización, plan, ruta terapéutica, estado de ánimo y reevaluaciones.
 - AGENDA-008 — citas y sesiones relacionadas.
 - PORTAL-011 — visualización del resumen terapéutico compartido aprobado.
 - ADMIN-012 — sin acceso al contenido clínico generado por IA.
+- LOG-014 — auditoría y trazabilidad.
+- PRIV-015 — privacidad, consentimiento, minimización y tratamiento de datos.
 - API de OpenAI — proveedor inicial del modelo en MVP.
 
 ---
@@ -462,6 +528,8 @@ Restricciones:
 - Guardado automático de contenido generado por IA.
 - Publicación automática de contenido generado por IA en el portal del Paciente.
 - Modificación automática del expediente por IA.
+- Modificación automática del plan TCC por IA.
+- Reprogramación automática de citas por IA.
 - Análisis de riesgo automatizado sin supervisión clínica.
 - Integración con modelos de lenguaje distintos a OpenAI en el MVP.
 - Uso de cuentas personales de chat para procesar información clínica real.

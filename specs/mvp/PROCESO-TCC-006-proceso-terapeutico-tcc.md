@@ -209,7 +209,7 @@ El Profesional puede generar, redactar o solicitar apoyo de GPT-007 para elabora
 
 Para iniciar apoyo de IA, el Profesional selecciona:
 
-**“Conceptualizar caso TCC con IA”**
+**"Conceptualizar caso TCC con IA"**
 
 La conceptualización TCC debe integrar:
 

@@ -289,6 +289,29 @@ Restricciones:
 
 ---
 
+### F-09 Vincular evaluación a corte de reevaluación TCC
+
+El Profesional puede vincular una evaluación psicológica a un corte de reevaluación dentro de PROCESO-TCC-006.
+
+La evaluación puede utilizarse para:
+
+- comparar línea base con evolución actual;
+- revisar reducción o aumento de síntomas;
+- apoyar actualización de conceptualización;
+- ajustar objetivos terapéuticos;
+- ajustar plan de tratamiento;
+- decidir continuidad, modificación o cierre del proceso;
+- documentar progreso antes del egreso.
+
+Restricciones:
+
+- La evaluación debe estar registrada y validada por el Profesional.
+- La IA puede apoyar en la comparación, pero no decide el estado clínico final.
+- Los resultados deben interpretarse junto con notas clínicas, entrevista, estado de ánimo y juicio clínico del Profesional.
+- La evaluación no modifica automáticamente el proceso TCC.
+
+---
+
 ## Reglas de negocio
 
 1. EVAL-014 es un módulo clínico vinculado al expediente.
@@ -312,6 +335,9 @@ Restricciones:
 19. El sistema debe registrar en auditoría toda carga, análisis, validación, consulta, adjunto o uso de evaluación con IA.
 20. Las evaluaciones no deben usarse para rankings de Profesionales ni reportes administrativos individualizados.
 21. Los resultados de evaluaciones forman parte del expediente clínico y deben protegerse bajo principio de mínimo privilegio.
+22. Las evaluaciones psicológicas pueden vincularse a cortes de reevaluación del proceso TCC.
+23. La comparación entre evaluaciones debe ser validada por el Profesional antes de usarse para actualizar conceptualización, plan de tratamiento o egreso.
+24. Los resultados de evaluación no deben interpretarse aislados de la entrevista clínica, notas de sesión y evolución observada.
 
 ---
 
@@ -324,6 +350,8 @@ Restricciones:
 | `patient_id` | Paciente evaluado |
 | `professional_id` | Profesional que registra o valida la evaluación |
 | `organization_id` | Organización asociada, si aplica |
+| `linked_tcc_process_id` | Proceso TCC relacionado, si aplica |
+| `linked_reevaluation_cut_id` | Corte de reevaluación TCC relacionado, si aplica |
 | `assessment_name` | Nombre de la prueba, inventario o evaluación |
 | `assessment_type` | `inventario`, `cuestionario`, `escala`, `personalidad`, `entrevista`, `externa`, `otra` |
 | `assessment_purpose` | Finalidad clínica de la evaluación |
@@ -338,6 +366,7 @@ Restricciones:
 | `cutoff_points` | Puntos de corte proporcionados por el Profesional, si aplica |
 | `interpretation` | Interpretación clínica validada |
 | `ai_draft_interpretation` | Borrador de interpretación generado por IA, si aplica |
+| `comparison_notes` | Observaciones comparativas entre evaluaciones, si aplica |
 | `professional_validation_status` | `pendiente`, `validado`, `rechazado`, `corregido` |
 | `validated_by_user_id` | Profesional que validó los resultados |
 | `validated_at` | Fecha de validación |
@@ -361,22 +390,13 @@ Eventos mínimos:
 - corrección de resultado;
 - consulta de evaluación;
 - vinculación con conceptualización;
+- vinculación con corte de reevaluación TCC;
 - uso en paquete clínico para IA;
 - exportación, si aplica;
 - anulación lógica;
 - intento de acceso no autorizado.
 
-Cada evento debe registrar:
-
-- usuario;
-- rol;
-- fecha y hora;
-- acción;
-- evaluación afectada;
-- expediente relacionado;
-- Paciente relacionado;
-- resultado de la acción;
-- identificador de sesión o IP, si está disponible.
+Cada evento debe registrar usuario, rol, fecha y hora, acción, evaluación afectada, expediente relacionado, Paciente relacionado, resultado de la acción e identificador de sesión o IP, si está disponible.
 
 Restricciones:
 
@@ -416,9 +436,11 @@ Reglas:
 - NOTAS-004 — puede referir resultados de evaluaciones sin reproducir instrumentos completos.
 - GPT-007 — análisis asistido por IA de imágenes, resultados e interpretación preliminar.
 - PROCESO-GENERAL-005 — puede solicitar o consultar resultados de evaluación vinculados al proceso.
-- PROCESO-TCC-006 — puede solicitar o consultar resultados de evaluación vinculados al proceso TCC.
+- PROCESO-TCC-006 — puede vincular evaluaciones a conceptualización, plan, seguimiento, cortes de reevaluación y egreso.
 - PORTAL-011 — el Paciente no ve resultados completos en MVP.
 - ADMIN-012 — sin acceso al contenido clínico de evaluaciones.
+- LOG-014 — auditoría y trazabilidad.
+- PRIV-015 — privacidad, consentimiento, minimización y tratamiento de datos.
 - Servicio de almacenamiento seguro — imágenes y adjuntos autorizados.
 - API de OpenAI — análisis de imágenes mediante GPT-007, según configuración aprobada.
 

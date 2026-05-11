@@ -204,7 +204,33 @@ La vinculación permite navegar desde el expediente hacia notas, proceso, agenda
 
 ---
 
-### F-13 Registrar nota de referencia o traslado
+### F-13 Vincular nota a sesión TCC
+
+Cuando una nota clínica corresponde a una sesión del proceso TCC, el Profesional puede vincularla a PROCESO-TCC-006.
+
+El sistema puede asociar la nota con:
+
+- proceso TCC;
+- número de sesión;
+- fase TCC;
+- objetivo de sesión;
+- mecanismo clínico trabajado;
+- intervención utilizada;
+- tarea revisada;
+- tarea asignada;
+- registro de estado de ánimo;
+- plan para siguiente sesión.
+
+Restricciones:
+
+- La nota clínica formal sigue viviendo en NOTAS-004.
+- PROCESO-TCC-006 solo vincula la nota al flujo terapéutico.
+- El estado de ánimo registrado en la nota puede alimentar el monitoreo del proceso TCC.
+- La nota no se publica automáticamente en el portal del Paciente.
+
+---
+
+### F-14 Registrar nota de referencia o traslado
 
 El Profesional puede crear una nota de referencia o traslado cuando considere necesario derivar, referir o transferir el caso a otro Profesional o servicio.
 
@@ -215,7 +241,7 @@ Restricciones:
 
 ---
 
-### F-14 Registrar nota de egreso
+### F-15 Registrar nota de egreso
 
 El Profesional puede crear una nota de egreso cuando finaliza un proceso terapéutico.
 
@@ -255,8 +281,9 @@ La nota puede incluir motivo de egreso, resumen del proceso, objetivos trabajado
 16. La nota clínica puede mencionar resultados, interpretación y relevancia clínica de una evaluación psicológica, pero no debe reproducir instrumentos psicológicos protegidos completos.
 17. Las imágenes de pruebas, inventarios o protocolos cargadas en EVAL-014 no deben copiarse dentro de la nota clínica salvo justificación clínica y autorización suficiente.
 18. Si una nota utiliza resultados generados con apoyo de GPT-007 desde imágenes de evaluación, debe quedar claro que el Profesional revisó y validó el resultado antes de incorporarlo.
-19. Las notas deben redactarse con lenguaje clínico, prudente, objetivo y respetuoso.
-20. Los datos de espiritualidad o vida moral solo deben registrarse cuando hayan sido compartidos libremente y sean clínicamente pertinentes.
+19. Una nota puede vincularse a una sesión TCC para alimentar seguimiento, estado de ánimo, ruta terapéutica y reevaluaciones.
+20. Las notas deben redactarse con lenguaje clínico, prudente, objetivo y respetuoso.
+21. Los datos de espiritualidad o vida moral solo deben registrarse cuando hayan sido compartidos libremente y sean clínicamente pertinentes.
 
 ---
 
@@ -271,6 +298,9 @@ La nota puede incluir motivo de egreso, resumen del proceso, objetivos trabajado
 | `organization_id` | Organización relacionada, si aplica |
 | `appointment_id` | Cita asociada, si aplica |
 | `process_id` | Proceso terapéutico asociado, si aplica |
+| `tcc_process_id` | Proceso TCC relacionado, si aplica |
+| `tcc_session_number` | Número de sesión TCC, si aplica |
+| `tcc_phase` | Fase del proceso TCC relacionada, si aplica |
 | `note_type` | `admision`, `evolucion`, `interconsulta`, `referencia_traslado`, `egreso`, `addendum` |
 | `status` | `borrador`, `confirmada`, `con_addendum`, `anulada_logicamente`, `exportada` |
 | `session_date` | Fecha de sesión o acto clínico |
@@ -281,6 +311,9 @@ La nota puede incluir motivo de egreso, resumen del proceso, objetivos trabajado
 | `plan_next_session` | Plan o acuerdos |
 | `risk_flags` | Indicadores de riesgo, si aplica |
 | `homework_or_tasks` | Tareas terapéuticas o acuerdos |
+| `mood_score` | Estado de ánimo reportado u observado, escala 1 a 10, si aplica |
+| `anxiety_score` | Ansiedad subjetiva, escala 1 a 10, si aplica |
+| `hope_score` | Esperanza subjetiva, escala 1 a 10, si aplica |
 | `created_by_user_id` | Usuario que creó la nota |
 | `created_at` | Fecha de creación |
 | `updated_at` | Fecha de última edición |
@@ -308,6 +341,7 @@ Eventos mínimos:
 - exportación a PDF;
 - vínculo con cita;
 - vínculo con proceso terapéutico;
+- vínculo con sesión TCC;
 - uso de nota en paquete clínico para IA;
 - intento de acceso no autorizado.
 
@@ -336,11 +370,13 @@ Reglas:
 - USERS-002 — Pacientes, Profesionales, roles y permisos.
 - AGENDA-008 — citas desde las cuales pueden generarse notas.
 - PROCESO-GENERAL-005 — procesos terapéuticos generales.
-- PROCESO-TCC-006 — procesos terapéuticos basados en TCC, si aplica.
+- PROCESO-TCC-006 — sesiones TCC, ruta terapéutica, estado de ánimo y reevaluaciones vinculadas a notas clínicas.
 - EVAL-014 — evaluaciones psicológicas, imágenes autorizadas y resultados validados.
-- GPT-007 — uso controlado de notas para conceptualización, tratamiento, planeación, evaluación y resumen terapéutico.
+- GPT-007 — uso controlado de notas para conceptualización, tratamiento, planeación, evaluación, actualización TCC y resumen terapéutico.
 - PORTAL-011 — el Paciente no ve notas clínicas completas; solo resúmenes publicados.
 - ADMIN-012 — sin acceso al contenido clínico de notas.
+- LOG-014 — auditoría y trazabilidad.
+- PRIV-015 — privacidad, consentimiento y minimización.
 
 ---
 
