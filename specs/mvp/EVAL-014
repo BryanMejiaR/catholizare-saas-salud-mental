@@ -292,45 +292,25 @@ Restricciones:
 ## Reglas de negocio
 
 1. EVAL-014 es un módulo clínico vinculado al expediente.
-
 2. Toda evaluación debe pertenecer a un Paciente y a un expediente clínico.
-
 3. No puede existir evaluación suelta sin Paciente ni expediente asociado.
-
 4. Catholizare OS no almacena bancos de pruebas psicológicas protegidas.
-
 5. Catholizare OS no distribuye reactivos, manuales ni claves de corrección protegidas.
-
 6. El Profesional es responsable de contar con licencia, autorización o derecho de uso del instrumento aplicado.
-
 7. El Profesional puede cargar imágenes de hojas, inventarios o protocolos aplicados para análisis asistido por IA.
-
 8. Las imágenes cargadas para análisis son contenido clínico protegido.
-
 9. Las imágenes deben usarse preferentemente como insumo temporal para análisis, no como biblioteca permanente de instrumentos.
-
 10. Si el Profesional decide adjuntar una imagen o archivo al expediente, debe contar con autorización o justificación clínica suficiente.
-
 11. GPT-007 puede apoyar en lectura, extracción, ordenamiento, sumatoria, cálculo e interpretación preliminar de resultados.
-
 12. GPT-007 no sustituye el manual de la prueba ni el juicio clínico del Profesional.
-
 13. GPT-007 no debe inventar puntos de corte, baremos, normas o interpretación psicométrica si no fueron proporcionados.
-
 14. Todo resultado generado por IA es borrador.
-
 15. Solo el Profesional puede validar resultados e incorporarlos al expediente.
-
 16. El Paciente no accede a resultados completos de evaluaciones desde el portal en MVP.
-
 17. Administradores y Super Administradores no acceden al contenido clínico de evaluaciones en operación normal.
-
 18. Las evaluaciones pueden alimentar conceptualización, plan de tratamiento y planeación de sesiones mediante paquete clínico controlado.
-
 19. El sistema debe registrar en auditoría toda carga, análisis, validación, consulta, adjunto o uso de evaluación con IA.
-
 20. Las evaluaciones no deben usarse para rankings de Profesionales ni reportes administrativos individualizados.
-
 21. Los resultados de evaluaciones forman parte del expediente clínico y deben protegerse bajo principio de mínimo privilegio.
 
 ---
