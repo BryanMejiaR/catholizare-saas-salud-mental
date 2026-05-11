@@ -1,0 +1,445 @@
+# EVAL-014 — Evaluaciones Psicológicas
+
+## Propósito
+
+Permitir al Profesional registrar, analizar, interpretar y vincular evaluaciones psicológicas al expediente clínico del Paciente, sin convertir a Catholizare OS en un banco de pruebas psicológicas ni en repositorio de instrumentos protegidos por derechos de autor.
+
+En el MVP, Catholizare OS no almacena pruebas psicológicas completas, reactivos, manuales, claves de corrección protegidas ni bancos de ítems.
+
+El Profesional puede cargar imágenes de hojas, inventarios, protocolos, respuestas o formatos aplicados externamente para que GPT-007 apoye en la extracción, organización, sumatoria, cálculo e interpretación preliminar de resultados.
+
+El análisis generado por IA es únicamente un borrador técnico-clínico. El Profesional debe revisar, corregir, validar y aprobar cualquier resultado antes de incorporarlo al expediente clínico.
+
+---
+
+## Principio rector
+
+Catholizare OS no sustituye plataformas licenciadas de evaluación psicológica ni distribuye instrumentos protegidos.
+
+El módulo EVAL-014 permite registrar, analizar y vincular resultados clínicos bajo responsabilidad del Profesional, cuidando derechos de autor, confidencialidad, consentimiento informado y trazabilidad.
+
+---
+
+## Actores
+
+| Actor | Interacción |
+|---|---|
+| Profesional | Registra evaluaciones, carga imágenes, solicita análisis asistido por IA, valida resultados y los vincula al expediente. |
+| Paciente | No interactúa directamente con este módulo en el MVP. |
+| IA clínica asistida | Puede analizar imágenes o datos proporcionados por el Profesional como apoyo técnico, sin sustituir su juicio clínico. |
+| Sistema | Administra cargas temporales, vinculación con expediente, auditoría y almacenamiento de resultados aprobados. |
+| Administrador | No accede al contenido clínico de evaluaciones. |
+| Super Administrador | No accede al contenido clínico de evaluaciones en operación normal. |
+
+---
+
+## Funcionalidades
+
+### F-01 Registrar evaluación psicológica
+
+El Profesional puede registrar que se aplicó una evaluación psicológica a un Paciente.
+
+Campos mínimos:
+
+- Paciente;
+- expediente clínico;
+- Profesional;
+- fecha de aplicación;
+- nombre de la prueba o inventario;
+- tipo de evaluación;
+- finalidad clínica;
+- observaciones generales;
+- estado de la evaluación.
+
+Tipos de evaluación permitidos:
+
+- inventario;
+- cuestionario;
+- escala clínica;
+- prueba de personalidad;
+- prueba proyectiva, si aplica;
+- entrevista estructurada;
+- evaluación psicométrica externa;
+- evaluación clínica no estandarizada;
+- otro.
+
+Restricciones:
+
+- No se almacenan reactivos completos de pruebas protegidas.
+- No se almacenan manuales completos.
+- No se almacenan claves de corrección protegidas como base interna.
+- El Profesional es responsable de contar con licencia, autorización o derecho de uso del instrumento aplicado.
+- Toda evaluación registrada debe quedar vinculada al expediente clínico.
+
+---
+
+### F-02 Cargar imágenes para análisis asistido por IA
+
+El Profesional puede cargar imágenes de hojas, inventarios, protocolos o formatos aplicados externamente para que GPT-007 apoye en su análisis.
+
+Ejemplos de imágenes permitidas:
+
+- hoja de respuestas;
+- inventario contestado;
+- protocolo aplicado;
+- tabla de puntajes;
+- captura de resultados;
+- hoja escaneada;
+- fotografía de formato físico;
+- resultado exportado desde una plataforma autorizada.
+
+Uso principal:
+
+- extraer datos visibles;
+- ordenar respuestas;
+- sumar puntajes;
+- calcular subtotales;
+- identificar escalas;
+- estructurar resultados;
+- redactar interpretación preliminar;
+- integrar hallazgos al expediente.
+
+Restricciones:
+
+- La carga de imágenes debe ser iniciada explícitamente por el Profesional.
+- Las imágenes pueden contener datos sensibles y deben tratarse como contenido clínico protegido.
+- Las imágenes se deben usar preferentemente como insumo temporal para análisis.
+- El sistema no debe convertir las imágenes en biblioteca interna de pruebas.
+- El sistema no debe reutilizar imágenes para otros casos.
+- El sistema no debe exponer imágenes a Administradores ni Super Administradores.
+- El sistema no debe permitir descarga pública o acceso no autorizado.
+- El Profesional debe confirmar que tiene derecho o autorización para usar el instrumento o documento cargado.
+
+---
+
+### F-03 Analizar evaluación con GPT
+
+El Profesional puede solicitar apoyo de GPT-007 para analizar una evaluación psicológica.
+
+Para iniciar esta función, el Profesional selecciona:
+
+**“Analizar evaluación con IA”**
+
+El sistema puede solicitar al Profesional:
+
+- nombre de la prueba;
+- objetivo de la evaluación;
+- instrucciones clínicas;
+- imágenes de hojas o inventarios;
+- puntajes ya calculados, si existen;
+- puntos de corte proporcionados por el Profesional, si aplica;
+- contexto clínico mínimo necesario;
+- directrices para la interpretación.
+
+La IA puede apoyar en:
+
+- lectura de información visible en imágenes;
+- extracción de respuestas;
+- organización de respuestas;
+- sumatoria de puntajes;
+- cálculo de subtotales;
+- identificación de patrones visibles;
+- generación de tabla de resultados;
+- redacción de interpretación preliminar;
+- integración de resultados a conceptualización clínica;
+- sugerencia de implicaciones terapéuticas.
+
+Restricciones:
+
+- La IA no valida la autenticidad del instrumento.
+- La IA no sustituye el manual de la prueba.
+- La IA no sustituye el juicio clínico del Profesional.
+- La IA no emite diagnóstico definitivo.
+- La IA no debe inventar puntos de corte.
+- La IA no debe inferir normas o baremos si no fueron proporcionados.
+- La IA debe señalar incertidumbre cuando la imagen no sea clara o falte información.
+- El resultado generado por IA es un borrador.
+- El Profesional debe revisar, corregir y aprobar el resultado antes de guardarlo.
+
+---
+
+### F-04 Registrar resultados
+
+Después de revisar la evaluación, el Profesional puede registrar resultados aprobados en el expediente.
+
+El registro puede incluir:
+
+- nombre de la prueba;
+- fecha de aplicación;
+- finalidad;
+- puntajes directos;
+- puntajes transformados, si aplica;
+- percentiles, si aplica;
+- escalas elevadas;
+- interpretación clínica;
+- observaciones;
+- limitaciones;
+- implicaciones terapéuticas;
+- decisión clínica derivada;
+- Profesional que valida.
+
+Restricciones:
+
+- Los resultados forman parte del expediente clínico.
+- Los resultados no son visibles para el Paciente en el MVP.
+- Los resultados no son visibles para Administradores ni Super Administradores.
+- El sistema debe diferenciar entre resultado generado por IA y resultado validado por el Profesional.
+- Solo el resultado validado puede incorporarse formalmente al expediente.
+
+---
+
+### F-05 Adjuntar archivo autorizado
+
+El Profesional puede adjuntar un archivo relacionado con la evaluación si cuenta con autorización, licencia o razón clínica suficiente.
+
+Tipos de archivo:
+
+- imagen;
+- PDF;
+- captura;
+- documento escaneado;
+- reporte externo;
+- archivo exportado desde una plataforma autorizada.
+
+Restricciones:
+
+- El adjunto forma parte del expediente clínico.
+- No debe compartirse públicamente.
+- No debe usarse como banco interno de instrumentos.
+- No debe mostrarse en el portal del Paciente en MVP.
+- La descarga o uso externo queda bajo responsabilidad del Profesional y políticas internas.
+- La conservación del archivo debe sujetarse a política de privacidad, retención y derechos de autor.
+
+---
+
+### F-06 Vincular evaluación a conceptualización
+
+El Profesional puede vincular resultados de evaluaciones psicológicas a la conceptualización del caso.
+
+Los resultados pueden ser usados por GPT-007 dentro de un paquete clínico controlado para:
+
+- conceptualización de caso;
+- planteamiento de tratamiento;
+- planeación de sesiones;
+- sugerencia de intervención;
+- resumen terapéutico compartido, solo si el Profesional decide comunicar información general al Paciente.
+
+Restricciones:
+
+- GPT-007 no accede libremente a todas las evaluaciones.
+- GPT-007 solo recibe resultados, imágenes o resúmenes autorizados por el Profesional para una tarea concreta.
+- La inclusión de evaluaciones en un paquete clínico para IA debe quedar registrada en auditoría.
+- No se deben incluir reactivos completos en paquetes de IA salvo que el Profesional confirme derecho de uso y necesidad clínica.
+- La IA debe trabajar con mínimo necesario.
+
+---
+
+### F-07 Generar resumen clínico de evaluación
+
+El Profesional puede solicitar a GPT-007 un resumen clínico de los resultados de una evaluación.
+
+El resumen puede incluir:
+
+- objetivo de la evaluación;
+- resultados principales;
+- escalas relevantes;
+- interpretación preliminar;
+- consistencia con motivo de consulta;
+- relación con síntomas observados;
+- implicaciones terapéuticas;
+- limitaciones de la prueba;
+- recomendaciones de seguimiento.
+
+Restricciones:
+
+- El resumen generado por IA es borrador.
+- El Profesional debe validar el resumen.
+- No se debe copiar el contenido completo del instrumento.
+- No se deben exponer reactivos protegidos.
+- No se debe usar lenguaje determinista o reduccionista.
+- No se debe presentar como diagnóstico definitivo.
+
+---
+
+### F-08 Comparar evaluación con evolución clínica
+
+El Profesional puede usar resultados de evaluaciones para monitorear evolución clínica.
+
+El sistema puede permitir comparar:
+
+- evaluación inicial;
+- evaluación intermedia;
+- evaluación de seguimiento;
+- evaluación de egreso.
+
+Ejemplos:
+
+- cambio en puntaje total;
+- cambio por subescala;
+- reducción de síntomas;
+- aumento de funcionalidad;
+- mantenimiento de riesgo;
+- necesidad de derivación.
+
+Restricciones:
+
+- La comparación debe basarse en resultados registrados y validados.
+- La IA puede apoyar en interpretación, pero no decidir alta, egreso o diagnóstico.
+- La interpretación final corresponde al Profesional.
+
+---
+
+## Reglas de negocio
+
+1. EVAL-014 es un módulo clínico vinculado al expediente.
+2. Toda evaluación debe pertenecer a un Paciente y a un expediente clínico.
+3. No puede existir evaluación suelta sin Paciente ni expediente asociado.
+4. Catholizare OS no almacena bancos de pruebas psicológicas protegidas.
+5. Catholizare OS no distribuye reactivos, manuales ni claves de corrección protegidas.
+6. El Profesional es responsable de contar con licencia, autorización o derecho de uso del instrumento aplicado.
+7. El Profesional puede cargar imágenes de hojas, inventarios o protocolos aplicados para análisis asistido por IA.
+8. Las imágenes cargadas para análisis son contenido clínico protegido.
+9. Las imágenes deben usarse preferentemente como insumo temporal para análisis, no como biblioteca permanente de instrumentos.
+10. Si el Profesional decide adjuntar una imagen o archivo al expediente, debe contar con autorización o justificación clínica suficiente.
+11. GPT-007 puede apoyar en lectura, extracción, ordenamiento, sumatoria, cálculo e interpretación preliminar de resultados.
+12. GPT-007 no sustituye el manual de la prueba ni el juicio clínico del Profesional.
+13. GPT-007 no debe inventar puntos de corte, baremos, normas o interpretación psicométrica si no fueron proporcionados.
+14. Todo resultado generado por IA es borrador.
+15. Solo el Profesional puede validar resultados e incorporarlos al expediente.
+16. El Paciente no accede a resultados completos de evaluaciones desde el portal en MVP.
+17. Administradores y Super Administradores no acceden al contenido clínico de evaluaciones en operación normal.
+18. Las evaluaciones pueden alimentar conceptualización, plan de tratamiento y planeación de sesiones mediante paquete clínico controlado.
+19. El sistema debe registrar en auditoría toda carga, análisis, validación, consulta, adjunto o uso de evaluación con IA.
+20. Las evaluaciones no deben usarse para rankings de Profesionales ni reportes administrativos individualizados.
+21. Los resultados de evaluaciones forman parte del expediente clínico y deben protegerse bajo principio de mínimo privilegio.
+
+---
+
+## Datos que maneja
+
+| Campo | Descripción |
+|---|---|
+| `assessment_id` | Identificador único de la evaluación |
+| `expediente_id` | Expediente clínico asociado |
+| `patient_id` | Paciente evaluado |
+| `professional_id` | Profesional que registra o valida la evaluación |
+| `organization_id` | Organización asociada, si aplica |
+| `assessment_name` | Nombre de la prueba, inventario o evaluación |
+| `assessment_type` | `inventario`, `cuestionario`, `escala`, `personalidad`, `entrevista`, `externa`, `otra` |
+| `assessment_purpose` | Finalidad clínica de la evaluación |
+| `applied_at` | Fecha de aplicación |
+| `registered_at` | Fecha de registro en el sistema |
+| `input_method` | `manual`, `imagen`, `archivo`, `resultado_externo` |
+| `image_upload_ids` | Imágenes cargadas para análisis, si aplica |
+| `attachment_ids` | Archivos adjuntos autorizados, si aplica |
+| `raw_scores` | Puntajes directos registrados |
+| `scaled_scores` | Puntajes transformados, si aplica |
+| `percentiles` | Percentiles, si aplica |
+| `cutoff_points` | Puntos de corte proporcionados por el Profesional, si aplica |
+| `interpretation` | Interpretación clínica validada |
+| `ai_draft_interpretation` | Borrador de interpretación generado por IA, si aplica |
+| `professional_validation_status` | `pendiente`, `validado`, `rechazado`, `corregido` |
+| `validated_by_user_id` | Profesional que validó los resultados |
+| `validated_at` | Fecha de validación |
+| `status` | `borrador`, `analizada`, `validada`, `archivada`, `anulada_logicamente` |
+| `ai_session_id` | Sesión de GPT-007 relacionada, si aplica |
+| `created_at` | Fecha de creación |
+| `updated_at` | Fecha de última actualización |
+
+---
+
+## Auditoría
+
+Eventos mínimos:
+
+- creación de evaluación;
+- carga de imagen;
+- carga de archivo;
+- solicitud de análisis con IA;
+- generación de borrador por IA;
+- validación profesional;
+- corrección de resultado;
+- consulta de evaluación;
+- vinculación con conceptualización;
+- uso en paquete clínico para IA;
+- exportación, si aplica;
+- anulación lógica;
+- intento de acceso no autorizado.
+
+Cada evento debe registrar:
+
+- usuario;
+- rol;
+- fecha y hora;
+- acción;
+- evaluación afectada;
+- expediente relacionado;
+- Paciente relacionado;
+- resultado de la acción;
+- identificador de sesión o IP, si está disponible.
+
+Restricciones:
+
+- El log no debe copiar contenido completo de pruebas.
+- El log no debe guardar reactivos protegidos.
+- El log no debe convertirse en copia paralela del expediente.
+- Los logs no pueden editarse ni eliminarse desde operación ordinaria.
+
+---
+
+## Privacidad y derechos de autor
+
+El módulo debe operar bajo dos principios:
+
+1. Protección de datos clínicos sensibles.
+2. Respeto a derechos de autor y licencias de instrumentos psicológicos.
+
+Reglas:
+
+- No almacenar instrumentos completos como biblioteca.
+- No distribuir pruebas a Pacientes desde el sistema en MVP.
+- No reproducir manuales completos.
+- No guardar bancos de reactivos protegidos.
+- No guardar claves de corrección protegidas como recurso interno.
+- No usar IA para evadir licencias de instrumentos.
+- No reutilizar imágenes cargadas para construir base de datos de pruebas.
+- No mostrar resultados completos al Paciente en MVP.
+- No exponer evaluaciones a Administradores ni Super Administradores.
+- No enviar imágenes o resultados a IA sin activación explícita del Profesional.
+- El Profesional debe confirmar que tiene derecho de uso, licencia o justificación clínica para cargar el material.
+
+---
+
+## Dependencias
+
+- EXPEDIENTE-003 — almacena resultados validados de evaluaciones.
+- NOTAS-004 — puede referir resultados de evaluaciones sin reproducir instrumentos completos.
+- GPT-007 — análisis asistido por IA de imágenes, resultados e interpretación preliminar.
+- PROCESO-GENERAL-005 — puede solicitar o consultar resultados de evaluación vinculados al proceso.
+- PROCESO-TCC-006 — puede solicitar o consultar resultados de evaluación vinculados al proceso TCC.
+- PORTAL-011 — el Paciente no ve resultados completos en MVP.
+- ADMIN-012 — sin acceso al contenido clínico de evaluaciones.
+- LOG-014 — auditoría y trazabilidad.
+- PRIV-015 — privacidad, consentimiento, minimización y tratamiento de datos.
+- Servicio de almacenamiento seguro — imágenes y adjuntos autorizados.
+- API de OpenAI — análisis de imágenes mediante GPT-007, según configuración aprobada.
+
+---
+
+## Fuera de alcance del MVP
+
+- Banco interno de pruebas psicológicas.
+- Distribución de pruebas a Pacientes.
+- Aplicación directa de pruebas dentro del portal del Paciente.
+- Corrección automática sin revisión del Profesional.
+- Diagnóstico automático por IA.
+- Almacenamiento de manuales completos.
+- Almacenamiento de reactivos protegidos como plantilla del sistema.
+- Claves de corrección protegidas como recurso interno.
+- Integración con editoriales o plataformas psicométricas externas.
+- Compra o gestión de licencias de pruebas.
+- Reportes psicométricos automáticos firmados.
+- Normas, baremos o puntos de corte no proporcionados por el Profesional.
+- Acceso del Paciente a resultados completos.
+- Acceso administrativo al contenido clínico de evaluaciones.
+- Analítica agregada basada en resultados de pruebas sin anonimización explícita.

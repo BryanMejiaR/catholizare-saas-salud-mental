@@ -1,0 +1,335 @@
+# HELP-018 — Centro de Ayuda
+
+## Propósito
+
+Proveer al Profesional una sección de ayuda operativa para aprender a usar Catholizare OS, resolver dudas frecuentes, acceder a guías de uso, contactar al equipo de Catholizare y recibir soporte no clínico.
+
+HELP-018 es un módulo de soporte operativo y técnico. No es un módulo clínico. No sustituye supervisión clínica, mentoría, revisión de casos ni atención de emergencias. No debe acceder al expediente clínico, notas clínicas, evaluaciones psicológicas ni datos sensibles de Pacientes.
+
+---
+
+## Actores
+
+| Actor | Interacción |
+|---|---|
+| Profesional | Consulta guías, preguntas frecuentes, tutoriales y canales de soporte. |
+| Administrador | Puede gestionar contenidos de ayuda operativa, si tiene permiso. |
+| Super Administrador | Supervisa y gestiona contenidos globales del centro de ayuda. |
+| Equipo Catholizare | Recibe solicitudes de soporte, cuando aplique. |
+| Paciente | Sin acceso en MVP, salvo que se cree ayuda específica para portal del Paciente en fase posterior. |
+| Asistente de ayuda | Puede responder dudas operativas sobre uso del sistema, sin acceso clínico. |
+
+---
+
+## Principio rector
+
+El Centro de Ayuda debe orientar al Profesional en el uso de la plataforma sin acceder ni procesar contenido clínico de Pacientes.
+
+Debe estar separado de GPT-007.
+
+GPT-007 es asistente clínico. HELP-018 es soporte operativo de plataforma.
+
+---
+
+## Funcionalidades
+
+### F-01 Ver guías de uso
+
+El Profesional puede acceder a guías de uso de la plataforma.
+
+Guías sugeridas:
+
+- cómo crear un Paciente;
+- cómo abrir un expediente;
+- cómo registrar consentimiento informado;
+- cómo crear una cita;
+- cómo sincronizar Google Calendar;
+- cómo usar Zoom;
+- cómo registrar notas clínicas;
+- cómo confirmar una nota;
+- cómo crear addendum;
+- cómo usar GPT-007;
+- cómo cargar imágenes de evaluaciones psicológicas;
+- cómo validar resultados de evaluaciones;
+- cómo publicar resumen terapéutico compartido para el Paciente;
+- cómo consultar Recursos de Catholizare Pro;
+- cómo postular un caso a revisión;
+- cómo contactar soporte.
+
+---
+
+### F-02 Ver preguntas frecuentes
+
+El Profesional puede consultar preguntas frecuentes.
+
+Categorías sugeridas:
+
+- acceso y contraseña;
+- pacientes;
+- expediente;
+- notas clínicas;
+- agenda;
+- videollamadas;
+- Google Calendar;
+- evaluaciones psicológicas;
+- GPT clínico;
+- portal del Paciente;
+- recursos Catholizare Pro;
+- privacidad y seguridad;
+- soporte técnico.
+
+---
+
+### F-03 Contactar al equipo de Catholizare
+
+El Profesional puede contactar al equipo de Catholizare mediante canales definidos.
+
+Canales posibles:
+
+- correo electrónico;
+- formulario de soporte;
+- WhatsApp externo;
+- enlace a mesa de ayuda;
+- enlace a calendario de soporte, si aplica.
+
+Campos mínimos de solicitud:
+
+- nombre del Profesional;
+- correo;
+- categoría de ayuda;
+- descripción del problema;
+- captura opcional;
+- prioridad;
+- fecha de envío.
+
+Restricciones:
+
+- El sistema debe advertir que no se incluyan datos clínicos sensibles de Pacientes en solicitudes de soporte.
+- Las solicitudes de soporte no deben contener notas clínicas completas.
+- Las solicitudes de soporte no deben contener imágenes de pruebas psicológicas.
+- Las solicitudes de soporte no deben contener expedientes completos.
+- Si el Profesional necesita soporte clínico, debe dirigirse a mentoría, supervisión o revisión de casos, no a soporte técnico.
+
+---
+
+### F-04 Asistente de ayuda no clínico
+
+El sistema puede incluir un asistente virtual de ayuda operativa.
+
+Este asistente puede responder preguntas sobre:
+
+- navegación del sistema;
+- uso de módulos;
+- explicación de botones;
+- pasos para crear citas;
+- pasos para registrar notas;
+- pasos para cargar evaluaciones;
+- pasos para usar recursos;
+- guías de configuración;
+- preguntas frecuentes.
+
+Restricciones:
+
+- El asistente de ayuda no tiene acceso al expediente.
+- No tiene acceso a notas clínicas.
+- No tiene acceso a evaluaciones psicológicas.
+- No tiene acceso a imágenes cargadas para GPT-007.
+- No analiza casos clínicos.
+- No da recomendaciones terapéuticas.
+- No interpreta pruebas.
+- No sustituye GPT-007.
+- No interactúa con Pacientes en MVP.
+- No debe recibir datos sensibles.
+
+---
+
+### F-05 Guías sobre privacidad y uso responsable
+
+El Centro de Ayuda debe incluir guías breves sobre privacidad y uso responsable del sistema.
+
+Temas mínimos:
+
+- no compartir contraseñas;
+- no descargar expedientes sin necesidad;
+- no enviar datos clínicos por canales inseguros;
+- no incluir datos sensibles en tickets de soporte;
+- uso responsable de GPT-007;
+- uso responsable de imágenes de evaluaciones;
+- manejo de derechos de autor en pruebas psicológicas;
+- diferencia entre soporte técnico y supervisión clínica;
+- cómo reportar un incidente de seguridad.
+
+---
+
+### F-06 Guías de trato con Pacientes
+
+El Centro de Ayuda puede incluir guías operativas para el trato administrativo y profesional con Pacientes dentro de la plataforma.
+
+Ejemplos:
+
+- cómo explicar al Paciente el portal;
+- cómo explicar videollamadas;
+- cómo manejar solicitudes de reprogramación;
+- cómo publicar un resumen terapéutico compartido;
+- cómo invitar al Paciente a revisar sus citas;
+- cómo informar que el portal no contiene el expediente completo.
+
+Restricciones:
+
+- Estas guías son operativas y psicoeducativas.
+- No sustituyen formación clínica.
+- No sustituyen supervisión o mentoría.
+- No deben convertirse en protocolos clínicos obligatorios.
+
+---
+
+### F-07 Enlaces a mentoría y revisión de casos
+
+El Centro de Ayuda puede mostrar enlaces hacia recursos de Catholizare Pro relacionados con mentoría, revisión de casos y reuniones clínicas.
+
+Ejemplos:
+
+- Revisión de Casos;
+- mentoría personalizada;
+- reuniones clínicas;
+- Contagio de Fe;
+- recursos para Profesionales.
+
+Restricciones:
+
+- HELP-018 no gestiona el contenido Pro.
+- Los enlaces y recursos Pro se administran desde PRO-013.
+- HELP-018 solo puede mostrarlos como ayuda contextual o enlaces de soporte profesional.
+
+---
+
+## Reglas de negocio
+
+1. HELP-018 es un módulo de soporte operativo, no clínico.
+2. HELP-018 está separado de GPT-007.
+3. HELP-018 no accede a expedientes clínicos.
+4. HELP-018 no accede a notas clínicas.
+5. HELP-018 no accede a evaluaciones psicológicas.
+6. HELP-018 no analiza imágenes de pruebas ni inventarios.
+7. HELP-018 no interpreta casos clínicos.
+8. HELP-018 no da recomendaciones terapéuticas.
+9. HELP-018 no sustituye mentoría, supervisión ni revisión de casos.
+10. El Profesional no debe incluir datos clínicos sensibles en solicitudes de soporte.
+11. El sistema debe advertir al Profesional antes de enviar una solicitud de soporte.
+12. El Administrador o Super Administrador puede gestionar contenidos de ayuda, según permisos.
+13. El Paciente no accede a HELP-018 en MVP.
+14. Las guías del Centro de Ayuda deben ser claras, prácticas y orientadas al uso de la plataforma.
+15. Los enlaces a mentoría o revisión de casos deben apuntar a contenidos gestionados desde PRO-013.
+
+---
+
+## Datos que maneja
+
+### Artículo de ayuda
+
+| Campo | Descripción |
+|---|---|
+| `help_article_id` | Identificador del artículo |
+| `title` | Título del artículo |
+| `body` | Contenido |
+| `category` | Categoría |
+| `tags` | Etiquetas |
+| `status` | `activo`, `inactivo`, `borrador` |
+| `created_by_user_id` | Usuario creador |
+| `created_at` | Fecha de creación |
+| `updated_at` | Fecha de actualización |
+
+### Solicitud de soporte
+
+| Campo | Descripción |
+|---|---|
+| `support_ticket_id` | Identificador de solicitud |
+| `professional_id` | Profesional solicitante |
+| `category` | Categoría de ayuda |
+| `subject` | Asunto |
+| `description` | Descripción del problema |
+| `attachment_id` | Captura opcional, si aplica |
+| `priority` | `baja`, `media`, `alta` |
+| `status` | `abierto`, `en_revision`, `resuelto`, `cerrado` |
+| `created_at` | Fecha de creación |
+| `updated_at` | Fecha de actualización |
+
+### Interacción con ayuda
+
+| Campo | Descripción |
+|---|---|
+| `help_interaction_id` | Identificador de interacción |
+| `professional_id` | Profesional que consultó |
+| `content_type` | `articulo`, `faq`, `guia`, `enlace`, `asistente` |
+| `content_id` | Contenido consultado |
+| `created_at` | Fecha de interacción |
+
+---
+
+## Auditoría y logs
+
+Eventos mínimos:
+
+- consulta de artículo;
+- creación de solicitud de soporte;
+- actualización de solicitud;
+- cierre de solicitud;
+- creación de artículo;
+- edición de artículo;
+- activación o desactivación de artículo;
+- uso del asistente de ayuda, si aplica.
+
+Restricciones:
+
+- Los logs no deben contener datos clínicos.
+- Los tickets no deben contener expedientes completos.
+- Los tickets no deben contener notas clínicas completas.
+- Los tickets no deben contener imágenes de pruebas psicológicas.
+- Si accidentalmente se cargan datos sensibles, debe existir procedimiento interno de manejo y eliminación segura conforme a política de privacidad.
+
+---
+
+## Privacidad y seguridad
+
+HELP-018 debe minimizar el uso de datos.
+
+Reglas:
+
+- No pedir información clínica.
+- No pedir datos de Pacientes.
+- No pedir capturas que muestren notas clínicas, expedientes o pruebas.
+- Advertir antes de adjuntar archivos.
+- Permitir reportar errores sin revelar contenido clínico.
+- Separar soporte técnico de soporte clínico.
+- Proteger tickets de soporte con control de acceso.
+- Registrar acciones administrativas sobre artículos y tickets.
+
+---
+
+## Dependencias
+
+- USERS-002 — roles, Profesionales y permisos.
+- AUTH-001 — acceso al sistema.
+- PRO-013 — enlaces a recursos, mentorías y revisión de casos.
+- GPT-007 — módulo separado; no se mezcla con asistente de ayuda.
+- EVAL-014 — HELP puede explicar cómo usar evaluaciones, pero no accede a su contenido.
+- Servicio de correo — notificaciones de soporte, si aplica.
+- WhatsApp o canal externo — contacto de soporte, si aplica.
+
+---
+
+## Fuera de alcance del MVP
+
+- Soporte clínico.
+- Supervisión de casos dentro del centro de ayuda.
+- Mentoría clínica dentro del centro de ayuda.
+- Chat en tiempo real interno.
+- Asistente de ayuda con acceso a expediente.
+- Asistente de ayuda con acceso a notas clínicas.
+- Asistente de ayuda con acceso a evaluaciones.
+- Análisis de imágenes de pruebas.
+- Soporte para Pacientes.
+- Base de conocimiento personalizada por organización.
+- Sistema avanzado de tickets con SLA.
+- Automatización completa de soporte.
+- Comunidad o foro interno.
