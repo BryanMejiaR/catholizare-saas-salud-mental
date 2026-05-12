@@ -80,11 +80,40 @@ No existen roles intermedios ni roles personalizados por institución en el MVP.
 
 ---
 
-## D-09 — Stack tecnológico pendiente de definición formal
+## D-09 — Stack tecnológico del MVP
 
-**Decisión diferida:** El stack tecnológico (frontend, backend, base de datos, infraestructura) no ha sido definido formalmente. No se debe asumir ningún lenguaje, framework ni proveedor cloud hasta que se documente en `docs/` como decisión cerrada.
+**Decisión:** El stack tecnológico del MVP queda definido de la siguiente manera. Todo agente de IA debe leer esta decisión antes de proponer arquitectura, esquemas de base de datos o código de implementación.
 
-**Estado:** Pendiente. Bloqueante para las Fases 4 y 5 del plan SDD.
+| Capa | Tecnología | Notas |
+|---|---|---|
+| Frontend | Next.js 15 (App Router) + React + TypeScript + Tailwind CSS | Sin backend separado |
+| Backend | Route Handlers y Server Actions de Next.js | Las llaves secretas permanecen en el servidor |
+| Base de datos | Supabase Cloud (PostgreSQL) | RLS activo desde la primera tabla |
+| Auth | Supabase Auth + Google OAuth 2.0 | Roles en `app_metadata` del JWT; 4 roles: Paciente, Profesional, Administrador, Super Administrador |
+| Storage | Supabase Storage con buckets privados y URLs firmadas | Política TTL de 24 h para imágenes de evaluaciones psicológicas (EVAL-014) |
+| IA clínica | OpenAI API (GPT-4o, texto y visión) | Integrada vía Route Handlers; las API keys nunca se exponen al cliente |
+| Email | Resend | Correos transaccionales y recordatorios de citas |
+| Videollamadas | Zoom API | Generación de enlaces de reunión; conforme a ZOOM-010 |
+| Pagos | Stripe (Care y Pro) | Facturapi en Fase 2; Mercado Pago como opción futura |
+| Background jobs | Supabase Edge Functions + pg_cron | Recordatorios de citas, limpieza de imágenes temporales, envío de correos asíncronos |
+| PDF | @react-pdf/renderer | Exportación de notas clínicas confirmadas (NOTAS-004) |
+| Monitoreo de errores | Sentry | Configurado desde el día 1 |
+| Hosting | Railway | Next.js en modo Node.js persistente (no serverless) |
+| Control de versiones | GitHub | — |
+
+**Decisiones adicionales incluidas:**
+
+- **Google OAuth scope unificado**: en el primer login se solicitan simultáneamente los scopes de autenticación y de Google Calendar (`https://www.googleapis.com/auth/calendar`) para no requerir una segunda autorización al activar GCAL-009.
+- **RLS obligatorio**: toda tabla en Supabase debe tener Row Level Security activo antes de su primera migración a producción. Ninguna tabla puede existir en producción sin política RLS explícita.
+- **TTL de imágenes clínicas**: las imágenes cargadas en EVAL-014 para análisis con IA se eliminan automáticamente del bucket de Storage a las 24 horas de su carga mediante Supabase Edge Function + pg_cron. El resultado clínico validado (texto) se conserva en la base de datos; la imagen original no.
+- **Roles JWT**: los cuatro roles del sistema se almacenan en `app_metadata` de Supabase Auth y se leen desde las políticas RLS sin consultas adicionales a tablas de usuarios.
+
+**Implicaciones de diseño:**
+
+- No existe backend separado. Toda lógica de servidor vive en Route Handlers (`/app/api/`) y Server Actions dentro de Next.js.
+- Las llamadas a OpenAI se hacen exclusivamente desde el servidor para proteger las API keys y construir el paquete clínico controlado conforme a GPT-007.
+- Railway corre Next.js como proceso Node.js persistente, lo que permite manejar operaciones largas (llamadas a OpenAI, generación de PDFs) sin límites de timeout serverless.
+- Supabase Cloud gestiona autenticación, base de datos, storage y edge functions desde una sola plataforma, reduciendo superficie de integración en el MVP.
 
 ---
 
