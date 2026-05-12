@@ -285,7 +285,7 @@ Restricciones:
 ## Reglas de negocio
 
 1. Un expediente pertenece a exactamente un Paciente.
-2. El expediente puede tener un Profesional responsable principal y profesionales autorizados adicionales, si aplica.
+2. El expediente puede tener un Profesional responsable principal y hasta 2 profesionales colaboradores autorizados adicionales, con un máximo de 3 Profesionales activos simultáneos por Paciente (ver D-11 en `docs/decisions-log.md`). Todos los Profesionales del arreglo tienen acceso de lectura y escritura al contenido clínico del expediente.
 3. Los expedientes no se eliminan desde la operación ordinaria; solo pueden archivarse, bloquearse o conservarse conforme a política interna y normatividad aplicable.
 4. La política de retención mínima será de 5 años contados a partir del último acto clínico registrado.
 5. El contenido del expediente no es accesible para Administradores ni Super Administradores en operación normal.

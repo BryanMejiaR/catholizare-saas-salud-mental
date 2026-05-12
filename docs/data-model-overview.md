@@ -258,17 +258,17 @@ erDiagram
 | Grupo | Quién puede leer | Quién puede escribir | Notas |
 |---|---|---|---|
 | `profiles` | El propio usuario; Administrador ve su organización (sin datos clínicos) | El propio usuario; Administrador para su org; Super Administrador | Sin datos clínicos en esta tabla |
-| `expedientes` | Profesional asignado; paciente ve solo su estado no clínico | Profesional asignado | Administrador: solo `status`, `consent_status`. Sin `identification_data` ni `clinical_history` |
-| `historias_clinicas` | Solo Profesional asignado | Solo Profesional asignado | Inaccesible para Administrador y Super Administrador |
-| `consentimientos` | Profesional asignado | Profesional asignado | — |
-| `resumenes_terapeuticos` | Profesional asignado + Paciente (solo registros con `status = publicado`) | Solo Profesional asignado | El Paciente nunca ve borradores de IA |
-| `conceptualizaciones` | Solo Profesional asignado | Solo Profesional asignado | — |
-| `procesos_terapeuticos` / `procesos_tcc` | Solo Profesional asignado | Solo Profesional asignado | — |
-| `ruta_sesiones_tcc` / `cortes_reevaluacion` / `seguimiento_estado_animo` | Solo Profesional asignado | Solo Profesional asignado | — |
-| `notas_clinicas` | Solo Profesional asignado | Solo Profesional asignado | Paciente no accede en MVP |
-| `evaluaciones` | Solo Profesional asignado | Solo Profesional asignado | Paciente no ve resultados completos en MVP |
-| `imagenes_evaluacion` | Solo Profesional asignado | Solo Profesional asignado; Edge Function para eliminación TTL | TTL 24 h — solo el job puede eliminar |
-| `citas` | Profesional asignado + Paciente (ver restricciones de campos) | Solo Profesional | Paciente no ve `zoom_start_url`; solo ve `zoom_join_url` dentro de ventana de 24 h |
+| `expedientes` | Cualquier Profesional en `assigned_professional_ids` del Paciente (máx 3, D-11); Paciente ve solo su estado no clínico | Cualquier Profesional en `assigned_professional_ids` | Administrador: solo `status`, `consent_status`. Sin `identification_data` ni `clinical_history` |
+| `historias_clinicas` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | Inaccesible para Administrador y Super Administrador |
+| `consentimientos` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
+| `resumenes_terapeuticos` | Cualquier Profesional en `assigned_professional_ids` + Paciente (solo `status = publicado`) | Cualquier Profesional en `assigned_professional_ids` | El Paciente nunca ve borradores de IA |
+| `conceptualizaciones` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
+| `procesos_terapeuticos` / `procesos_tcc` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
+| `ruta_sesiones_tcc` / `cortes_reevaluacion` / `seguimiento_estado_animo` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
+| `notas_clinicas` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | Paciente no accede en MVP |
+| `evaluaciones` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | Paciente no ve resultados completos en MVP |
+| `imagenes_evaluacion` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids`; Edge Function para eliminación TTL | TTL 24 h — solo el job puede eliminar |
+| `citas` | Cualquier Profesional en `assigned_professional_ids` + Paciente (ver restricciones de campos) | Cualquier Profesional en `assigned_professional_ids` | Paciente no ve `zoom_start_url`; solo ve `zoom_join_url` dentro de ventana de 24 h |
 | `gcal_tokens` | Solo Profesional propietario | Solo Profesional propietario | Tokens OAuth — alta sensibilidad |
 | `recursos_pro` | Solo Profesional (lectura) | Solo Super Administrador | — |
 | `audit_logs` | Solo Super Administrador | Solo el sistema (append-only) | Nunca se modifica ni elimina |
