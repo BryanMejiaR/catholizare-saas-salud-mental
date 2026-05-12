@@ -51,7 +51,7 @@ Gestionar el acceso seguro a Catholizare para todos los roles: Paciente, Profesi
 
 1. Cada rol accede a una interfaz diferente: portal del paciente, panel del profesional, panel de administración.
 2. El token de sesión debe incluir el rol del usuario para que cada capa del sistema aplique las reglas de acceso correctas.
-3. No existe login social (Google, Facebook, etc.) en el MVP.
+3. No existe login social (Google, Facebook, etc.) en el MVP. La autenticación siempre es mediante correo electrónico y contraseña a través de Supabase Auth. El Google OAuth que se solicita durante el primer login del Profesional es exclusivamente para autorizar el scope de Google Calendar (`https://www.googleapis.com/auth/calendar`) requerido por GCAL-009; no constituye un mecanismo de inicio de sesión alternativo (ver D-09 en `docs/decisions-log.md`).
 4. La autenticación multifactor (MFA) no es obligatoria en el MVP, pero el diseño debe permitir activarla en el futuro sin cambios estructurales.
 5. Los Super Administradores no tienen interfaz de registro; sus cuentas se crean directamente en la base de datos por el equipo de Catholizare.
 

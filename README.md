@@ -90,17 +90,35 @@ Los task briefs generados durante el proceso SDD se escriben bajo `tasks/`.
 
 | Fase | Descripción | Estado |
 |---|---|---|
-| Fase 1 | Limpieza y estructura del repo | En progreso |
-| Fase 2 | Documentación base en `/docs` | Pendiente |
-| Fase 3 | Specs MVP en `/specs` | Pendiente |
-| Fase 4 | Definición formal del MVP | Pendiente |
-| Fase 5 | Preparación para agente implementador | Pendiente |
+| Fase 1 | Limpieza y estructura del repo | ✅ Completado |
+| Fase 2 | Documentación base en `/docs` | ✅ Completado |
+| Fase 3 | Specs MVP en `/specs` | ✅ Completado |
+| Fase 4 | Definición formal del MVP (`docs/mvp-scope.md`, D-09) | ✅ Completado |
+| Fase 5 | Preparación para agente implementador (`CLAUDE.md`, contratos técnicos) | 🔄 En progreso |
+
+---
+
+## Stack tecnológico
+
+Stack definido en `docs/decisions-log.md` (D-09) y resumido en `CLAUDE.md`.
+
+| Capa | Tecnología |
+|---|---|
+| Frontend / Backend | Next.js 15 (App Router) + TypeScript + Tailwind CSS |
+| Base de datos | Supabase Cloud (PostgreSQL + RLS) |
+| Auth | Supabase Auth + Google OAuth (scope Calendar) |
+| IA clínica | OpenAI API (GPT-4o) |
+| Hosting | Railway |
+| Email | Resend |
+| Videollamadas | Zoom API |
+| Pagos | Stripe |
 
 ---
 
 ## Restricciones importantes
 
-- No asumir stack tecnológico hasta que esté definido en `docs/`.
+- El stack tecnológico está definido en `docs/decisions-log.md` (D-09). No se modifica sin registrar una nueva decisión.
 - No asumir detalles clínicos que no estén en `docs/normative-compliance.md` o `docs/domain-glossary.md`.
 - No crear archivos bajo `tasks/` sin un High-Level Technical Contract aprobado.
-- Todo cambio en general y en especial que afecte expedientes clínicos debe verificar cumplimiento con la NOM-004-SSA3-2012 y la NOM-024-SSA3-2012 en lo correspondiente al sistema de expediente
+- Todo cambio que afecte expedientes clínicos debe verificar cumplimiento con NOM-004-SSA3-2012 y NOM-024-SSA3-2012.
+- Leer `CLAUDE.md` antes de proponer cualquier diseño, migración o código.
