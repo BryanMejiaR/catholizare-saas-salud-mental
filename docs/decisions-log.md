@@ -126,3 +126,11 @@ No existen roles intermedios ni roles personalizados por institución en el MVP.
 El paciente no tiene acceso al expediente clínico completo ni a las notas del profesional salvo lo que el profesional publique explícitamente en el resumen.
 
 **Implicaciones de diseño:** El profesional controla qué información del expediente es visible para el paciente. El portal del paciente es de solo lectura para el MVP.
+
+---
+
+## D-11 — Un Paciente puede tener hasta 3 Profesionales activos simultáneos
+
+**Decisión:** Un Paciente puede tener hasta 3 Profesionales activos asignados al mismo tiempo dentro de una organización. Uno de ellos es el Profesional principal; los demás son colaboradores autorizados. La asignación, reasignación y desasignación es responsabilidad del Administrador.
+
+**Implicaciones de diseño:** El campo `assigned_professional_id` (singular) en `profiles` se reemplaza por `primary_professional_id` (Profesional principal) y `assigned_professional_ids` (arreglo con todos los Profesionales activos, máximo 3). Las políticas RLS del expediente deben permitir acceso de lectura y escritura a todos los Profesionales del arreglo, no solo al principal. El Administrador puede agregar o quitar Profesionales del arreglo; al quitar uno, su acceso al expediente se revoca excepto en modo lectura hasta que el Administrador lo confirme explícitamente.

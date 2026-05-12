@@ -131,7 +131,8 @@ erDiagram
 | `role` | `text` | `paciente`, `profesional`, `administrador`, `super_administrador` — espejo de `app_metadata` en JWT |
 | `full_name` | `text` | — |
 | `account_status` | `text` | `activo`, `inactivo`, `pendiente_activacion` |
-| `assigned_professional_id` | `uuid` | Solo para Pacientes; FK a `profiles` |
+| `primary_professional_id` | `uuid` | Solo para Pacientes: Profesional principal; FK a `profiles` |
+| `assigned_professional_ids` | `uuid[]` | Solo para Pacientes: todos los Profesionales activos asignados, máximo 3 (incluye al principal). Las políticas RLS del expediente permiten acceso a todos los IDs del arreglo (D-11) |
 | `created_by` | `uuid` | FK a `profiles` del creador |
 
 ### `expedientes`
