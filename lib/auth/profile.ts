@@ -18,7 +18,7 @@ export async function getCurrentProfile(): Promise<AuthProfile | null> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, organization_id, role, account_status, full_name, email, last_login_at, failed_attempts, locked_until"
+      "id, role, account_status, full_name, email, last_login_at, failed_attempts, locked_until"
     )
     .eq("id", user.id)
     .single();

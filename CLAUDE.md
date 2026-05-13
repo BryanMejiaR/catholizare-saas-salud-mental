@@ -33,7 +33,7 @@ Resumen:
 |---|---|
 | Frontend/Backend | Next.js 15 (App Router) + TypeScript + Tailwind CSS. Sin backend separado. |
 | Lógica de servidor | Route Handlers (`/app/api/`) y Server Actions dentro de Next.js. |
-| Base de datos | Supabase Cloud (PostgreSQL) con RLS activo desde la primera tabla. |
+| Base de datos | Supabase Cloud (PostgreSQL) con RLS activo desde la primera tabla. Sin tabla `organizations` (D-12). |
 | Auth | Supabase Auth + Google OAuth 2.0. Roles en `app_metadata` del JWT. |
 | IA clínica | OpenAI API (GPT-4o) vía Route Handlers. API keys nunca se exponen al cliente. |
 | Email | Resend. |

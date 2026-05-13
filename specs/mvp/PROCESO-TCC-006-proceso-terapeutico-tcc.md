@@ -976,7 +976,6 @@ Restricciones:
 | `expediente_id` | Expediente al que pertenece |
 | `patient_id` | Paciente relacionado |
 | `professional_id` | Profesional responsable |
-| `organization_id` | Organización relacionada, si aplica |
 | `model_type` | `tcc` |
 | `template_version` | Versión de la plantilla TCC usada al iniciar |
 | `template_snapshot` | Copia de la plantilla TCC al momento de inicio |

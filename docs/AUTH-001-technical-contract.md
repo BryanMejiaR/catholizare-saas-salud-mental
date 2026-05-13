@@ -25,14 +25,13 @@ Implementar la base de autenticación y sesiones del MVP usando Supabase Auth co
 
 Tablas iniciales:
 
-- `organizations`: aislamiento institucional mínimo para USERS-002.
-- `profiles`: identidad operacional, rol, estado de cuenta, contador de fallos y bloqueo.
-- `auth_audit_logs`: auditoría de eventos de autenticación.
+- `profiles`: identidad operacional, rol, estado de cuenta, contador de fallos y bloqueo. Sin `organization_id` (ver D-12).
+- `auth_audit_logs`: auditoría de eventos de autenticación. Append-only; solo escritura vía service role.
 
-Todas las tablas nacen con RLS activo. No hay políticas de escritura directa para `profiles` desde cliente; USERS-002 deberá usar operaciones de servidor y service role.
+No existe tabla `organizations` (ver D-12 en `docs/decisions-log.md`). Todas las tablas nacen con RLS activo. No hay políticas de escritura directa para `profiles` desde cliente; USERS-002 deberá usar operaciones de servidor y service role.
 
 ## Riesgos y pendientes
 
 - La vigencia real de enlaces de recuperación e invitación se configura en Supabase Auth; debe validarse en el proyecto Supabase Cloud.
 - La creación de usuarios por invitación pertenece a USERS-002, aunque AUTH-001 ya soporta el flujo de activación mediante callback y creación de contraseña.
-- La sincronización de `app_metadata.role` y `app_metadata.organization_id` deberá quedar cerrada en USERS-002 para que middleware y RLS operen con el mismo origen de verdad.
+- La sincronización de `app_metadata.role` deberá quedar cerrada en USERS-002 para que middleware y RLS operen con el mismo origen de verdad.

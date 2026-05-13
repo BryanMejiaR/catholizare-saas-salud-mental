@@ -18,7 +18,6 @@ export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
 
 export type AuthProfile = {
   id: string;
-  organization_id: string | null;
   role: UserRole;
   account_status: AccountStatus;
   full_name: string;

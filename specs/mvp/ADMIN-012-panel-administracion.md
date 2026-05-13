@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Proveer a los roles Administrador y Super Administrador herramientas para gestionar usuarios, organizaciones, asignaciones administrativas, configuración institucional, reportes operativos y auditoría de la plataforma, sin acceso al contenido clínico de los expedientes.
+Proveer a los roles Administrador y Super Administrador herramientas para gestionar usuarios, asignaciones administrativas, configuración de la plataforma, reportes operativos y auditoría, sin acceso al contenido clínico de los expedientes. No existen organizaciones en Catholizare; el Administrador opera a nivel de plataforma (ver D-12 en `docs/decisions-log.md`).
 
 El panel de administración no permite consultar notas clínicas, diagnósticos, hipótesis clínicas, formulaciones de caso, narrativas terapéuticas, resultados detallados de pruebas psicológicas, imágenes de evaluaciones ni contenido del proceso terapéutico.
 
@@ -12,16 +12,16 @@ El panel de administración no permite consultar notas clínicas, diagnósticos,
 
 | Actor | Interacción |
 |---|---|
-| Administrador | Gestiona su organización: usuarios, asignaciones, configuración institucional y reportes operativos agregados. |
-| Super Administrador | Gestiona todas las organizaciones, configuración global, usuarios administrativos, auditoría y estadísticas agregadas de la plataforma. |
+| Administrador | Gestiona la plataforma: usuarios, asignaciones y reportes operativos agregados. |
+| Super Administrador | Gestiona toda la plataforma: configuración global, usuarios administrativos, auditoría y estadísticas agregadas. |
 
 ---
 
 ## Funcionalidades del Administrador
 
-### F-01 Gestión de usuarios de la organización
+### F-01 Gestión de usuarios de la plataforma
 
-El Administrador puede ver, crear, editar datos básicos, activar, desactivar y asignar usuarios de su organización según permisos.
+El Administrador puede ver, crear, editar datos básicos, activar, desactivar y asignar usuarios de la plataforma según permisos.
 
 Restricciones:
 
@@ -32,7 +32,7 @@ Restricciones:
 
 ### F-02 Reportes operativos de actividad
 
-El Administrador puede ver reportes de uso de la plataforma dentro de su organización.
+El Administrador puede ver reportes de uso de toda la plataforma.
 
 Métricas permitidas en MVP:
 
@@ -54,9 +54,9 @@ Restricciones:
 
 ---
 
-### F-03 Configuración de la organización
+### F-03 Configuración de la plataforma
 
-El Administrador puede configurar nombre de organización, datos institucionales, correos de notificación, estado general y preferencias administrativas.
+El Administrador puede configurar correos de notificación, estado general y preferencias administrativas de la plataforma.
 
 Restricciones:
 
@@ -68,13 +68,7 @@ Restricciones:
 
 ## Funcionalidades del Super Administrador
 
-### F-04 Gestión de organizaciones
-
-Puede ver, crear, activar, desactivar y consultar estado general de organizaciones.
-
----
-
-### F-05 Gestión de Administradores y Super Administradores
+### F-04 Gestión de Administradores y Super Administradores
 
 Puede crear cuentas de Administrador, desactivar cuentas administrativas y consultar estado de cuentas administrativas. La creación de Super Administradores queda restringida a cuenta raíz o propietario autorizado.
 
@@ -100,7 +94,6 @@ El Super Administrador puede visualizar estadísticas globales y agregadas sin a
 
 Métricas permitidas:
 
-- organizaciones activas e inactivas;
 - profesionales activos;
 - pacientes activos;
 - citas por periodo;
@@ -182,7 +175,7 @@ El módulo ADMIN-012 no almacena contenido clínico.
 
 ## Fuera de alcance del MVP
 
-- Configuración granular avanzada de permisos por organización.
+- Configuración granular avanzada de permisos.
 - Exportación de reportes a Excel o CSV.
 - Panel financiero de ingresos, churn, suscripciones o facturación.
 - Gestión contable.

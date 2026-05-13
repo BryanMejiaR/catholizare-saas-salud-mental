@@ -67,9 +67,6 @@ Evento agendado entre el profesional y el paciente, con fecha, hora, duración y
 ### Log de auditoría
 Registro automático de todas las acciones sobre datos clínicos: quién accedió, qué modificó, cuándo. Requerido por la NOM-024-SSA3-2012 para garantizar trazabilidad e integridad de la información.
 
-### Organización
-Entidad que agrupa a uno o más profesionales bajo una misma cuenta institucional en Catholizare. Puede ser una clínica, un centro de salud mental o un profesional independiente.
-
 ---
 
 ## Acrónimos y siglas

@@ -78,23 +78,22 @@ Psicólogo, psicoterapeuta o profesional de salud mental que usa Catholizare par
 ## Administrador
 
 ### Quién es
-Persona responsable de la cuenta institucional o de la organización en Catholizare. Puede ser el propio profesional en práctica individual, o un coordinador en un centro de salud mental.
+Rol de plataforma dentro de Catholizare, con permisos reducidos respecto al Super Administrador. No pertenece a ningún Profesional ni institución. Gestiona usuarios y configuración a nivel global de la plataforma (ver D-12 en `docs/decisions-log.md`).
 
 ### Acceso
-- Panel de administración de la cuenta
-- Vista de usuarios y configuración institucional
+- Panel de administración de la plataforma
+- Vista de usuarios y configuración general
 
 ### Puede hacer
-- Crear, editar y desactivar cuentas de Profesionales y Pacientes dentro de su organización, 
-- Configurar parámetros de la cuenta institucional
-- Ver reportes de uso y actividad (sin contenido clínico sensible)
-- Asignar pacientes a profesionales
+- Crear, editar y desactivar cuentas de Profesionales y Pacientes en la plataforma
+- Ver reportes de uso y actividad agregados de toda la plataforma (sin contenido clínico sensible)
+- Asignar Pacientes a Profesionales
 
 ### No puede hacer
 - Ver el contenido de los expedientes clínicos (el contenido clínico es privado entre profesional y paciente)
 - Acceder a notas clínicas ni a procesos terapéuticos
 - Acceder al panel de Super Administrador
-- Modificar configuración de otras cuentas institucionales
+- Crear cuentas de Administrador o Super Administrador
 
 ---
 
@@ -123,8 +122,8 @@ Miembro del equipo interno de Catholizare. Este rol no se asigna a clientes.
 
 ## Reglas de acceso transversales
 
-1. **Aislamiento de datos por organización**: un profesional o administrador de la organización A no puede ver datos de la organización B.
-2. **Aislamiento de datos por profesional**: dentro de una organización, un profesional no accede a los pacientes de otro profesional salvo asignación explícita.
+1. **Aislamiento de datos por profesional**: cada Profesional solo accede a sus propios Pacientes y expedientes. No existe aislamiento por organización (ver D-12).
+2. **Sin acceso cruzado entre Profesionales**: un Profesional no accede a los expedientes de otro Profesional sobre el mismo Paciente, salvo asignación explícita con autorización del Paciente y del Administrador.
 3. **El paciente solo ve lo que el profesional publica**: el portal del paciente muestra únicamente lo que el profesional ha marcado como visible.
 4. **Los recursos Pro son exclusivos del profesional**: ningún paciente ni administrador ve contenido de Catholizare Pro.
 5. **Toda acción sobre datos clínicos queda en log de auditoría**: requerimiento de la NOM-024-SSA3-2012.

@@ -47,8 +47,7 @@ erDiagram
 
 | Tabla | Módulo | Descripción |
 |---|---|---|
-| `profiles` | USERS-002 | Extiende `auth.users` de Supabase. Contiene nombre, rol, estado de cuenta y organización. |
-| `organizations` | USERS-002 | Organización o clínica. Agrupa Profesionales y Pacientes. |
+| `profiles` | USERS-002 | Extiende `auth.users` de Supabase. Contiene nombre, rol y estado de cuenta. No existe tabla `organizations` (ver D-12). |
 | `gcal_tokens` | GCAL-009 | Tokens OAuth de Google Calendar por Profesional. Solo accesible por el Profesional propietario. |
 
 ---
@@ -127,7 +126,6 @@ erDiagram
 | Campo | Tipo | Notas |
 |---|---|---|
 | `id` | `uuid` | FK a `auth.users.id` |
-| `organization_id` | `uuid` | FK a `organizations` |
 | `role` | `text` | `paciente`, `profesional`, `administrador`, `super_administrador` — espejo de `app_metadata` en JWT |
 | `full_name` | `text` | — |
 | `account_status` | `text` | `activo`, `inactivo`, `pendiente_activacion` |
@@ -141,7 +139,6 @@ erDiagram
 | `id` | `uuid` | PK |
 | `patient_id` | `uuid` | FK a `profiles` |
 | `professional_id` | `uuid` | FK a `profiles` — único propietario del expediente; RLS verifica `professional_id = auth.uid()` |
-| `organization_id` | `uuid` | FK a `organizations` |
 | `identification_data` | `jsonb` | Datos de identificación y contacto (protegidos) |
 | `consent_status` | `text` | `pendiente`, `firmado_fisico`, `firmado_digital`, `excepcion_justificada` |
 | `patient_summary_status` | `text` | `no_publicado`, `publicado`, `despublicado` |
@@ -256,7 +253,7 @@ erDiagram
 
 | Grupo | Quién puede leer | Quién puede escribir | Notas |
 |---|---|---|---|
-| `profiles` | El propio usuario; Administrador ve su organización (sin datos clínicos) | El propio usuario; Administrador para su org; Super Administrador | Sin datos clínicos en esta tabla |
+| `profiles` | El propio usuario; Administrador ve todos los perfiles (sin datos clínicos); Super Administrador | El propio usuario; Administrador; Super Administrador | Sin datos clínicos en esta tabla. Sin aislamiento por organización (D-12) |
 | `expedientes` | Solo el Profesional propietario (`professional_id`); Paciente ve solo su estado no clínico | Solo el Profesional propietario (`professional_id`) | Administrador: solo `status`, `consent_status`. Un Profesional no ve el expediente de otro Profesional sobre el mismo Paciente (D-11) |
 | `historias_clinicas` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | Inaccesible para Administrador y Super Administrador |
 | `consentimientos` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | — |
@@ -277,7 +274,7 @@ erDiagram
 ## Relaciones clave entre módulos
 
 ```
-auth.users ──────────── profiles ──────────── organizations
+auth.users ──────────── profiles
                             │
                      expedientes ────────── consentimientos
                             │

@@ -316,7 +316,6 @@ Restricciones:
 | `expediente_id` | Identificador único del expediente |
 | `patient_id` | Paciente al que pertenece el expediente |
 | `professional_id` | Profesional propietario y único responsable del expediente |
-| `organization_id` | Organización a la que pertenece, si aplica |
 | `identification_data` | Datos de identificación y contacto |
 | `clinical_history` | Historia clínica psicológica |
 | `initial_consultation_reason` | Motivo de consulta inicial |
