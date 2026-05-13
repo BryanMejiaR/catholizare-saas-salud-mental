@@ -285,7 +285,7 @@ Restricciones:
 ## Reglas de negocio
 
 1. Un expediente pertenece a exactamente un Paciente.
-2. El expediente puede tener un Profesional responsable principal y hasta 2 profesionales colaboradores autorizados adicionales, con un máximo de 3 Profesionales activos simultáneos por Paciente (ver D-11 en `docs/decisions-log.md`). Todos los Profesionales del arreglo tienen acceso de lectura y escritura al contenido clínico del expediente.
+2. Cada expediente pertenece a exactamente un Profesional y un Paciente. No existe un expediente compartido entre Profesionales. Un Paciente puede tener hasta 3 expedientes activos simultáneos, uno por cada Profesional asignado, cada uno independiente y sin acceso cruzado entre Profesionales (ver D-11 en `docs/decisions-log.md`).
 3. Los expedientes no se eliminan desde la operación ordinaria; solo pueden archivarse, bloquearse o conservarse conforme a política interna y normatividad aplicable.
 4. La política de retención mínima será de 5 años contados a partir del último acto clínico registrado.
 5. El contenido del expediente no es accesible para Administradores ni Super Administradores en operación normal.
@@ -315,8 +315,7 @@ Restricciones:
 |---|---|
 | `expediente_id` | Identificador único del expediente |
 | `patient_id` | Paciente al que pertenece el expediente |
-| `primary_professional_id` | Profesional responsable principal |
-| `authorized_professional_ids` | Profesionales autorizados adicionales, si aplica |
+| `professional_id` | Profesional propietario y único responsable del expediente |
 | `organization_id` | Organización a la que pertenece, si aplica |
 | `identification_data` | Datos de identificación y contacto |
 | `clinical_history` | Historia clínica psicológica |

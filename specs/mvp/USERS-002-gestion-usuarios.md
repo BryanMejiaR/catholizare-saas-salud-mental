@@ -59,7 +59,7 @@ Al crear un usuario se envía correo de activación (ver AUTH-001 F-04).
 ## Reglas de negocio
 
 1. Un usuario pertenece a exactamente una organización; no puede ser miembro de dos organizaciones simultáneamente en el MVP.
-2. Un Paciente puede tener hasta 3 Profesionales activos asignados simultáneamente. Uno de ellos es el Profesional principal; los demás son colaboradores autorizados. La asignación y desasignación es gestionada por el Administrador (ver D-11 en `docs/decisions-log.md`).
+2. Un Paciente puede tener hasta 3 Profesionales activos asignados simultáneamente, con un máximo de 3 expedientes clínicos activos, uno por cada Profesional. Cada expediente es independiente: un Profesional no accede al expediente de otro Profesional sobre el mismo Paciente. La asignación y desasignación es gestionada por el Administrador (ver D-11 en `docs/decisions-log.md`).
 3. El Administrador no puede ver el contenido clínico de los expedientes; solo ve datos de identificación y estado de cuenta.
 4. No existe eliminación de cuentas; solo desactivación lógica.
 5. El correo electrónico es único en todo el sistema (no solo por organización).

@@ -10,7 +10,7 @@ Mapa de alto nivel de las entidades principales de Supabase, sus relaciones y la
 
 ```mermaid
 erDiagram
-    profiles ||--o{ expedientes : "primary_professional_id"
+    profiles ||--o{ expedientes : "professional_id"
     profiles ||--o{ expedientes : "patient_id"
     profiles ||--o{ citas : "professional_id"
     profiles ||--o{ citas : "patient_id"
@@ -57,7 +57,7 @@ erDiagram
 
 | Tabla | Módulo | Descripción |
 |---|---|---|
-| `expedientes` | EXPEDIENTE-003 | Contenedor maestro. Vincula Paciente, Profesional y organización. Estado: `activo`, `archivado`, `bloqueado`. |
+| `expedientes` | EXPEDIENTE-003 | Contenedor clínico de un caso: un Profesional + un Paciente. Un Paciente puede tener hasta 3 expedientes activos simultáneos, uno por Profesional asignado. Cada expediente es independiente; no hay acceso cruzado entre Profesionales. Estado: `activo`, `archivado`, `bloqueado`. |
 | `historias_clinicas` | EXPEDIENTE-003 | Relación 1:1 con `expedientes`. Historia clínica psicológica completa. |
 | `consentimientos` | EXPEDIENTE-003 | Consentimientos informados vinculados al expediente. Estado: `pendiente`, `firmado_fisico`, `firmado_digital`, `excepcion_justificada`. |
 | `resumenes_terapeuticos` | EXPEDIENTE-003 | Resúmenes redactados o generados con IA y aprobados por el Profesional. Visibles en el portal del Paciente cuando están publicados. |
@@ -131,8 +131,7 @@ erDiagram
 | `role` | `text` | `paciente`, `profesional`, `administrador`, `super_administrador` — espejo de `app_metadata` en JWT |
 | `full_name` | `text` | — |
 | `account_status` | `text` | `activo`, `inactivo`, `pendiente_activacion` |
-| `primary_professional_id` | `uuid` | Solo para Pacientes: Profesional principal; FK a `profiles` |
-| `assigned_professional_ids` | `uuid[]` | Solo para Pacientes: todos los Profesionales activos asignados, máximo 3 (incluye al principal). Las políticas RLS del expediente permiten acceso a todos los IDs del arreglo (D-11) |
+| `assigned_professional_ids` | `uuid[]` | Solo para Pacientes: registro administrativo de los Profesionales asignados, máximo 3. No implica acceso cruzado — cada Profesional tiene su propio expediente independiente (D-11) |
 | `created_by` | `uuid` | FK a `profiles` del creador |
 
 ### `expedientes`
@@ -141,7 +140,7 @@ erDiagram
 |---|---|---|
 | `id` | `uuid` | PK |
 | `patient_id` | `uuid` | FK a `profiles` |
-| `primary_professional_id` | `uuid` | FK a `profiles` |
+| `professional_id` | `uuid` | FK a `profiles` — único propietario del expediente; RLS verifica `professional_id = auth.uid()` |
 | `organization_id` | `uuid` | FK a `organizations` |
 | `identification_data` | `jsonb` | Datos de identificación y contacto (protegidos) |
 | `consent_status` | `text` | `pendiente`, `firmado_fisico`, `firmado_digital`, `excepcion_justificada` |
@@ -258,17 +257,17 @@ erDiagram
 | Grupo | Quién puede leer | Quién puede escribir | Notas |
 |---|---|---|---|
 | `profiles` | El propio usuario; Administrador ve su organización (sin datos clínicos) | El propio usuario; Administrador para su org; Super Administrador | Sin datos clínicos en esta tabla |
-| `expedientes` | Cualquier Profesional en `assigned_professional_ids` del Paciente (máx 3, D-11); Paciente ve solo su estado no clínico | Cualquier Profesional en `assigned_professional_ids` | Administrador: solo `status`, `consent_status`. Sin `identification_data` ni `clinical_history` |
-| `historias_clinicas` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | Inaccesible para Administrador y Super Administrador |
-| `consentimientos` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
-| `resumenes_terapeuticos` | Cualquier Profesional en `assigned_professional_ids` + Paciente (solo `status = publicado`) | Cualquier Profesional en `assigned_professional_ids` | El Paciente nunca ve borradores de IA |
-| `conceptualizaciones` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
-| `procesos_terapeuticos` / `procesos_tcc` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
-| `ruta_sesiones_tcc` / `cortes_reevaluacion` / `seguimiento_estado_animo` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | — |
-| `notas_clinicas` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | Paciente no accede en MVP |
-| `evaluaciones` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids` | Paciente no ve resultados completos en MVP |
-| `imagenes_evaluacion` | Cualquier Profesional en `assigned_professional_ids` | Cualquier Profesional en `assigned_professional_ids`; Edge Function para eliminación TTL | TTL 24 h — solo el job puede eliminar |
-| `citas` | Cualquier Profesional en `assigned_professional_ids` + Paciente (ver restricciones de campos) | Cualquier Profesional en `assigned_professional_ids` | Paciente no ve `zoom_start_url`; solo ve `zoom_join_url` dentro de ventana de 24 h |
+| `expedientes` | Solo el Profesional propietario (`professional_id`); Paciente ve solo su estado no clínico | Solo el Profesional propietario (`professional_id`) | Administrador: solo `status`, `consent_status`. Un Profesional no ve el expediente de otro Profesional sobre el mismo Paciente (D-11) |
+| `historias_clinicas` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | Inaccesible para Administrador y Super Administrador |
+| `consentimientos` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | — |
+| `resumenes_terapeuticos` | Solo el Profesional propietario del expediente + Paciente (solo `status = publicado`) | Solo el Profesional propietario del expediente | El Paciente nunca ve borradores de IA |
+| `conceptualizaciones` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | — |
+| `procesos_terapeuticos` / `procesos_tcc` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | — |
+| `ruta_sesiones_tcc` / `cortes_reevaluacion` / `seguimiento_estado_animo` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | — |
+| `notas_clinicas` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | Paciente no accede en MVP |
+| `evaluaciones` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente | Paciente no ve resultados completos en MVP |
+| `imagenes_evaluacion` | Solo el Profesional propietario del expediente | Solo el Profesional propietario del expediente; Edge Function para eliminación TTL | TTL 24 h — solo el job puede eliminar |
+| `citas` | El Profesional de la cita + Paciente (ver restricciones de campos) | Solo el Profesional de la cita | Paciente no ve `zoom_start_url`; solo ve `zoom_join_url` dentro de ventana de 24 h |
 | `gcal_tokens` | Solo Profesional propietario | Solo Profesional propietario | Tokens OAuth — alta sensibilidad |
 | `recursos_pro` | Solo Profesional (lectura) | Solo Super Administrador | — |
 | `audit_logs` | Solo Super Administrador | Solo el sistema (append-only) | Nunca se modifica ni elimina |
