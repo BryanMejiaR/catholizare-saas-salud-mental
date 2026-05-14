@@ -63,7 +63,7 @@ La NOM-024-SSA3-2012 aplica a toda la plataforma Catholizare en cuanto a infraes
 
 #### Confidencialidad
 - La información clínica del paciente es confidencial y solo accesible a las personas autorizadas, GPT no tenda acceso a la informacion de identifiacion del paciente.
-- **En Catholizare**: implementado mediante autenticación, control de acceso por rol y aislamiento de datos por organización y profesional (ver `docs/actors-and-roles.md`).
+- **En Catholizare**: implementado mediante autenticación, control de acceso por rol y aislamiento de datos por profesional (ver `docs/actors-and-roles.md`).
 
 #### Integridad
 - Los datos clínicos no deben ser alterados de forma no autorizada. Toda modificación debe ser trazable.
@@ -111,7 +111,7 @@ Antes de aprobar cualquier spec o task brief que toque expediente clínico o dat
 - [ ] ¿Existe consentimiento informado antes del inicio del proceso terapéutico?
 - [ ] ¿Las notas guardadas son inmutables (no editables)?
 - [ ] ¿La política de retención de datos es de mínimo 5 años?
-- [ ] ¿El acceso está restringido por rol y organización?
+- [ ] ¿El acceso está restringido por rol y profesional?
 - [ ] ¿Toda acción sobre datos clínicos genera entrada en el log de auditoría?
 - [ ] ¿Los datos en tránsito usan TLS?
 - [ ] ¿Los datos en reposo están cifrados?

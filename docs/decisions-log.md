@@ -131,7 +131,7 @@ El paciente no tiene acceso al expediente clínico completo ni a las notas del p
 
 ## D-11 — Un Paciente puede tener hasta 3 Profesionales activos simultáneos
 
-**Decisión:** Un Paciente puede tener hasta 3 Profesionales activos asignados al mismo tiempo dentro de una organización. Cada Profesional trabaja un caso de forma completamente independiente: cada asignación genera su propio expediente clínico exclusivo. No existe un expediente compartido entre Profesionales sobre el mismo Paciente. Un Profesional no tiene acceso al expediente que otro Profesional lleva sobre ese Paciente.
+**Decisión:** Un Paciente puede tener hasta 3 Profesionales activos asignados al mismo tiempo. Cada Profesional trabaja un caso de forma completamente independiente: cada asignación genera su propio expediente clínico exclusivo. No existe un expediente compartido entre Profesionales sobre el mismo Paciente. Un Profesional no tiene acceso al expediente que otro Profesional lleva sobre ese Paciente.
 
 **Implicaciones de diseño:** El modelo de datos cambia de un expediente único por Paciente a un expediente por par Profesional-Paciente. El campo `professional_id` en `expedientes` es singular e identifica al único propietario del expediente. Las políticas RLS del expediente verifican `professional_id = auth.uid()`, no un arreglo. En `profiles`, el campo `assigned_professional_ids uuid[]` sirve únicamente para que el Administrador registre qué Profesionales tienen al Paciente asignado; no implica acceso cruzado entre expedientes. Al desasignar un Profesional, su expediente sobre ese Paciente queda archivado o en el estado que el Profesional haya dejado; no se elimina.
 

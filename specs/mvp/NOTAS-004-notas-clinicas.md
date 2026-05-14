@@ -6,7 +6,7 @@ Permitir al Profesional registrar, consultar, confirmar, corregir y exportar not
 
 Las notas clínicas forman parte del expediente clínico. NOTAS-004 no crea un expediente paralelo, sino que funciona como submódulo operativo para registrar las sesiones, intervenciones, evolución, referencias, interconsultas y egresos de manera práctica y frecuente.
 
-Toda nota clínica debe quedar vinculada obligatoriamente a Paciente, expediente clínico, Profesional, cita si aplica, proceso terapéutico si aplica y organización si aplica. No debe existir una nota clínica suelta.
+Toda nota clínica debe quedar vinculada obligatoriamente a Paciente, expediente clínico, Profesional, cita si aplica y proceso terapéutico si aplica. No debe existir una nota clínica suelta.
 
 ---
 
@@ -53,7 +53,7 @@ EXPEDIENTE-003
 
 El Profesional puede crear una nota clínica desde una cita registrada en AGENDA-008.
 
-Al crear la nota desde una cita, el sistema precarga Paciente, expediente clínico activo, Profesional, organización, cita relacionada, fecha y hora de sesión, tipo sugerido de nota y proceso terapéutico activo si existe.
+Al crear la nota desde una cita, el sistema precarga Paciente, expediente clínico activo, Profesional, cita relacionada, fecha y hora de sesión, tipo sugerido de nota y proceso terapéutico activo si existe.
 
 Restricciones:
 
@@ -68,7 +68,7 @@ Restricciones:
 
 El Profesional puede crear una nota clínica desde el expediente del Paciente.
 
-El sistema debe precargar Paciente, expediente clínico, Profesional, organización, proceso terapéutico activo y últimas citas relacionadas si existen.
+El sistema debe precargar Paciente, expediente clínico, Profesional, proceso terapéutico activo y últimas citas relacionadas si existen.
 
 El Profesional debe seleccionar tipo de nota, fecha de sesión o acto clínico, cita relacionada si aplica y proceso terapéutico relacionado si aplica.
 
@@ -173,7 +173,7 @@ Restricciones:
 
 El Profesional puede exportar una nota clínica confirmada a PDF.
 
-El PDF puede incluir nombre del Paciente, identificador de expediente, Profesional, cédula profesional si está registrada, tipo de nota, fecha de sesión, fecha de confirmación, contenido, organización, sello o identificador del sistema y folio interno.
+El PDF puede incluir nombre del Paciente, identificador de expediente, Profesional, cédula profesional si está registrada, tipo de nota, fecha de sesión, fecha de confirmación, contenido, sello o identificador del sistema y folio interno.
 
 Restricciones:
 
@@ -295,7 +295,6 @@ La nota puede incluir motivo de egreso, resumen del proceso, objetivos trabajado
 | `expediente_id` | Expediente clínico al que pertenece |
 | `patient_id` | Paciente al que pertenece |
 | `professional_id` | Profesional autor o responsable |
-| `organization_id` | Organización relacionada, si aplica |
 | `appointment_id` | Cita asociada, si aplica |
 | `process_id` | Proceso terapéutico asociado, si aplica |
 | `tcc_process_id` | Proceso TCC relacionado, si aplica |
@@ -387,7 +386,7 @@ Reglas:
 - Firma electrónica avanzada.
 - Eliminación física de notas clínicas.
 - Exportación masiva de notas.
-- Plantillas avanzadas personalizadas por organización.
+- Plantillas avanzadas personalizadas.
 - Dictado por voz.
 - Transcripción automática de sesiones.
 - Generación autónoma de notas clínicas por IA sin revisión humana.

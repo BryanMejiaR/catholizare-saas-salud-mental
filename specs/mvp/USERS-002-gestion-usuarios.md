@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Permitir la creación, edición, activación y desactivación de cuentas de usuario dentro de Catholizare. Garantizar el aislamiento de datos por organización y por profesional.
+Permitir la creación, edición, activación y desactivación de cuentas de usuario dentro de Catholizare. Garantizar el aislamiento de datos por profesional (ver D-12).
 
 ---
 
@@ -62,7 +62,7 @@ Al crear un usuario se envía correo de activación (ver AUTH-001 F-04).
 2. Un Paciente puede tener hasta 3 Profesionales activos asignados simultáneamente, con un máximo de 3 expedientes clínicos activos, uno por cada Profesional. Cada expediente es independiente: un Profesional no accede al expediente de otro Profesional sobre el mismo Paciente. La asignación y desasignación es gestionada por el Administrador (ver D-11 en `docs/decisions-log.md`).
 3. El Administrador no puede ver el contenido clínico de los expedientes; solo ve datos de identificación y estado de cuenta.
 4. No existe eliminación de cuentas; solo desactivación lógica.
-5. El correo electrónico es único en todo el sistema (no solo por organización).
+5. El correo electrónico es único en todo el sistema.
 
 ---
 
@@ -92,8 +92,7 @@ Al crear un usuario se envía correo de activación (ver AUTH-001 F-04).
 
 ## Fuera de alcance del MVP
 
-- Roles personalizados o permisos granulares por institución
+- Roles personalizados o permisos granulares
 - Eliminación permanente de cuentas
 - Cambio de correo electrónico de usuario activo
 - Importación masiva de usuarios (CSV u otro formato)
-- Gestión de organizaciones (alta/baja de organizaciones) — es tarea del Super Administrador con acceso directo

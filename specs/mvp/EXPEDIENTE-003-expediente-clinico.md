@@ -34,7 +34,6 @@ El expediente debe quedar vinculado a:
 
 - Paciente;
 - Profesional responsable principal;
-- organización, si aplica;
 - fecha de creación;
 - estado inicial del expediente;
 - consentimiento informado;
@@ -46,7 +45,7 @@ El expediente debe quedar vinculado a:
 
 Restricciones:
 
-- Un Paciente puede tener un expediente activo principal dentro de una organización.
+- Un Paciente puede tener hasta 3 expedientes activos simultáneos, uno por cada Profesional asignado (ver D-11).
 - El expediente solo puede ser creado por un Profesional autorizado.
 - La creación del expediente debe quedar registrada en auditoría.
 - El expediente no debe ser visible para Administradores ni Super Administradores en su contenido clínico.
