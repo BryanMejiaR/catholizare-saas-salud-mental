@@ -73,7 +73,7 @@ El profesional puede consultar otros modelos, pero solo puede operar con los que
 |---|---|
 | Paciente | Usuario final que recibe atención; accede al portal del paciente |
 | Profesional | Psicólogo o terapeuta que gestiona expedientes y procesos terapéuticos |
-| Administrador | Gestiona la cuenta institucional, usuarios y configuración |
+| Administrador | Gestiona usuarios y configuración de la plataforma (rol de plataforma, no institucional) |
 | Super Administrador | Acceso completo al sistema; rol reservado para el equipo de Catholizare |
 
 No existen roles intermedios ni roles personalizados por institución en el MVP.

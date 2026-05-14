@@ -21,7 +21,7 @@ Stack tecnológico de referencia: ver **D-09** en `docs/decisions-log.md`.
 | GCAL-009 | Integración Google Calendar | `specs/mvp/GCAL-009-integracion-google-calendar.md` | Sincronización bidireccional entre la agenda de Catholizare y Google Calendar del Profesional. |
 | ZOOM-010 | Integración Zoom | `specs/mvp/ZOOM-010-integracion-zoom.md` | Generación automática de enlaces de reunión Zoom para citas de videollamada. |
 | PORTAL-011 | Portal del Paciente | `specs/mvp/PORTAL-011-portal-paciente.md` | Interfaz separada del Paciente: resumen terapéutico compartido, citas, enlace Zoom y solicitudes. |
-| ADMIN-012 | Panel de Administración | `specs/mvp/ADMIN-012-panel-administracion.md` | Gestión de usuarios, reportes operativos agregados, configuración institucional y auditoría. Sin acceso a contenido clínico. |
+| ADMIN-012 | Panel de Administración | `specs/mvp/ADMIN-012-panel-administracion.md` | Gestión de usuarios, reportes operativos agregados, configuración de plataforma y auditoría. Sin acceso a contenido clínico. |
 | PRO-013 | Catholizare Pro | `specs/mvp/PRO-013-catholizare-pro.md` | Recursos, banners y anuncios exclusivos para el Profesional; gestionados por Super Administrador. |
 | EVAL-014 | Evaluaciones Psicológicas | `specs/mvp/EVAL-014-evaluaciones-psicologicas.md` | Registro, carga de imágenes, análisis asistido por IA, validación de resultados y vinculación al expediente. |
 | HELP-018 | Centro de Ayuda | `specs/mvp/HELP-018-centro-ayuda.md` | Guías operativas, FAQ y canal de soporte humano vía WhatsApp. Estrictamente no clínico. |

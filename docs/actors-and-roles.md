@@ -10,7 +10,7 @@ Catholizare define exactamente cuatro roles de usuario (ver D-08 en `docs/decisi
 |---|---|---|
 | Paciente | Usuario que recibe atención | Solo lectura de su propio resumen y citas |
 | Profesional | Psicólogo/terapeuta | Gestión clínica completa de sus pacientes |
-| Administrador | Gestión de cuenta institucional | Configuración de cuenta, usuarios y profesioanes, ademas de reportes |
+| Administrador | Gestión de plataforma | Gestión de usuarios, asignaciones y reportes operativos agregados |
 | Super Administrador | Equipo interno de Catholizare | Acceso completo al sistema, alta de administrador, alta de super administrador, acceso a estadisticas, acceso modificacion de perfiles de pacientes y de administradores |
 
 ---
@@ -107,7 +107,7 @@ Miembro del equipo interno de Catholizare. Este rol no se asigna a clientes.
 
 ### Puede hacer
 - Todo lo que pueden hacer los demás roles
-- Gestionar cuentas institucionales y su configuración
+- Gestionar cuentas de usuario y configuración global de la plataforma
 - Administrar contenido de Catholizare Pro (recursos y anuncios)
 - Acceder a logs de auditoría del sistema
 - Configurar parámetros globales de la plataforma

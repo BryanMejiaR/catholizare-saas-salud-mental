@@ -38,6 +38,7 @@ create table public.profiles (
   full_name text not null,
   email citext not null unique,
   assigned_professional_ids uuid[] not null default '{}',
+  primary_professional_id uuid references public.profiles(id) on delete set null,
   last_login_at timestamptz,
   failed_attempts integer not null default 0 check (failed_attempts >= 0),
   locked_until timestamptz,
@@ -50,7 +51,7 @@ create table public.profiles (
   ),
   constraint profiles_patient_fields check (
     role = 'paciente'
-    or assigned_professional_ids = '{}'
+    or (assigned_professional_ids = '{}' and primary_professional_id is null)
   )
 );
 
