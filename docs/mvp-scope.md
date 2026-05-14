@@ -109,7 +109,7 @@ Todo lo que aparece en esta lista no debe implementarse ni diseñarse hasta una 
 - Supervisión clínica interna automática.
 
 ### Administrativo
-- Configuración granular avanzada de permisos por organización.
+- Configuración granular avanzada de permisos por rol.
 - Exportación de reportes a Excel o CSV.
 - Panel financiero de ingresos, churn o facturación.
 - Gestión contable.

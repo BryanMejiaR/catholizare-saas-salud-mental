@@ -82,7 +82,7 @@ Puede administrar recursos, banners, eventos, recordatorios y anuncios de Cathol
 
 ### F-07 Acceso a logs de auditoría
 
-El Super Administrador puede consultar logs de auditoría filtrando por usuario, rol, organización, acción, fecha, módulo, entidad afectada, resultado e identificador de sesión si aplica.
+El Super Administrador puede consultar logs de auditoría filtrando por usuario, rol, acción, fecha, módulo, entidad afectada, resultado e identificador de sesión si aplica.
 
 Los logs son de solo lectura.
 

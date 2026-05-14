@@ -168,5 +168,5 @@ Ver lista completa en `docs/mvp-scope.md` sección "Fuera del alcance del MVP". 
 - Facturapi, Mercado Pago, SMS/WhatsApp automatizados
 - Reserva de citas por el Paciente (self-booking)
 - Modelos terapéuticos distintos a General y TCC
-- Configuración granular de permisos por organización
+- Configuración granular de permisos por rol
 - Panel financiero o gestión contable

@@ -349,7 +349,6 @@ Restricciones:
 | `expediente_id` | Expediente clínico asociado |
 | `patient_id` | Paciente evaluado |
 | `professional_id` | Profesional que registra o valida la evaluación |
-| `organization_id` | Organización asociada, si aplica |
 | `linked_tcc_process_id` | Proceso TCC relacionado, si aplica |
 | `linked_reevaluation_cut_id` | Corte de reevaluación TCC relacionado, si aplica |
 | `assessment_name` | Nombre de la prueba, inventario o evaluación |

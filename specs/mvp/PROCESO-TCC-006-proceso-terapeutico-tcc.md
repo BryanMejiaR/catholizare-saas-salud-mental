@@ -110,7 +110,6 @@ Al iniciar, el sistema crea una instancia del proceso TCC vinculada a:
 - Paciente;
 - expediente clínico;
 - Profesional;
-- organización, si aplica;
 - plantilla TCC vigente;
 - fecha de inicio;
 - estado `activo`.

@@ -329,7 +329,7 @@ Reglas:
 - Asistente de ayuda con acceso a evaluaciones.
 - Análisis de imágenes de pruebas.
 - Soporte para Pacientes.
-- Base de conocimiento personalizada por organización.
+- Base de conocimiento personalizada por Profesional.
 - Sistema avanzado de tickets con SLA.
 - Automatización completa de soporte.
 - Comunidad o foro interno.

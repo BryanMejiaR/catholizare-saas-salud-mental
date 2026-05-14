@@ -103,7 +103,7 @@ Rol de plataforma dentro de Catholizare, con permisos reducidos respecto al Supe
 Miembro del equipo interno de Catholizare. Este rol no se asigna a clientes.
 
 ### Acceso
-- Acceso completo al sistema, todas las organizaciones y todos los módulos
+- Acceso completo al sistema y a todos los módulos
 
 ### Puede hacer
 - Todo lo que pueden hacer los demás roles

@@ -169,7 +169,7 @@ Restricciones:
 
 ## Fuera de alcance del MVP
 
-- Plantillas compartidas entre profesionales de la misma organización.
+- Plantillas compartidas entre profesionales.
 - Estadísticas de progreso terapéutico automatizadas.
 - Exportación del proceso completo a PDF.
 - Comparativa entre versiones del proceso.
