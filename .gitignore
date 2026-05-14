@@ -8,3 +8,6 @@ coverage/
 .npm-cache/
 
 *.log
+
+# Claude Code internal directory
+.claude/
