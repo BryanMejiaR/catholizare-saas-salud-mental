@@ -130,6 +130,7 @@ erDiagram
 | `full_name` | `text` | — |
 | `account_status` | `text` | `activo`, `inactivo`, `pendiente_activacion` |
 | `assigned_professional_ids` | `uuid[]` | Solo para Pacientes: registro administrativo de los Profesionales asignados, máximo 3. No implica acceso cruzado — cada Profesional tiene su propio expediente independiente (D-11) |
+| `primary_professional_id` | `uuid` | Solo para Pacientes: FK al Profesional principal dentro del arreglo `assigned_professional_ids`. Null para roles no-paciente |
 | `created_by` | `uuid` | FK a `profiles` del creador |
 
 ### `expedientes`
