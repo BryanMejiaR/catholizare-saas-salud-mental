@@ -8,6 +8,7 @@ coverage/
 .npm-cache/
 
 *.log
+tsconfig.tsbuildinfo
 
 # Claude Code internal directory
 .claude/
