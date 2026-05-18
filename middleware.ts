@@ -8,6 +8,7 @@ const PUBLIC_PATHS = [
   "/auth/reset-password",
   "/auth/update-password",
   "/auth/activate",
+  "/auth/inactive",
   "/auth/callback"
 ];
 
@@ -35,6 +36,17 @@ export async function middleware(request: NextRequest) {
   }
 
   const role = user.app_metadata.role as UserRole | undefined;
+  const accountStatus = user.app_metadata.account_status as string | undefined;
+
+  if (
+    role &&
+    accountStatus &&
+    accountStatus !== "activo" &&
+    !pathname.startsWith("/auth/inactive") &&
+    !pathname.startsWith("/api/auth/logout")
+  ) {
+    return NextResponse.redirect(new URL("/auth/inactive", request.url));
+  }
 
   if (pathname.startsWith("/auth/login") && role) {
     return NextResponse.redirect(new URL(ROLE_HOME_PATH[role], request.url));

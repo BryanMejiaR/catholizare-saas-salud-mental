@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { ROLE_HOME_PATH, type AuthProfile } from "@/lib/auth/types";
+import { updateAuthUserAccessMetadata } from "@/lib/auth/admin-metadata";
 import { PASSWORD_POLICY_MESSAGE, isValidPassword } from "@/lib/auth/password";
 import { writeAuthAuditLog } from "@/lib/auth/audit";
 import { getPublicEnv } from "@/lib/env";
@@ -110,6 +111,11 @@ export async function loginAction(
     })
     .eq("id", profile.id);
 
+  await updateAuthUserAccessMetadata(profile.id, {
+    role: profile.role,
+    accountStatus: "activo"
+  });
+
   await writeAuthAuditLog({
     event: "login_success",
     actorId: profile.id,
@@ -195,6 +201,13 @@ export async function updatePasswordAction(
       locked_until: null
     })
     .eq("id", user.id);
+
+  if (profile?.role) {
+    await updateAuthUserAccessMetadata(user.id, {
+      role: profile.role,
+      accountStatus: "activo"
+    });
+  }
 
   await writeAuthAuditLog({
     event: "password_changed",

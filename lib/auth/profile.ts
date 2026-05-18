@@ -37,7 +37,11 @@ export async function requireRole(allowedRoles: UserRole[]) {
     redirect("/auth/login");
   }
 
-  if (profile.account_status !== "activo" || !allowedRoles.includes(profile.role)) {
+  if (profile.account_status !== "activo") {
+    redirect("/auth/inactive");
+  }
+
+  if (!allowedRoles.includes(profile.role)) {
     redirect(ROLE_HOME_PATH[profile.role]);
   }
 

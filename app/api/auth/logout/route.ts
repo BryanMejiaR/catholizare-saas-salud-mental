@@ -22,5 +22,5 @@ export async function POST() {
     });
   }
 
-  return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL));
+  return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL), 303);
 }
