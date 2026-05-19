@@ -20,19 +20,22 @@ const ROLE_PREFIX: Record<UserRole, string> = {
 };
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+
+  if (isPublicPath) {
+    return NextResponse.next({
+      request
+    });
+  }
+
   const { supabase, response } = createSupabaseMiddlewareClient(request);
   const {
     data: { user }
   } = await supabase.auth.getUser();
-  const { pathname } = request.nextUrl;
-  const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
-
-  if (!user && !isPublicPath) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
-  }
 
   if (!user) {
-    return response;
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   const role = user.app_metadata.role as UserRole | undefined;
