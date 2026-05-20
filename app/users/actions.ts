@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
@@ -127,6 +128,13 @@ export async function createManagedUserAction(
   const userId = invitedUser.user?.id;
 
   if (inviteError || !userId) {
+    Sentry.captureException(inviteError ?? new Error("Invite user did not return an id"), {
+      extra: {
+        target_email: target.email,
+        target_role: target.role
+      }
+    });
+
     await writeAuditLog({
       userId: actor.id,
       role: actor.role,
@@ -149,6 +157,13 @@ export async function createManagedUserAction(
   });
 
   if (userMetadataError) {
+    Sentry.captureException(userMetadataError, {
+      extra: {
+        target_email: target.email,
+        target_role: target.role
+      }
+    });
+
     await supabaseAdmin.auth.admin.deleteUser(userId, true);
     return { message: "No fue posible configurar el usuario invitado.", ok: false };
   }
@@ -158,7 +173,14 @@ export async function createManagedUserAction(
       role: target.role,
       accountStatus: "pendiente_activacion"
     });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error, {
+      extra: {
+        target_email: target.email,
+        target_role: target.role
+      }
+    });
+
     await supabaseAdmin.auth.admin.deleteUser(userId, true);
     return { message: "No fue posible configurar el rol del usuario.", ok: false };
   }
@@ -175,6 +197,13 @@ export async function createManagedUserAction(
   });
 
   if (profileError) {
+    Sentry.captureException(profileError, {
+      extra: {
+        target_email: target.email,
+        target_role: target.role
+      }
+    });
+
     await supabaseAdmin.auth.admin.deleteUser(userId, true);
     await writeAuditLog({
       userId: actor.id,
@@ -189,21 +218,37 @@ export async function createManagedUserAction(
       }
     });
 
-    return { message: "No fue posible crear el perfil del usuario.", ok: false };
+    return {
+      message:
+        profileError.code === "23505"
+          ? "Ya existe un usuario con ese correo."
+          : "No fue posible crear el perfil del usuario.",
+      ok: false
+    };
   }
 
-  await writeAuditLog({
-    userId: actor.id,
-    role: actor.role,
-    action: "user_create",
-    entityType: "profiles",
-    entityId: userId,
-    result: "success",
-    metadata: {
-      target_email: target.email,
-      target_role: target.role
-    }
-  });
+  try {
+    await writeAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "user_create",
+      entityType: "profiles",
+      entityId: userId,
+      result: "success",
+      metadata: {
+        target_email: target.email,
+        target_role: target.role
+      }
+    });
+  } catch (auditError) {
+    Sentry.captureException(auditError, {
+      extra: {
+        context: "audit_write_on_user_create_success",
+        target_email: target.email,
+        target_role: target.role
+      }
+    });
+  }
 
   revalidatePath("/admin/users");
   revalidatePath("/professional/patients");
@@ -238,7 +283,7 @@ export async function setUserStatusAction(
   const supabaseAdmin = createSupabaseAdminClient();
   const { data: targetProfile, error: targetError } = await supabaseAdmin
     .from("profiles")
-    .select("id, role, email")
+    .select("id, role, email, account_status")
     .eq("id", parsed.data.userId)
     .single();
 
@@ -273,26 +318,115 @@ export async function setUserStatusAction(
     .eq("id", parsed.data.userId);
 
   if (profileError) {
+    Sentry.captureException(profileError, {
+      extra: {
+        target_user_id: parsed.data.userId,
+        target_role: targetRole,
+        next_status: parsed.data.accountStatus
+      }
+    });
+
+    await writeAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "user_status_update",
+      entityType: "profiles",
+      entityId: parsed.data.userId,
+      result: "error",
+      metadata: {
+        target_role: targetRole,
+        next_status: parsed.data.accountStatus
+      }
+    });
+
     return { message: "No fue posible actualizar el estado.", ok: false };
   }
 
-  await updateAuthUserAccessMetadata(parsed.data.userId, {
-    role: targetRole,
-    accountStatus: parsed.data.accountStatus
-  });
+  try {
+    await updateAuthUserAccessMetadata(parsed.data.userId, {
+      role: targetRole,
+      accountStatus: parsed.data.accountStatus
+    });
+  } catch (error) {
+    Sentry.captureException(error, {
+      extra: {
+        target_user_id: parsed.data.userId,
+        target_role: targetRole,
+        previous_status: targetProfile.account_status,
+        next_status: parsed.data.accountStatus
+      }
+    });
 
-  await writeAuditLog({
-    userId: actor.id,
-    role: actor.role,
-    action: "user_status_update",
-    entityType: "profiles",
-    entityId: parsed.data.userId,
-    result: "success",
-    metadata: {
-      target_role: targetRole,
-      next_status: parsed.data.accountStatus
+    const { error: rollbackError } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        account_status: targetProfile.account_status
+      })
+      .eq("id", parsed.data.userId);
+
+    if (rollbackError) {
+      Sentry.captureException(rollbackError, {
+        extra: {
+          target_user_id: parsed.data.userId,
+          target_role: targetRole,
+          intended_status: parsed.data.accountStatus,
+          rollback_status: targetProfile.account_status
+        }
+      });
     }
-  });
+
+    try {
+      await writeAuditLog({
+        userId: actor.id,
+        role: actor.role,
+        action: "user_status_update",
+        entityType: "profiles",
+        entityId: parsed.data.userId,
+        result: "error",
+        metadata: {
+          target_role: targetRole,
+          next_status: parsed.data.accountStatus,
+          rollback_success: !rollbackError,
+          state: rollbackError ? "diverged_db_jwt" : "rolled_back"
+        }
+      });
+    } catch (auditError) {
+      Sentry.captureException(auditError, {
+        extra: {
+          context: "audit_write_in_status_rollback",
+          target_user_id: parsed.data.userId,
+          target_role: targetRole,
+          rollback_success: !rollbackError
+        }
+      });
+    }
+
+    return { message: "No fue posible sincronizar el estado del usuario.", ok: false };
+  }
+
+  try {
+    await writeAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "user_status_update",
+      entityType: "profiles",
+      entityId: parsed.data.userId,
+      result: "success",
+      metadata: {
+        target_role: targetRole,
+        next_status: parsed.data.accountStatus
+      }
+    });
+  } catch (auditError) {
+    Sentry.captureException(auditError, {
+      extra: {
+        context: "audit_write_on_user_status_success",
+        target_user_id: parsed.data.userId,
+        target_role: targetRole,
+        next_status: parsed.data.accountStatus
+      }
+    });
+  }
 
   revalidatePath("/admin/users");
   revalidatePath("/super-admin/users");

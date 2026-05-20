@@ -7,7 +7,7 @@ const publicEnvSchema = z.object({
 });
 
 const serverEnvSchema = publicEnvSchema.extend({
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   SENTRY_DSN: z.string().url().optional()
 });
 

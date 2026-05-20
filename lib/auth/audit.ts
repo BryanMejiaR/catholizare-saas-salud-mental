@@ -2,6 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 
+import { getTrustedClientIp } from "@/lib/audit/request-context";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type AuthAuditEvent =
@@ -21,8 +22,7 @@ type AuditParams = {
 
 export async function writeAuthAuditLog(params: AuditParams) {
   const headerStore = await headers();
-  const forwardedFor = headerStore.get("x-forwarded-for");
-  const ipAddress = forwardedFor?.split(",")[0]?.trim() ?? headerStore.get("x-real-ip");
+  const ipAddress = getTrustedClientIp(headerStore);
   const userAgent = headerStore.get("user-agent");
   const supabaseAdmin = createSupabaseAdminClient();
 
