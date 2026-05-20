@@ -5,12 +5,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#17211d",
-        moss: "#2f5d50",
-        sage: "#8aa39b",
-        linen: "#f7f2ea",
-        clay: "#b76e52",
-        gold: "#c9a45c"
+        principal: "#001A55",
+        texto: "#001A55",
+        secundario: "#002699",
+        enfasis: "#13DAFB",
+        azulMedio: "#0966EF",
+        rojoRompe: "#BC0202",
+        blanco: "#FFFFFF",
+        grisMuyClaro: "#F4F9FD",
+        grisTextos: "#8A8989",
+        grisMedio: "#B0B0B0",
+        ink: "#001A55",
+        moss: "#002699",
+        sage: "#8A8989",
+        linen: "#F4F9FD",
+        clay: "#BC0202",
+        gold: "#13DAFB"
       }
     }
   },
