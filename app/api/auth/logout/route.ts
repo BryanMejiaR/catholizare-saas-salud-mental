@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 import { writeAuthAuditLog } from "@/lib/auth/audit";
 import { getPublicEnv } from "@/lib/env";
@@ -14,12 +15,21 @@ export async function POST() {
   await supabase.auth.signOut();
 
   if (user) {
-    await writeAuthAuditLog({
-      event: "logout",
-      actorId: user.id,
-      email: user.email,
-      result: "success"
-    });
+    try {
+      await writeAuthAuditLog({
+        event: "logout",
+        actorId: user.id,
+        email: user.email,
+        result: "success"
+      });
+    } catch (auditError) {
+      Sentry.captureException(auditError, {
+        extra: {
+          context: "audit_write_on_logout_success",
+          actor_id: user.id
+        }
+      });
+    }
   }
 
   return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL), 303);

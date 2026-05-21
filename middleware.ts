@@ -19,6 +19,15 @@ const ROLE_PREFIX: Record<UserRole, string> = {
   super_administrador: "/super-admin"
 };
 
+function redirectWithSupabaseCookies(url: URL, response: NextResponse) {
+  const redirectResponse = NextResponse.redirect(url);
+  response.cookies.getAll().forEach((cookie) => {
+    redirectResponse.cookies.set(cookie);
+  });
+
+  return redirectResponse;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
@@ -35,24 +44,24 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
 
   const role = user.app_metadata.role as UserRole | undefined;
   const accountStatus = user.app_metadata.account_status as string | undefined;
 
-  if (
-    role &&
-    accountStatus &&
-    accountStatus !== "activo" &&
-    !pathname.startsWith("/auth/inactive") &&
-    !pathname.startsWith("/api/auth/logout")
-  ) {
-    return NextResponse.redirect(new URL("/auth/inactive", request.url));
+  if (role && accountStatus && accountStatus !== "activo" && !pathname.startsWith("/api/auth/logout")) {
+    if (accountStatus === "pendiente_activacion" && !pathname.startsWith("/auth/activate")) {
+      return redirectWithSupabaseCookies(new URL("/auth/activate", request.url), response);
+    }
+
+    if (accountStatus !== "pendiente_activacion" && !pathname.startsWith("/auth/inactive")) {
+      return redirectWithSupabaseCookies(new URL("/auth/inactive", request.url), response);
+    }
   }
 
   if (pathname.startsWith("/auth/login") && role) {
-    return NextResponse.redirect(new URL(ROLE_HOME_PATH[role], request.url));
+    return redirectWithSupabaseCookies(new URL(ROLE_HOME_PATH[role], request.url), response);
   }
 
   if (role) {
@@ -64,7 +73,7 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/super-admin");
 
     if (isRoleArea && !pathname.startsWith(rolePrefix)) {
-      return NextResponse.redirect(new URL(ROLE_HOME_PATH[role], request.url));
+      return redirectWithSupabaseCookies(new URL(ROLE_HOME_PATH[role], request.url), response);
     }
   }
 

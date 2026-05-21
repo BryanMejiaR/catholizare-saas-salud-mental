@@ -11,15 +11,8 @@ export async function updateAuthUserAccessMetadata(
   }
 ) {
   const supabaseAdmin = createSupabaseAdminClient();
-  const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
-  const currentAppMetadata =
-    data.user?.app_metadata && typeof data.user.app_metadata === "object"
-      ? data.user.app_metadata
-      : {};
-
   const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
     app_metadata: {
-      ...currentAppMetadata,
       role: access.role,
       account_status: access.accountStatus
     }
