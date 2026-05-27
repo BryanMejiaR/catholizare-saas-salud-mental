@@ -9,9 +9,10 @@ import type { ExpedienteDetail } from "@/lib/expedientes/types";
 
 type ConsentimientoFormProps = {
   expediente: ExpedienteDetail;
+  disabled?: boolean;
 };
 
-export function ConsentimientoForm({ expediente }: ConsentimientoFormProps) {
+export function ConsentimientoForm({ expediente, disabled = false }: ConsentimientoFormProps) {
   const [state, formAction] = useActionState(updateConsentimientoAction, {});
   const consentimiento = expediente.consentimiento;
 
@@ -32,6 +33,7 @@ export function ConsentimientoForm({ expediente }: ConsentimientoFormProps) {
           <span className="text-sm font-medium text-ink">Estado</span>
           <select
             name="status"
+            disabled={disabled}
             defaultValue={consentimiento?.status ?? expediente.consent_status}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           >
@@ -46,6 +48,7 @@ export function ConsentimientoForm({ expediente }: ConsentimientoFormProps) {
           <span className="text-sm font-medium text-ink">Modalidad</span>
           <select
             name="modality"
+            disabled={disabled}
             defaultValue={consentimiento?.modality ?? "pendiente"}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           >
@@ -60,6 +63,7 @@ export function ConsentimientoForm({ expediente }: ConsentimientoFormProps) {
           <input
             name="signedAt"
             type="date"
+            disabled={disabled}
             defaultValue={consentimiento?.signed_at ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -69,13 +73,14 @@ export function ConsentimientoForm({ expediente }: ConsentimientoFormProps) {
           <span className="text-sm font-medium text-ink">Referencia de documento</span>
           <input
             name="documentReference"
+            disabled={disabled}
             defaultValue={consentimiento?.document_reference ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
         </label>
       </div>
 
-      <SubmitButton>Registrar consentimiento</SubmitButton>
+      <SubmitButton disabled={disabled}>Registrar consentimiento</SubmitButton>
     </form>
   );
 }

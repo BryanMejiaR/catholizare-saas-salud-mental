@@ -42,7 +42,9 @@ export type ExpedienteSummary = {
 };
 
 export type HistoriaClinica = {
+  id: string;
   expediente_id: string;
+  created_by: string | null;
   motivo_consulta: string | null;
   historia_problema_actual: string | null;
   antecedentes_psicologicos: string | null;

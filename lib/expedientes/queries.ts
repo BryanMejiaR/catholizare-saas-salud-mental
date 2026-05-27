@@ -121,6 +121,8 @@ export async function getExpedienteDetail(profile: AuthProfile, expedienteId: st
       .from("historias_clinicas")
       .select("*")
       .eq("expediente_id", expedienteId)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle(),
     supabaseAdmin
       .from("consentimientos")

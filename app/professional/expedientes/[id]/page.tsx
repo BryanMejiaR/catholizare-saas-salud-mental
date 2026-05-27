@@ -17,6 +17,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
   const [{ id }, profile] = await Promise.all([params, requireRole(["profesional"])]);
   const expediente = await getExpedienteDetail(profile, id);
   const isArchived = expediente.status === "archivado";
+  const isActive = expediente.status === "activo";
 
   return (
     <main className="min-h-screen bg-linen px-6 py-8">
@@ -53,9 +54,16 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
           </div>
         </section>
 
-        <IdentificationForm expediente={expediente} />
-        <ConsentimientoForm expediente={expediente} />
-        <HistoriaClinicaForm expediente={expediente} />
+        {!isActive ? (
+          <p className="rounded-md border border-clay/30 bg-clay/10 px-4 py-3 text-sm text-ink">
+            Este expediente no esta activo. La edicion clinica esta bloqueada para preservar la
+            integridad del registro.
+          </p>
+        ) : null}
+
+        <IdentificationForm expediente={expediente} disabled={!isActive} />
+        <ConsentimientoForm expediente={expediente} disabled={!isActive} />
+        <HistoriaClinicaForm expediente={expediente} disabled={!isActive} />
         <ArchiveExpedienteForm expedienteId={expediente.id} disabled={isArchived} />
       </div>
     </main>

@@ -204,6 +204,7 @@ export async function createExpedienteAction(
 
   const { error: historiaError } = await supabaseAdmin.from("historias_clinicas").insert({
     expediente_id: data.id,
+    created_by: actor.id,
     motivo_consulta: parsed.data.initialConsultationReason
   });
 
@@ -345,6 +346,20 @@ export async function updateExpedienteIdentificationAction(
     return { message: "No tienes permiso para modificar este expediente.", ok: false };
   }
 
+  if (expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "expediente_update",
+      entityType: "expedientes",
+      entityId: expediente.id,
+      result: "denied",
+      context: "audit_expediente_update_denied_not_active"
+    });
+
+    return { message: "El expediente no esta activo y no puede modificarse.", ok: false };
+  }
+
   const identificationData: ExpedienteIdentificationData = {
     birthDate: parsed.data.birthDate ?? undefined,
     age: parsed.data.age === "" ? undefined : parsed.data.age,
@@ -454,10 +469,24 @@ export async function updateHistoriaClinicaAction(
     return { message: "No tienes permiso para modificar esta historia clinica.", ok: false };
   }
 
+  if (expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "historia_clinica_update",
+      entityType: "historias_clinicas",
+      entityId: expediente.id,
+      result: "denied",
+      context: "audit_historia_clinica_update_denied_not_active"
+    });
+
+    return { message: "El expediente no esta activo y no puede modificarse.", ok: false };
+  }
+
   const supabaseAdmin = createSupabaseAdminClient();
-  const { error } = await supabaseAdmin.from("historias_clinicas").upsert(
-    {
+  const { error } = await supabaseAdmin.from("historias_clinicas").insert({
       expediente_id: expediente.id,
+      created_by: actor.id,
       motivo_consulta: parsed.data.motivoConsulta,
       historia_problema_actual: parsed.data.historiaProblemaActual,
       antecedentes_psicologicos: parsed.data.antecedentesPsicologicos,
@@ -474,9 +503,7 @@ export async function updateHistoriaClinicaAction(
       factores_protectores: parsed.data.factoresProtectores,
       recursos_personales: parsed.data.recursosPersonales,
       observaciones_clinicas_iniciales: parsed.data.observacionesClinicasIniciales
-    },
-    { onConflict: "expediente_id" }
-  );
+    });
 
   if (error) {
     Sentry.captureException(error, {
@@ -515,7 +542,7 @@ export async function updateHistoriaClinicaAction(
 
   revalidatePath(`/professional/expedientes/${expediente.id}`);
 
-  return { message: "Historia clinica actualizada.", ok: true };
+  return { message: "Nueva version de historia clinica guardada.", ok: true };
 }
 
 export async function updateConsentimientoAction(
@@ -554,6 +581,20 @@ export async function updateConsentimientoAction(
     });
 
     return { message: "No tienes permiso para modificar este consentimiento.", ok: false };
+  }
+
+  if (expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "consentimiento_update",
+      entityType: "consentimientos",
+      entityId: expediente.id,
+      result: "denied",
+      context: "audit_consentimiento_update_denied_not_active"
+    });
+
+    return { message: "El expediente no esta activo y no puede modificarse.", ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();

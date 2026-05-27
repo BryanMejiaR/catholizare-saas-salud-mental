@@ -9,9 +9,10 @@ import type { ExpedienteDetail } from "@/lib/expedientes/types";
 
 type IdentificationFormProps = {
   expediente: ExpedienteDetail;
+  disabled?: boolean;
 };
 
-export function IdentificationForm({ expediente }: IdentificationFormProps) {
+export function IdentificationForm({ expediente, disabled = false }: IdentificationFormProps) {
   const [state, formAction] = useActionState(updateExpedienteIdentificationAction, {});
   const identification = expediente.identification_data;
 
@@ -30,6 +31,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
         <textarea
           name="initialConsultationReason"
           required
+          disabled={disabled}
           rows={3}
           defaultValue={expediente.initial_consultation_reason ?? ""}
           className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
@@ -42,6 +44,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <input
             name="birthDate"
             type="date"
+            disabled={disabled}
             defaultValue={identification.birthDate ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -54,6 +57,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
             type="number"
             min="0"
             max="130"
+            disabled={disabled}
             defaultValue={identification.age ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -63,6 +67,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <span className="text-sm font-medium text-ink">Sexo</span>
           <input
             name="sex"
+            disabled={disabled}
             defaultValue={identification.sex ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -72,6 +77,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <span className="text-sm font-medium text-ink">Telefono</span>
           <input
             name="phone"
+            disabled={disabled}
             defaultValue={identification.phone ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -82,6 +88,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
         <span className="text-sm font-medium text-ink">Domicilio o residencia</span>
         <input
           name="residence"
+          disabled={disabled}
           defaultValue={identification.residence ?? ""}
           className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
         />
@@ -92,6 +99,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <span className="text-sm font-medium text-ink">Contacto de emergencia</span>
           <input
             name="emergencyContactName"
+            disabled={disabled}
             defaultValue={identification.emergencyContactName ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -101,6 +109,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <span className="text-sm font-medium text-ink">Telefono de emergencia</span>
           <input
             name="emergencyContactPhone"
+            disabled={disabled}
             defaultValue={identification.emergencyContactPhone ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -112,6 +121,7 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <span className="text-sm font-medium text-ink">Responsable legal</span>
           <input
             name="legalGuardianName"
+            disabled={disabled}
             defaultValue={identification.legalGuardianName ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
@@ -121,13 +131,14 @@ export function IdentificationForm({ expediente }: IdentificationFormProps) {
           <span className="text-sm font-medium text-ink">Telefono responsable legal</span>
           <input
             name="legalGuardianPhone"
+            disabled={disabled}
             defaultValue={identification.legalGuardianPhone ?? ""}
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
         </label>
       </div>
 
-      <SubmitButton>Guardar identificacion</SubmitButton>
+      <SubmitButton disabled={disabled}>Guardar identificacion</SubmitButton>
     </form>
   );
 }
