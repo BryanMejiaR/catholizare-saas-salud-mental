@@ -4,11 +4,18 @@ out/
 dist/
 coverage/
 .env
+.env.local
 .env*.local
 .npm-cache/
 
 *.log
 tsconfig.tsbuildinfo
+
+# Local QA utilities with service-role access; keep out of Git.
+scripts/seed-qa-users.mjs
+scripts/delete-qa-users.mjs
+scripts/delete-user-by-email.mjs
+scripts/delete-audit-logs-by-email.mjs
 
 # Claude Code internal directory
 .claude/

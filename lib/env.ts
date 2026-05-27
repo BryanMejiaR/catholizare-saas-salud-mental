@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const optionalUrlEnv = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().url().optional()
+);
+
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
@@ -8,7 +13,7 @@ const publicEnvSchema = z.object({
 
 const serverEnvSchema = publicEnvSchema.extend({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  SENTRY_DSN: z.string().url().optional()
+  SENTRY_DSN: optionalUrlEnv
 });
 
 export function getPublicEnv() {
