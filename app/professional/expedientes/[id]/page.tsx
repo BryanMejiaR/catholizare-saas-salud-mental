@@ -2,10 +2,13 @@ import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/profile";
 import { getExpedienteDetail } from "@/lib/expedientes/queries";
+import { getNotasForExpediente } from "@/lib/notas/queries";
 import { ArchiveExpedienteForm } from "@/components/expedientes/archive-expediente-form";
 import { ConsentimientoForm } from "@/components/expedientes/consentimiento-form";
 import { HistoriaClinicaForm } from "@/components/expedientes/historia-clinica-form";
 import { IdentificationForm } from "@/components/expedientes/identification-form";
+import { CreateNotaForm } from "@/components/notas/create-nota-form";
+import { NotasTable } from "@/components/notas/notas-table";
 
 type ExpedienteDetailPageProps = {
   params: Promise<{
@@ -15,9 +18,17 @@ type ExpedienteDetailPageProps = {
 
 export default async function ExpedienteDetailPage({ params }: ExpedienteDetailPageProps) {
   const [{ id }, profile] = await Promise.all([params, requireRole(["profesional"])]);
-  const expediente = await getExpedienteDetail(profile, id);
+  const [expediente, notas] = await Promise.all([
+    getExpedienteDetail(profile, id),
+    getNotasForExpediente(profile, id)
+  ]);
   const isArchived = expediente.status === "archivado";
   const isActive = expediente.status === "activo";
+  const canCreateNotes =
+    isActive &&
+    ["firmado_fisico", "firmado_digital", "excepcion_justificada"].includes(
+      expediente.consent_status
+    );
 
   return (
     <main className="min-h-screen bg-linen px-6 py-8">
@@ -64,6 +75,22 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
         <IdentificationForm expediente={expediente} disabled={!isActive} />
         <ConsentimientoForm expediente={expediente} disabled={!isActive} />
         <HistoriaClinicaForm expediente={expediente} disabled={!isActive} />
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-ink">Notas clinicas</h2>
+            <p className="mt-1 text-sm text-ink/65">
+              Las notas confirmadas no se sobrescriben. Las correcciones se registran como
+              addendum.
+            </p>
+          </div>
+          {!canCreateNotes && isActive ? (
+            <p className="rounded-md border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-ink">
+              Para crear notas clinicas se requiere consentimiento firmado o excepcion justificada.
+            </p>
+          ) : null}
+          <CreateNotaForm expedienteId={expediente.id} disabled={!canCreateNotes} />
+          <NotasTable notas={notas} />
+        </section>
         <ArchiveExpedienteForm expedienteId={expediente.id} disabled={isArchived} />
       </div>
     </main>

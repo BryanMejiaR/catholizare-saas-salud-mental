@@ -1,0 +1,375 @@
+import "server-only";
+
+import { notFound } from "next/navigation";
+import type { AuthProfile } from "@/lib/auth/types";
+import { safeWriteAuditLog } from "@/lib/audit/safe";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import type {
+  NotaClinica,
+  NotaClinicaExportData,
+  NotaClinicaFilters,
+  NotaClinicaListItem,
+  NotaClinicaSummary
+} from "@/lib/notas/types";
+
+const NOTA_SELECT = "*";
+const NOTA_SUMMARY_SELECT =
+  "id, expediente_id, note_type, status, session_date, clinical_summary, created_at, confirmed_at, addendum_to_note_id";
+
+async function getPatientsById(patientIds: string[]) {
+  if (patientIds.length === 0) {
+    return new Map<string, NotaClinicaListItem["patient"]>();
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("id, full_name, email")
+    .in("id", patientIds);
+
+  if (error) {
+    throw new Error(`Unable to load clinical note patients: ${error.message}`);
+  }
+
+  return new Map(
+    (data ?? []).map((patient) => [
+      patient.id,
+      {
+        full_name: patient.full_name,
+        email: patient.email
+      }
+    ])
+  );
+}
+
+export async function getNotasForExpediente(profile: AuthProfile, expedienteId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: expediente, error: expedienteError } = await supabaseAdmin
+    .from("expedientes")
+    .select("id")
+    .eq("id", expedienteId)
+    .eq("professional_id", profile.id)
+    .single();
+
+  if (expedienteError || !expediente) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      entityId: expedienteId,
+      result: "denied",
+      metadata: {
+        scope: "expediente_list"
+      },
+      context: "audit_nota_clinica_list_denied"
+    });
+
+    notFound();
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .select(NOTA_SUMMARY_SELECT)
+    .eq("expediente_id", expedienteId)
+    .eq("professional_id", profile.id)
+    .order("session_date", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      entityId: expedienteId,
+      result: "error",
+      metadata: {
+        scope: "expediente_list"
+      },
+      context: "audit_nota_clinica_list_error"
+    });
+
+    throw new Error(`Unable to load clinical notes: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as NotaClinicaSummary[];
+
+  await safeWriteAuditLog({
+    userId: profile.id,
+    role: profile.role,
+    action: "nota_clinica_read",
+    entityType: "notas_clinicas",
+    entityId: expedienteId,
+    result: "success",
+    metadata: {
+      scope: "expediente_list",
+      count: rows.length
+    },
+    context: "audit_nota_clinica_list_read"
+  });
+
+  return rows;
+}
+
+export async function getNotaClinicaDetail(profile: AuthProfile, noteId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .select(NOTA_SELECT)
+    .eq("id", noteId)
+    .eq("professional_id", profile.id)
+    .single();
+
+  if (error || !data) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      entityId: noteId,
+      result: "denied",
+      metadata: {
+        scope: "detail"
+      },
+      context: "audit_nota_clinica_detail_denied"
+    });
+
+    notFound();
+  }
+
+  const note = data as NotaClinica;
+
+  await safeWriteAuditLog({
+    userId: profile.id,
+    role: profile.role,
+    action: "nota_clinica_read",
+    entityType: "notas_clinicas",
+    entityId: note.id,
+    result: "success",
+    metadata: {
+      expediente_id: note.expediente_id,
+      scope: "detail"
+    },
+    context: "audit_nota_clinica_detail_read"
+  });
+
+  return note;
+}
+
+export async function getAddendumsForNota(profile: AuthProfile, noteId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .select(NOTA_SUMMARY_SELECT)
+    .eq("addendum_to_note_id", noteId)
+    .eq("professional_id", profile.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      entityId: noteId,
+      result: "error",
+      metadata: {
+        scope: "addendum_list"
+      },
+      context: "audit_nota_clinica_addendum_list_error"
+    });
+
+    throw new Error(`Unable to load clinical note addendums: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as NotaClinicaSummary[];
+
+  await safeWriteAuditLog({
+    userId: profile.id,
+    role: profile.role,
+    action: "nota_clinica_read",
+    entityType: "notas_clinicas",
+    entityId: noteId,
+    result: "success",
+    metadata: {
+      scope: "addendum_list",
+      count: rows.length
+    },
+    context: "audit_nota_clinica_addendum_list_read"
+  });
+
+  return rows;
+}
+
+export async function getNotaClinicaExportData(profile: AuthProfile, noteId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .select(NOTA_SELECT)
+    .eq("id", noteId)
+    .eq("professional_id", profile.id)
+    .single();
+
+  if (error || !data) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_export",
+      entityType: "notas_clinicas",
+      entityId: noteId,
+      result: "denied",
+      context: "audit_nota_clinica_export_denied"
+    });
+
+    notFound();
+  }
+
+  const note = data as NotaClinica;
+
+  if (!["confirmada", "con_addendum", "exportada"].includes(note.status)) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_export",
+      entityType: "notas_clinicas",
+      entityId: note.id,
+      result: "denied",
+      metadata: {
+        current_status: note.status
+      },
+      context: "audit_nota_clinica_export_denied_status"
+    });
+
+    notFound();
+  }
+
+  const { data: patient } = await supabaseAdmin
+    .from("profiles")
+    .select("full_name, email")
+    .eq("id", note.patient_id)
+    .single();
+
+  await safeWriteAuditLog({
+    userId: profile.id,
+    role: profile.role,
+    action: "nota_clinica_export",
+    entityType: "notas_clinicas",
+    entityId: note.id,
+    result: "success",
+    metadata: {
+      expediente_id: note.expediente_id,
+      source: "print_view"
+    },
+    context: "audit_nota_clinica_export_print_view"
+  });
+
+  return {
+    note,
+    patient: patient ?? {
+      full_name: "Paciente no disponible",
+      email: ""
+    },
+    professional: {
+      full_name: profile.full_name,
+      email: profile.email
+    }
+  } satisfies NotaClinicaExportData;
+}
+
+export async function getNotasForProfessional(
+  profile: AuthProfile,
+  filters: NotaClinicaFilters = {}
+) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  let query = supabaseAdmin
+    .from("notas_clinicas")
+    .select(`${NOTA_SUMMARY_SELECT}, patient_id`)
+    .eq("professional_id", profile.id)
+    .order("session_date", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (filters.patientId) {
+    query = query.eq("patient_id", filters.patientId);
+  }
+
+  if (filters.noteType) {
+    query = query.eq("note_type", filters.noteType);
+  }
+
+  if (filters.status) {
+    query = query.eq("status", filters.status);
+  }
+
+  if (filters.dateFrom) {
+    query = query.gte("session_date", filters.dateFrom);
+  }
+
+  if (filters.dateTo) {
+    query = query.lte("session_date", filters.dateTo);
+  }
+
+  if (filters.query) {
+    const sanitizedQuery = filters.query
+      .replace(/[^A-Za-z0-9ÁÉÍÓÚáéíóúÑñÜü\s-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (sanitizedQuery.length > 0) {
+      query = query.or(
+        `content.ilike.%${sanitizedQuery}%,clinical_summary.ilike.%${sanitizedQuery}%`
+      );
+    }
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      result: "error",
+      metadata: {
+        scope: "professional_list"
+      },
+      context: "audit_nota_clinica_professional_list_error"
+    });
+
+    throw new Error(`Unable to load clinical notes: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as Array<NotaClinicaSummary & { patient_id: string }>;
+  const patients = await getPatientsById([...new Set(rows.map((row) => row.patient_id))]);
+
+  await safeWriteAuditLog({
+    userId: profile.id,
+    role: profile.role,
+    action: "nota_clinica_read",
+    entityType: "notas_clinicas",
+    result: "success",
+    metadata: {
+      scope: "professional_list",
+      count: rows.length
+    },
+    context: "audit_nota_clinica_professional_list_read"
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    expediente_id: row.expediente_id,
+    note_type: row.note_type,
+    status: row.status,
+    session_date: row.session_date,
+    clinical_summary: row.clinical_summary,
+    created_at: row.created_at,
+    confirmed_at: row.confirmed_at,
+    addendum_to_note_id: row.addendum_to_note_id,
+    patient: patients.get(row.patient_id) ?? {
+      full_name: "Paciente no disponible",
+      email: ""
+    }
+  })) satisfies NotaClinicaListItem[];
+}
