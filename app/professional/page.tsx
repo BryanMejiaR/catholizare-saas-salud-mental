@@ -19,6 +19,9 @@ export default async function ProfessionalPage() {
         <Link className="inline-flex font-medium text-moss" href="/professional/notas">
           Consultar notas clinicas
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/professional/procesos">
+          Gestionar procesos
+        </Link>
       </div>
     </main>
   );

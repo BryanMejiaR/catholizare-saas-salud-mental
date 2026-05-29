@@ -3,12 +3,14 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth/profile";
 import { getExpedienteDetail } from "@/lib/expedientes/queries";
 import { getNotasForExpediente } from "@/lib/notas/queries";
+import { getProcesoForExpediente } from "@/lib/procesos/queries";
 import { ArchiveExpedienteForm } from "@/components/expedientes/archive-expediente-form";
 import { ConsentimientoForm } from "@/components/expedientes/consentimiento-form";
 import { HistoriaClinicaForm } from "@/components/expedientes/historia-clinica-form";
 import { IdentificationForm } from "@/components/expedientes/identification-form";
 import { CreateNotaForm } from "@/components/notas/create-nota-form";
 import { NotasTable } from "@/components/notas/notas-table";
+import { StartProcessForm } from "@/components/procesos/start-process-form";
 
 type ExpedienteDetailPageProps = {
   params: Promise<{
@@ -18,9 +20,10 @@ type ExpedienteDetailPageProps = {
 
 export default async function ExpedienteDetailPage({ params }: ExpedienteDetailPageProps) {
   const [{ id }, profile] = await Promise.all([params, requireRole(["profesional"])]);
-  const [expediente, notas] = await Promise.all([
+  const [expediente, notas, proceso] = await Promise.all([
     getExpedienteDetail(profile, id),
-    getNotasForExpediente(profile, id)
+    getNotasForExpediente(profile, id),
+    getProcesoForExpediente(profile, id)
   ]);
   const isArchived = expediente.status === "archivado";
   const isActive = expediente.status === "activo";
@@ -75,6 +78,27 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
         <IdentificationForm expediente={expediente} disabled={!isActive} />
         <ConsentimientoForm expediente={expediente} disabled={!isActive} />
         <HistoriaClinicaForm expediente={expediente} disabled={!isActive} />
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-ink">Proceso terapeutico</h2>
+            <p className="mt-1 text-sm text-ink/65">
+              Modelo General configurable por el Profesional.
+            </p>
+          </div>
+          {proceso ? (
+            <div className="rounded-lg border border-ink/10 bg-white p-5">
+              <p className="text-sm text-ink/65">Estado: {proceso.status}</p>
+              <Link
+                href={`/professional/procesos/${proceso.id}`}
+                className="mt-3 inline-flex text-sm font-medium text-moss"
+              >
+                Abrir proceso
+              </Link>
+            </div>
+          ) : (
+            <StartProcessForm expedienteId={expediente.id} disabled={!isActive} />
+          )}
+        </section>
         <section className="space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-ink">Notas clinicas</h2>
