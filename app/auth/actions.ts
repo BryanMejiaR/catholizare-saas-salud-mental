@@ -111,11 +111,6 @@ export async function loginAction(
     })
     .eq("id", profile.id);
 
-  await updateAuthUserAccessMetadata(profile.id, {
-    role: profile.role,
-    accountStatus: "activo"
-  });
-
   await writeAuthAuditLog({
     event: "login_success",
     actorId: profile.id,
