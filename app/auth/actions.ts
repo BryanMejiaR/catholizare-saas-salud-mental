@@ -38,6 +38,23 @@ async function findProfileByEmail(email: string): Promise<AuthProfile | null> {
   return data as AuthProfile;
 }
 
+async function findProfileById(userId: string): Promise<AuthProfile | null> {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select(
+      "id, role, account_status, full_name, email, last_login_at, failed_attempts, locked_until"
+    )
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as AuthProfile;
+}
+
 async function recordFailedAttempt(profile: AuthProfile | null, email: string) {
   const supabaseAdmin = createSupabaseAdminClient();
 
@@ -90,14 +107,36 @@ export async function loginAction(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
-  if (error || !profile) {
+  if (error || !user) {
     await recordFailedAttempt(profile, email);
     return { message: GENERIC_LOGIN_ERROR };
+  }
+
+  const authProfile = profile?.id === user.id ? profile : await findProfileById(user.id);
+
+  if (!authProfile) {
+    await supabase.auth.signOut();
+    await writeAuthAuditLog({
+      event: "login_failed",
+      actorId: user.id,
+      email,
+      result: "failure",
+      metadata: {
+        reason: "missing_profile"
+      }
+    });
+
+    return {
+      message: "Tu cuenta existe en autenticacion, pero no tiene perfil de Catholizare asignado."
+    };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -109,16 +148,16 @@ export async function loginAction(
       locked_until: null,
       last_login_at: now.toISOString()
     })
-    .eq("id", profile.id);
+    .eq("id", authProfile.id);
 
   await writeAuthAuditLog({
     event: "login_success",
-    actorId: profile.id,
+    actorId: authProfile.id,
     email,
     result: "success"
   });
 
-  redirect(ROLE_HOME_PATH[profile.role]);
+  redirect(ROLE_HOME_PATH[authProfile.role]);
 }
 
 export async function requestPasswordResetAction(

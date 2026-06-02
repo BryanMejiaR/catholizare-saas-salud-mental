@@ -31,24 +31,37 @@ function redirectWithSupabaseCookies(url: URL, response: NextResponse) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
-
-  if (isPublicPath) {
-    return NextResponse.next({
-      request
-    });
-  }
-
   const { supabase, response } = createSupabaseMiddlewareClient(request);
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (isPublicPath) {
+      return response;
+    }
+
     return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
 
-  const role = user.app_metadata.role as UserRole | undefined;
-  const accountStatus = user.app_metadata.account_status as string | undefined;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile) {
+    await supabase.auth.signOut();
+
+    if (isPublicPath) {
+      return response;
+    }
+
+    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
+  }
+
+  const role = profile.role as UserRole;
+  const accountStatus = profile.account_status as string;
 
   if (role && accountStatus && accountStatus !== "activo" && !pathname.startsWith("/api/auth/logout")) {
     if (accountStatus === "pendiente_activacion" && !pathname.startsWith("/auth/activate")) {
@@ -62,6 +75,10 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith("/auth/login") && role) {
     return redirectWithSupabaseCookies(new URL(ROLE_HOME_PATH[role], request.url), response);
+  }
+
+  if (isPublicPath) {
+    return response;
   }
 
   if (role) {

@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  outputFileTracingRoot: process.cwd()
+};
 
 export default withSentryConfig(nextConfig, {
   org: "catholizare",
