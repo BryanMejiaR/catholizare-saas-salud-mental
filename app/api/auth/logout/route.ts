@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
 import { writeAuthAuditLog } from "@/lib/auth/audit";
+import { clearSessionPolicyCookies } from "@/lib/auth/session-policy";
 import { getPublicEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -32,5 +33,8 @@ export async function POST() {
     }
   }
 
-  return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL), 303);
+  const response = NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL), 303);
+  clearSessionPolicyCookies(response);
+
+  return response;
 }

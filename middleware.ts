@@ -1,6 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import {
+  clearSessionPolicyCookies,
+  readSessionTimestampCookie,
+  SESSION_IDLE_TIMEOUT_MS,
+  SESSION_LAST_ACTIVITY_AT_COOKIE,
+  SESSION_MAX_AGE_MS,
+  SESSION_STARTED_AT_COOKIE,
+  setSessionPolicyCookies
+} from "@/lib/auth/session-policy";
 import { ROLE_HOME_PATH, USER_ROLES, type UserRole } from "@/lib/auth/types";
+import { getTrustedClientIp } from "@/lib/audit/request-context";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 
 const PUBLIC_PATHS = [
@@ -23,6 +33,37 @@ function isUserRole(role: string | null | undefined): role is UserRole {
   return USER_ROLES.includes(role as UserRole);
 }
 
+function getSessionExpiryReason(
+  request: NextRequest,
+  now: number
+): "idle_timeout" | "max_age" | "invalid_timestamp" | null {
+  const startedAt = readSessionTimestampCookie(request, SESSION_STARTED_AT_COOKIE);
+  const lastActivityAt = readSessionTimestampCookie(request, SESSION_LAST_ACTIVITY_AT_COOKIE);
+
+  if (!startedAt || !lastActivityAt) {
+    return null;
+  }
+
+  if (startedAt > now || lastActivityAt > now) {
+    return "invalid_timestamp";
+  }
+
+  if (now - lastActivityAt > SESSION_IDLE_TIMEOUT_MS) {
+    return "idle_timeout";
+  }
+
+  if (now - startedAt > SESSION_MAX_AGE_MS) {
+    return "max_age";
+  }
+
+  return null;
+}
+
+function touchSessionPolicyCookies(request: NextRequest, response: NextResponse, now: number) {
+  const startedAt = readSessionTimestampCookie(request, SESSION_STARTED_AT_COOKIE) ?? now;
+  setSessionPolicyCookies(response, startedAt, now);
+}
+
 function redirectWithSupabaseCookies(url: URL, response: NextResponse) {
   const redirectResponse = NextResponse.redirect(url);
   response.cookies.getAll().forEach((cookie) => {
@@ -32,18 +73,48 @@ function redirectWithSupabaseCookies(url: URL, response: NextResponse) {
   return redirectResponse;
 }
 
+async function writeSessionExpiredAudit(
+  supabase: Awaited<ReturnType<typeof createSupabaseMiddlewareClient>>["supabase"],
+  request: NextRequest,
+  reason: "idle_timeout" | "max_age" | "invalid_timestamp"
+) {
+  await supabase.rpc("record_session_expired_auth_audit", {
+    p_reason: reason,
+    p_ip_address: getTrustedClientIp(request.headers) ?? null,
+    p_user_agent: request.headers.get("user-agent")
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+  const now = Date.now();
   const { supabase, response } = createSupabaseMiddlewareClient(request);
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) {
+    clearSessionPolicyCookies(response);
+
     if (isPublicPath) {
       return response;
     }
+
+    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
+  }
+
+  const sessionExpiryReason = getSessionExpiryReason(request, now);
+
+  if (sessionExpiryReason) {
+    try {
+      await writeSessionExpiredAudit(supabase, request, sessionExpiryReason);
+    } catch {
+      // Session expiry must not be blocked by audit availability.
+    }
+
+    await supabase.auth.signOut();
+    clearSessionPolicyCookies(response);
 
     return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
@@ -60,6 +131,7 @@ export async function middleware(request: NextRequest) {
 
   if (!profile) {
     await supabase.auth.signOut();
+    clearSessionPolicyCookies(response);
 
     if (isPublicPath) {
       return response;
@@ -68,7 +140,12 @@ export async function middleware(request: NextRequest) {
     return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
 
+  touchSessionPolicyCookies(request, response, now);
+
   if (!isUserRole(profile.role)) {
+    await supabase.auth.signOut();
+    clearSessionPolicyCookies(response);
+
     return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
 

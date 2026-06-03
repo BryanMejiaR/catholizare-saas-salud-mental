@@ -9,6 +9,7 @@ type AuthAuditEvent =
   | "login_success"
   | "login_failed"
   | "logout"
+  | "session_expired"
   | "password_reset_requested"
   | "password_changed";
 
