@@ -9,10 +9,12 @@ The implemented MVP slice covers:
 - Appointment creation for active patients with an active expediente owned by the professional.
 - Appointment cancellation with immutable historical retention.
 - Base database fields needed by GCAL-009 and ZOOM-010.
+- Optional Google Calendar sync for create/cancel when GCAL-009 is configured.
 - `notas_clinicas.appointment_id` foreign key to support future note linkage.
 
-Google Calendar synchronization, Zoom meeting creation, patient portal visibility, patient
-reschedule requests, and appointment editing are intentionally left to their dedicated specs.
+Zoom meeting creation, patient portal visibility, patient reschedule requests, and appointment
+editing are intentionally left to their dedicated specs. Google Calendar bidirectional webhooks are
+tracked in GCAL-009.
 
 ## Database
 
@@ -86,6 +88,7 @@ Security behavior:
 - Creation requires an active expediente for the selected patient.
 - Past appointments are read-only from the action layer.
 - Audit log actions use `appointment_create`, `appointment_cancel`, and `appointment_read`.
+- Google Calendar sync failures are reported separately and do not rollback clinical operations.
 - Audit failures are isolated through `safeWriteAuditLog`.
 
 ## UI
@@ -100,15 +103,15 @@ Components:
 - `AppointmentsTable`
 
 Current UI intentionally exposes only creation and cancellation. Editing, calendar views by
-day/week/month, Zoom creation, and Google Calendar sync are pending specs.
+day/week/month, Zoom creation, and Google Calendar webhooks are pending specs.
 
 ## Environment
 
-No new environment variables are introduced by AGENDA-008.
+AGENDA-008 alone does not require new environment variables. GCAL-009 adds optional integration
+variables.
 
 Expected future specs:
 
-- GCAL-009 will add Google OAuth/calendar variables.
 - ZOOM-010 will add Zoom API variables.
 
 ## QA Checklist

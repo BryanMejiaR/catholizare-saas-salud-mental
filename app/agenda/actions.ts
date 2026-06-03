@@ -7,6 +7,10 @@ import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { APPOINTMENT_TYPES } from "@/lib/agenda/types";
+import {
+  syncAppointmentCancelledToGoogleCalendar,
+  syncAppointmentCreatedToGoogleCalendar
+} from "@/lib/google-calendar/sync";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type AgendaActionState = {
@@ -55,6 +59,26 @@ async function assertActiveExpedienteForPatient(patientId: string, professionalI
     patient_id: string;
     professional_id: string;
     status: string;
+  };
+}
+
+async function getPatientForAppointment(patientId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("id, full_name, email")
+    .eq("id", patientId)
+    .eq("role", "paciente")
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as {
+    id: string;
+    full_name: string;
+    email: string;
   };
 }
 
@@ -110,6 +134,12 @@ export async function createAppointmentAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  const patient = await getPatientForAppointment(expediente.patient_id);
+
+  if (!patient) {
+    return { message: "No fue posible cargar los datos del Paciente.", ok: false };
+  }
+
   const overlapEnd = new Date(
     scheduledAt.getTime() + parsed.data.durationMinutes * 60 * 1000
   ).toISOString();
@@ -177,6 +207,16 @@ export async function createAppointmentAction(
     context: "audit_appointment_create_success"
   });
 
+  await syncAppointmentCreatedToGoogleCalendar({
+    appointmentId: data.id,
+    professional: actor,
+    patientName: patient.full_name,
+    patientEmail: patient.email,
+    scheduledAt: scheduledAt.toISOString(),
+    durationMinutes: parsed.data.durationMinutes,
+    type: parsed.data.type
+  });
+
   revalidatePath("/professional/agenda");
 
   return { message: "Cita programada.", ok: true };
@@ -204,7 +244,7 @@ export async function cancelAppointmentAction(
   const supabaseAdmin = createSupabaseAdminClient();
   const { data: appointment, error: appointmentError } = await supabaseAdmin
     .from("citas")
-    .select("id, scheduled_at, professional_id, status")
+    .select("id, scheduled_at, professional_id, status, google_calendar_event_id")
     .eq("id", parsed.data.appointmentId)
     .eq("professional_id", actor.id)
     .single();
@@ -269,6 +309,12 @@ export async function cancelAppointmentAction(
     result: "success",
     context: "audit_appointment_cancel_success"
   });
+
+  await syncAppointmentCancelledToGoogleCalendar(
+    actor,
+    appointment.id,
+    appointment.google_calendar_event_id
+  );
 
   revalidatePath("/professional/agenda");
 

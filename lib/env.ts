@@ -4,6 +4,10 @@ const optionalUrlEnv = z.preprocess(
   (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
   z.string().url().optional()
 );
+const optionalStringEnv = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().min(1).optional()
+);
 
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
@@ -14,8 +18,12 @@ const publicEnvSchema = z.object({
 const serverEnvSchema = publicEnvSchema.extend({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   SENTRY_DSN: optionalUrlEnv,
-  OPENAI_API_KEY: z.string().min(1).optional(),
-  OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini")
+  OPENAI_API_KEY: optionalStringEnv,
+  OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini"),
+  GOOGLE_CALENDAR_CLIENT_ID: optionalStringEnv,
+  GOOGLE_CALENDAR_CLIENT_SECRET: optionalStringEnv,
+  GOOGLE_CALENDAR_REDIRECT_URI: optionalUrlEnv,
+  INTEGRATION_TOKEN_ENCRYPTION_KEY: optionalStringEnv
 });
 
 export function getPublicEnv() {
@@ -34,6 +42,10 @@ export function getServerEnv() {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    OPENAI_MODEL: process.env.OPENAI_MODEL
+    OPENAI_MODEL: process.env.OPENAI_MODEL,
+    GOOGLE_CALENDAR_CLIENT_ID: process.env.GOOGLE_CALENDAR_CLIENT_ID,
+    GOOGLE_CALENDAR_CLIENT_SECRET: process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
+    GOOGLE_CALENDAR_REDIRECT_URI: process.env.GOOGLE_CALENDAR_REDIRECT_URI,
+    INTEGRATION_TOKEN_ENCRYPTION_KEY: process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY
   });
 }
