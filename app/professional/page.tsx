@@ -22,6 +22,9 @@ export default async function ProfessionalPage() {
         <Link className="inline-flex font-medium text-moss" href="/professional/procesos">
           Gestionar procesos
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/professional/agenda">
+          Gestionar agenda
+        </Link>
       </div>
     </main>
   );
