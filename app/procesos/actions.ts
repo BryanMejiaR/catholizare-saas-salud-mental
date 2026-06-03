@@ -7,8 +7,13 @@ import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import {
+  DEFAULT_TCC_TEMPLATE_STEPS,
+  DEFAULT_TCC_TEMPLATE_VERSION,
   DEFAULT_GENERAL_TEMPLATE_STEPS,
   PROCESS_FIELD_TYPES,
+  PROCESS_MODEL_TYPES,
+  PROCESS_MODEL_LABEL,
+  type ProcessModelType,
   type ProcessTemplateStep,
   type ProcesoTerapeutico
 } from "@/lib/procesos/types";
@@ -85,7 +90,8 @@ const templateSchema = z.object({
 });
 
 const startProcessSchema = z.object({
-  expedienteId: z.string().uuid()
+  expedienteId: z.string().uuid(),
+  modelType: z.enum(PROCESS_MODEL_TYPES).default("general")
 });
 
 const updateStepSchema = z.object({
@@ -165,7 +171,8 @@ function normalizeStepValues(formData: FormData, step: ProcessTemplateStep) {
     const value = typeof rawValue === "string" ? rawValue.trim() : "";
 
     if (field.type === "number") {
-      values[field.id] = value === "" ? null : Number(value);
+      const numericValue = Number(value);
+      values[field.id] = value === "" || !Number.isFinite(numericValue) ? null : numericValue;
     } else {
       values[field.id] = value.length > 0 ? value : null;
     }
@@ -220,6 +227,18 @@ async function getOrCreateLatestTemplate(professionalId: string) {
   };
 }
 
+async function getProcessTemplateSnapshot(professionalId: string, modelType: ProcessModelType) {
+  if (modelType === "tcc") {
+    return {
+      id: null,
+      version: DEFAULT_TCC_TEMPLATE_VERSION,
+      steps: DEFAULT_TCC_TEMPLATE_STEPS
+    };
+  }
+
+  return getOrCreateLatestTemplate(professionalId);
+}
+
 export async function saveGeneralTemplateAction(
   _previousState: ProcesoActionState,
   formData: FormData
@@ -241,7 +260,10 @@ export async function saveGeneralTemplateAction(
   const steps = parseTemplateSteps(parsed.data.stepsJson);
 
   if (!steps.success) {
-    return { message: "La estructura de pasos no es valida.", ok: false };
+    return {
+      message: steps.error.issues[0]?.message ?? "La estructura de pasos no es valida.",
+      ok: false
+    };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -306,7 +328,7 @@ export async function saveGeneralTemplateAction(
   return { message: `Plantilla version ${nextVersion} guardada.`, ok: true };
 }
 
-export async function startGeneralProcessAction(
+export async function startProcessAction(
   _previousState: ProcesoActionState,
   formData: FormData
 ): Promise<ProcesoActionState> {
@@ -317,7 +339,8 @@ export async function startGeneralProcessAction(
   }
 
   const parsed = startProcessSchema.safeParse({
-    expedienteId: formData.get("expedienteId")
+    expedienteId: formData.get("expedienteId"),
+    modelType: formData.get("modelType")
   });
 
   if (!parsed.success) {
@@ -380,10 +403,10 @@ export async function startGeneralProcessAction(
     return { message: "Ya existe un proceso activo para este Paciente.", ok: false };
   }
 
-  let latestTemplate: Awaited<ReturnType<typeof getOrCreateLatestTemplate>>;
+  let latestTemplate: Awaited<ReturnType<typeof getProcessTemplateSnapshot>>;
 
   try {
-    latestTemplate = await getOrCreateLatestTemplate(actor.id);
+    latestTemplate = await getProcessTemplateSnapshot(actor.id, parsed.data.modelType);
   } catch (templateError) {
     Sentry.captureException(templateError, {
       extra: {
@@ -410,6 +433,7 @@ export async function startGeneralProcessAction(
       expediente_id: expediente.id,
       patient_id: expediente.patient_id,
       professional_id: actor.id,
+      model_type: parsed.data.modelType,
       template_id: latestTemplate.id,
       template_version: latestTemplate.version,
       template_snapshot: {
@@ -451,6 +475,7 @@ export async function startGeneralProcessAction(
       result: "success",
       metadata: {
         expediente_id: expediente.id,
+        model_type: parsed.data.modelType,
         template_version: latestTemplate.version
       },
     context: "audit_proceso_start_success"
@@ -459,8 +484,10 @@ export async function startGeneralProcessAction(
   revalidatePath(`/professional/expedientes/${expediente.id}`);
   revalidatePath("/professional/procesos");
 
-  return { message: "Proceso terapeutico iniciado.", ok: true };
+  return { message: `Proceso terapeutico ${PROCESS_MODEL_LABEL[parsed.data.modelType]} iniciado.`, ok: true };
 }
+
+export const startGeneralProcessAction = startProcessAction;
 
 export async function updateProcesoStepAction(
   _previousState: ProcesoActionState,

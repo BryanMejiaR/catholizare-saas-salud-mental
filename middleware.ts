@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { ROLE_HOME_PATH, type UserRole } from "@/lib/auth/types";
+import { ROLE_HOME_PATH, USER_ROLES, type UserRole } from "@/lib/auth/types";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 
 const PUBLIC_PATHS = [
@@ -18,6 +18,10 @@ const ROLE_PREFIX: Record<UserRole, string> = {
   administrador: "/admin",
   super_administrador: "/super-admin"
 };
+
+function isUserRole(role: string | null | undefined): role is UserRole {
+  return USER_ROLES.includes(role as UserRole);
+}
 
 function redirectWithSupabaseCookies(url: URL, response: NextResponse) {
   const redirectResponse = NextResponse.redirect(url);
@@ -44,11 +48,15 @@ export async function middleware(request: NextRequest) {
     return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role, account_status")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (profileError) {
+    return response;
+  }
 
   if (!profile) {
     await supabase.auth.signOut();
@@ -60,7 +68,11 @@ export async function middleware(request: NextRequest) {
     return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
   }
 
-  const role = profile.role as UserRole;
+  if (!isUserRole(profile.role)) {
+    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
+  }
+
+  const role = profile.role;
   const accountStatus = profile.account_status as string;
 
   if (role && accountStatus && accountStatus !== "activo" && !pathname.startsWith("/api/auth/logout")) {

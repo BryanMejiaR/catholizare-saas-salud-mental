@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth/profile";
 import { getNotasForExpediente } from "@/lib/notas/queries";
 import { getProcesoDetail } from "@/lib/procesos/queries";
+import { PROCESS_MODEL_LABEL } from "@/lib/procesos/types";
 import { LinkNoteForm } from "@/components/procesos/link-note-form";
 import { ProcessStepForm } from "@/components/procesos/process-step-form";
 
@@ -23,7 +24,7 @@ export default async function ProcesoDetailPage({ params }: ProcesoDetailPagePro
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
-              Proceso terapeutico General
+              Proceso terapeutico {PROCESS_MODEL_LABEL[process.model_type]}
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-ink">{process.patient.full_name}</h1>
             <p className="mt-2 text-sm text-ink/65">

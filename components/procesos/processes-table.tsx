@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { ProcesoListItem } from "@/lib/procesos/types";
+import { PROCESS_MODEL_LABEL, type ProcesoListItem } from "@/lib/procesos/types";
 
 type ProcessesTableProps = {
   procesos: ProcesoListItem[];
@@ -13,6 +13,7 @@ export function ProcessesTable({ procesos }: ProcessesTableProps) {
         <thead className="bg-ink/5 text-ink/70">
           <tr>
             <th className="px-4 py-3 font-semibold">Paciente</th>
+            <th className="px-4 py-3 font-semibold">Modelo</th>
             <th className="px-4 py-3 font-semibold">Estado</th>
             <th className="px-4 py-3 font-semibold">Inicio</th>
             <th className="px-4 py-3 font-semibold">Ultima actividad</th>
@@ -26,6 +27,7 @@ export function ProcessesTable({ procesos }: ProcessesTableProps) {
                 <p className="font-medium text-ink">{proceso.patient.full_name}</p>
                 <p className="mt-1 text-xs text-ink/60">{proceso.patient.email}</p>
               </td>
+              <td className="px-4 py-3 text-ink/70">{PROCESS_MODEL_LABEL[proceso.model_type]}</td>
               <td className="px-4 py-3 text-ink/70">{proceso.status}</td>
               <td className="px-4 py-3 text-ink/70">
                 {new Date(proceso.started_at).toLocaleDateString("es-MX")}
@@ -43,7 +45,7 @@ export function ProcessesTable({ procesos }: ProcessesTableProps) {
 
           {procesos.length === 0 ? (
             <tr>
-              <td className="px-4 py-6 text-center text-ink/60" colSpan={5}>
+              <td className="px-4 py-6 text-center text-ink/60" colSpan={6}>
                 No hay procesos terapeuticos para mostrar.
               </td>
             </tr>

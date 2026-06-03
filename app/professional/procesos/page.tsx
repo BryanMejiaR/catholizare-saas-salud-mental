@@ -25,7 +25,7 @@ export default async function ProfessionalProcesosPage() {
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-ink">Procesos terapeuticos</h1>
             <p className="mt-2 text-sm text-ink/65">
-              Modelo General configurable para cada caso clinico.
+              Modelos General configurable y TCC estructurado para cada caso clinico.
             </p>
           </div>
           <div className="flex flex-wrap gap-4">

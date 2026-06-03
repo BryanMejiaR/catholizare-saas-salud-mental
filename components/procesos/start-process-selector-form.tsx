@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { startGeneralProcessAction } from "@/app/procesos/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { ActionMessage } from "@/components/users/action-message";
+import { PROCESS_MODEL_LABEL, PROCESS_MODEL_TYPES } from "@/lib/procesos/types";
 
 type StartProcessSelectorFormProps = {
   expedientes: Array<{
@@ -24,7 +25,7 @@ export function StartProcessSelectorForm({ expedientes }: StartProcessSelectorFo
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
       <div>
-        <h2 className="text-lg font-semibold text-ink">Iniciar proceso General</h2>
+        <h2 className="text-lg font-semibold text-ink">Iniciar proceso</h2>
         <p className="mt-1 text-sm text-ink/65">
           Selecciona un expediente activo. Solo puede existir un proceso activo por Paciente y
           Profesional.
@@ -44,6 +45,21 @@ export function StartProcessSelectorForm({ expedientes }: StartProcessSelectorFo
           {activeExpedientes.map((expediente) => (
             <option key={expediente.id} value={expediente.id}>
               {expediente.patient.full_name} - {expediente.patient.email}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block">
+        <span className="text-sm font-medium text-ink">Modelo</span>
+        <select
+          name="modelType"
+          disabled={activeExpedientes.length === 0}
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        >
+          {PROCESS_MODEL_TYPES.map((modelType) => (
+            <option key={modelType} value={modelType}>
+              {PROCESS_MODEL_LABEL[modelType]}
             </option>
           ))}
         </select>

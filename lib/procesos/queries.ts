@@ -13,7 +13,7 @@ import type {
 } from "@/lib/procesos/types";
 
 const PROCESO_SELECT =
-  "id, expediente_id, patient_id, professional_id, template_id, template_version, template_snapshot, status, started_at, closed_at, closed_by_note_id, step_data, gpt_instructions, linked_note_ids, linked_assessment_ids, created_by_user_id, created_at, updated_at";
+  "id, expediente_id, patient_id, professional_id, model_type, template_id, template_version, template_snapshot, status, started_at, closed_at, closed_by_note_id, step_data, gpt_instructions, linked_note_ids, linked_assessment_ids, created_by_user_id, created_at, updated_at";
 
 const TEMPLATE_SELECT =
   "id, professional_id, model_type, version, steps, created_by_user_id, created_at";
@@ -66,7 +66,7 @@ export async function getProcesosForProfessional(profile: AuthProfile) {
   const supabaseAdmin = createSupabaseAdminClient();
   const { data, error } = await supabaseAdmin
     .from("procesos_terapeuticos")
-    .select("id, expediente_id, patient_id, status, started_at, closed_at, updated_at")
+    .select("id, expediente_id, patient_id, model_type, status, started_at, closed_at, updated_at")
     .eq("professional_id", profile.id)
     .order("updated_at", { ascending: false });
 
