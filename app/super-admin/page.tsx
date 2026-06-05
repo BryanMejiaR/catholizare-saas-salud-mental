@@ -8,10 +8,18 @@ export default async function SuperAdminPage() {
   return (
     <main className="min-h-screen bg-linen px-6 py-8">
       <h1 className="text-3xl font-semibold text-ink">Panel Catholizare</h1>
-      <p className="mt-3 text-ink/70">Sesión activa para {profile.full_name}.</p>
-      <Link className="mt-6 inline-flex font-medium text-moss" href="/super-admin/users">
-        Gestionar administradores
-      </Link>
+      <p className="mt-3 text-ink/70">Sesion activa para {profile.full_name}.</p>
+      <div className="mt-6 flex flex-wrap gap-4">
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/users">
+          Gestionar administradores
+        </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/reports">
+          Ver estadisticas globales
+        </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/audit">
+          Consultar auditoria
+        </Link>
+      </div>
     </main>
   );
 }
