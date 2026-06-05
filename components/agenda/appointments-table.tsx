@@ -82,7 +82,16 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                 ) : null}
               </td>
               <td className="px-4 py-3 text-ink/70">
-                {appointment.zoom_join_url ? (
+                {appointment.zoom_start_url ? (
+                  <a
+                    href={appointment.zoom_start_url}
+                    className="font-medium text-moss"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Iniciar
+                  </a>
+                ) : appointment.zoom_join_url ? (
                   <a
                     href={appointment.zoom_join_url}
                     className="font-medium text-moss"

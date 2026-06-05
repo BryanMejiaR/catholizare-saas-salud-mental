@@ -5,8 +5,10 @@ import type { GoogleCalendarEventResponse, GoogleTokenResponse } from "@/lib/goo
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+const GOOGLE_REVOKE_URL = "https://oauth2.googleapis.com/revoke";
 const GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo";
 const GOOGLE_CALENDAR_API_URL = "https://www.googleapis.com/calendar/v3";
+const GOOGLE_FETCH_TIMEOUT_MS = 20_000;
 const GOOGLE_CALENDAR_SCOPES = [
   "openid",
   "email",
@@ -71,6 +73,20 @@ export function buildGoogleCalendarAuthUrl(state: string) {
   return url;
 }
 
+async function fetchGoogle(input: string, init: RequestInit = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), GOOGLE_FETCH_TIMEOUT_MS);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function parseGoogleJson<T>(response: Response, context: string): Promise<T> {
   const payload = (await response.json().catch(() => null)) as T | { error?: string } | null;
 
@@ -92,7 +108,7 @@ export async function exchangeGoogleCalendarCode(code: string) {
     throw new Error("Google Calendar OAuth is not configured.");
   }
 
-  const response = await fetch(GOOGLE_TOKEN_URL, {
+  const response = await fetchGoogle(GOOGLE_TOKEN_URL, {
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded"
@@ -116,7 +132,7 @@ export async function refreshGoogleCalendarAccessToken(refreshToken: string) {
     throw new Error("Google Calendar OAuth is not configured.");
   }
 
-  const response = await fetch(GOOGLE_TOKEN_URL, {
+  const response = await fetchGoogle(GOOGLE_TOKEN_URL, {
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded"
@@ -133,7 +149,7 @@ export async function refreshGoogleCalendarAccessToken(refreshToken: string) {
 }
 
 export async function getGoogleCalendarUserEmail(accessToken: string) {
-  const response = await fetch(GOOGLE_USERINFO_URL, {
+  const response = await fetchGoogle(GOOGLE_USERINFO_URL, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -152,7 +168,7 @@ export async function createGoogleCalendarEvent(input: CalendarEventInput) {
     .filter(Boolean)
     .join("\n\n");
 
-  const response = await fetch(
+  const response = await fetchGoogle(
     `${GOOGLE_CALENDAR_API_URL}/calendars/${encodeURIComponent(input.calendarId)}/events`,
     {
       method: "POST",
@@ -183,7 +199,7 @@ export async function cancelGoogleCalendarEvent(
   calendarId: string,
   eventId: string
 ) {
-  const response = await fetch(
+  const response = await fetchGoogle(
     `${GOOGLE_CALENDAR_API_URL}/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
       eventId
     )}`,
@@ -201,5 +217,21 @@ export async function cancelGoogleCalendarEvent(
 
   if (!response.ok) {
     await parseGoogleJson(response, "google_calendar_event_cancel");
+  }
+}
+
+export async function revokeGoogleOAuthToken(token: string) {
+  const response = await fetchGoogle(GOOGLE_REVOKE_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      token
+    })
+  });
+
+  if (!response.ok) {
+    await parseGoogleJson(response, "google_calendar_token_revoke");
   }
 }

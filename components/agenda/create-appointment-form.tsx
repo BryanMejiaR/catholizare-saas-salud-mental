@@ -13,14 +13,17 @@ type CreateAppointmentFormProps = {
 
 export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) {
   const [state, formAction] = useActionState(createAppointmentAction, {});
+  const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
+      <input type="hidden" name="timezoneOffsetMinutes" value={timezoneOffsetMinutes} />
+
       <div>
         <h2 className="text-lg font-semibold text-ink">Programar cita</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Selecciona un Paciente con expediente activo. Zoom y Google Calendar quedan pendientes de
-          integracion.
+          Selecciona un Paciente con expediente activo. Google Calendar se sincroniza si la cuenta
+          esta conectada.
         </p>
       </div>
 

@@ -12,6 +12,7 @@ import {
   syncAppointmentCreatedToGoogleCalendar
 } from "@/lib/google-calendar/sync";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { syncAppointmentCancelledToZoom, syncAppointmentCreatedToZoom } from "@/lib/zoom/sync";
 
 type AgendaActionState = {
   message?: string;
@@ -21,6 +22,7 @@ type AgendaActionState = {
 const createAppointmentSchema = z.object({
   patientId: z.string().uuid(),
   scheduledAt: z.string().trim().min(16),
+  timezoneOffsetMinutes: z.coerce.number().int().min(-840).max(840),
   durationMinutes: z.coerce.number().int().min(15).max(240),
   type: z.enum(APPOINTMENT_TYPES)
 });
@@ -82,6 +84,51 @@ async function getPatientForAppointment(patientId: string) {
   };
 }
 
+function parseLocalDateTimeToUtc(value: string, timezoneOffsetMinutes: number) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, year, month, day, hour, minute] = match;
+  const yearNumber = Number(year);
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+  const hourNumber = Number(hour);
+  const minuteNumber = Number(minute);
+
+  if (
+    monthNumber < 1 ||
+    monthNumber > 12 ||
+    dayNumber < 1 ||
+    dayNumber > 31 ||
+    hourNumber > 23 ||
+    minuteNumber > 59
+  ) {
+    return null;
+  }
+
+  const localMilliseconds = Date.UTC(
+    yearNumber,
+    monthNumber - 1,
+    dayNumber,
+    hourNumber,
+    minuteNumber
+  );
+  const localDate = new Date(localMilliseconds);
+
+  if (
+    localDate.getUTCFullYear() !== yearNumber ||
+    localDate.getUTCMonth() !== monthNumber - 1 ||
+    localDate.getUTCDate() !== dayNumber
+  ) {
+    return null;
+  }
+
+  return new Date(localMilliseconds + timezoneOffsetMinutes * 60 * 1000);
+}
+
 export async function createAppointmentAction(
   _previousState: AgendaActionState,
   formData: FormData
@@ -97,6 +144,7 @@ export async function createAppointmentAction(
   const parsed = createAppointmentSchema.safeParse({
     patientId: formData.get("patientId"),
     scheduledAt: `${scheduledDate}T${scheduledTime}`,
+    timezoneOffsetMinutes: formData.get("timezoneOffsetMinutes"),
     durationMinutes: formData.get("durationMinutes"),
     type: formData.get("type")
   });
@@ -105,9 +153,12 @@ export async function createAppointmentAction(
     return { message: "Datos de cita invalidos.", ok: false };
   }
 
-  const scheduledAt = new Date(parsed.data.scheduledAt);
+  const scheduledAt = parseLocalDateTimeToUtc(
+    parsed.data.scheduledAt,
+    parsed.data.timezoneOffsetMinutes
+  );
 
-  if (Number.isNaN(scheduledAt.getTime())) {
+  if (!scheduledAt || Number.isNaN(scheduledAt.getTime())) {
     return { message: "Fecha u hora invalida.", ok: false };
   }
 
@@ -140,21 +191,36 @@ export async function createAppointmentAction(
     return { message: "No fue posible cargar los datos del Paciente.", ok: false };
   }
 
-  const overlapEnd = new Date(
-    scheduledAt.getTime() + parsed.data.durationMinutes * 60 * 1000
-  ).toISOString();
-  const { data: overlappingAppointment } = await supabaseAdmin
+  const overlapEnd = new Date(scheduledAt.getTime() + parsed.data.durationMinutes * 60 * 1000);
+  const overlapSearchStart = new Date(scheduledAt.getTime() - 240 * 60 * 1000);
+  const { data: possibleOverlaps, error: overlapError } = await supabaseAdmin
     .from("citas")
-    .select("id")
+    .select("id, scheduled_at, duration_minutes")
     .eq("professional_id", actor.id)
-    .eq("patient_id", parsed.data.patientId)
     .eq("status", "programada")
-    .gte("scheduled_at", scheduledAt.toISOString())
-    .lt("scheduled_at", overlapEnd)
-    .maybeSingle();
+    .gte("scheduled_at", overlapSearchStart.toISOString())
+    .lt("scheduled_at", overlapEnd.toISOString());
+
+  if (overlapError) {
+    Sentry.captureException(overlapError, {
+      extra: {
+        professional_id: actor.id,
+        patient_id: expediente.patient_id
+      }
+    });
+
+    return { message: "No fue posible verificar disponibilidad.", ok: false };
+  }
+
+  const overlappingAppointment = (possibleOverlaps ?? []).find((appointment) => {
+    const existingStart = new Date(appointment.scheduled_at).getTime();
+    const existingEnd = existingStart + Number(appointment.duration_minutes) * 60 * 1000;
+
+    return existingStart < overlapEnd.getTime() && existingEnd > scheduledAt.getTime();
+  });
 
   if (overlappingAppointment) {
-    return { message: "Ya existe una cita programada para este Paciente en esa franja.", ok: false };
+    return { message: "Ya existe una cita programada para este Profesional en esa franja.", ok: false };
   }
 
   const { data, error } = await supabaseAdmin
@@ -207,6 +273,17 @@ export async function createAppointmentAction(
     context: "audit_appointment_create_success"
   });
 
+  const zoomMeeting =
+    parsed.data.type === "videollamada"
+      ? await syncAppointmentCreatedToZoom({
+          appointmentId: data.id,
+          professional: actor,
+          patientName: patient.full_name,
+          scheduledAt: scheduledAt.toISOString(),
+          durationMinutes: parsed.data.durationMinutes
+        })
+      : null;
+
   await syncAppointmentCreatedToGoogleCalendar({
     appointmentId: data.id,
     professional: actor,
@@ -214,7 +291,8 @@ export async function createAppointmentAction(
     patientEmail: patient.email,
     scheduledAt: scheduledAt.toISOString(),
     durationMinutes: parsed.data.durationMinutes,
-    type: parsed.data.type
+    type: parsed.data.type,
+    zoomJoinUrl: zoomMeeting?.joinUrl
   });
 
   revalidatePath("/professional/agenda");
@@ -244,7 +322,9 @@ export async function cancelAppointmentAction(
   const supabaseAdmin = createSupabaseAdminClient();
   const { data: appointment, error: appointmentError } = await supabaseAdmin
     .from("citas")
-    .select("id, scheduled_at, professional_id, status, google_calendar_event_id")
+    .select(
+      "id, scheduled_at, professional_id, status, google_calendar_event_id, zoom_meeting_id"
+    )
     .eq("id", parsed.data.appointmentId)
     .eq("professional_id", actor.id)
     .single();
@@ -264,6 +344,16 @@ export async function cancelAppointmentAction(
   }
 
   if (new Date(appointment.scheduled_at).getTime() <= Date.now()) {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "appointment_cancel",
+      entityType: "citas",
+      entityId: appointment.id,
+      result: "denied",
+      context: "audit_appointment_cancel_denied_past"
+    });
+
     return { message: "Las citas pasadas son de solo lectura.", ok: false };
   }
 
@@ -309,6 +399,8 @@ export async function cancelAppointmentAction(
     result: "success",
     context: "audit_appointment_cancel_success"
   });
+
+  await syncAppointmentCancelledToZoom(actor, appointment.id, appointment.zoom_meeting_id);
 
   await syncAppointmentCancelledToGoogleCalendar(
     actor,

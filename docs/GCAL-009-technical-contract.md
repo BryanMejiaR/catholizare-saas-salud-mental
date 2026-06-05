@@ -9,9 +9,10 @@ Implemented:
 - OAuth start and callback routes.
 - Encrypted access and refresh token storage.
 - Professional integration status page at `/professional/integrations`.
-- Disconnect flow with logical status change.
+- Disconnect flow with Google token revocation and logical status change.
 - Catholizare to Google sync when appointments are created or cancelled.
 - Failure isolation: appointment operations remain successful if Google Calendar fails.
+- Provider requests use a 20 second timeout.
 
 Pending:
 
@@ -19,6 +20,8 @@ Pending:
 - Google Calendar to Catholizare updates.
 - Conflict warning against existing Google events.
 - Appointment edit sync, because appointment editing is not yet implemented in AGENDA-008.
+- Distributed token refresh locking for multi-instance deployments. Current MVP serializes refresh
+  inside one Node.js process.
 
 ## Database
 
@@ -59,6 +62,10 @@ server-only code with the Supabase service role.
 ## Token Security
 
 OAuth tokens are encrypted before storage using AES-256-GCM.
+Disconnecting Google Calendar attempts to revoke the refresh token with Google before the local
+connection is marked as `desconectado`. If Google rejects the token or times out, the failure is
+reported to Sentry and the local disconnect still completes so the professional is not trapped in a
+stale connection.
 
 Required variable when connecting Google Calendar:
 
@@ -112,6 +119,13 @@ Provider errors:
 - Written to audit logs as `gcal_event_sync` or `gcal_event_cancel`.
 - Stored in `google_calendar_connections.last_sync_error`.
 - Do not rollback the local appointment.
+
+## Privacy Notes
+
+Google Calendar events currently include the patient's full name in the event summary and
+description. This is intentionally visible to the connected professional's Google account and must
+be treated as a disclosure to an external provider. A future privacy setting can replace the title
+with a pseudonym or neutral label.
 
 ## QA Checklist
 
