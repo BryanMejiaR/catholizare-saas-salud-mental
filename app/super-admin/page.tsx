@@ -19,6 +19,9 @@ export default async function SuperAdminPage() {
         <Link className="inline-flex font-medium text-moss" href="/super-admin/audit">
           Consultar auditoria
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/pro">
+          Gestionar Catholizare Pro
+        </Link>
       </div>
     </main>
   );

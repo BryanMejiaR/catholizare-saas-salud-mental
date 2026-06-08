@@ -16,6 +16,9 @@ export default async function AdminPage() {
         <Link className="inline-flex font-medium text-moss" href="/admin/reports">
           Ver reportes operativos
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/admin/pro">
+          Gestionar Catholizare Pro
+        </Link>
       </div>
     </main>
   );
