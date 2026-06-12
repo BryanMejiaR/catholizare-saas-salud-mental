@@ -1,33 +1,46 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { createNotaClinicaAction } from "@/app/notas/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { ActionMessage } from "@/components/users/action-message";
-import { NOTA_CLINICA_TYPES } from "@/lib/notas/types";
 import { NotaFields } from "@/components/notas/nota-fields";
+import {
+  DEFAULT_NOTA_TEMPLATE_SECTIONS,
+  NOTA_CLINICA_TYPES,
+  NOTA_TEMPLATE_MODEL_LABEL,
+  NOTA_TEMPLATE_MODEL_TYPES,
+  type NotaTemplate,
+  type NotaTemplateModelType
+} from "@/lib/notas/types";
 
 type CreateNotaFormProps = {
   expedienteId: string;
+  templates?: Partial<Record<NotaTemplateModelType, NotaTemplate | null>>;
   disabled?: boolean;
 };
 
 const noteTypeLabels: Record<(typeof NOTA_CLINICA_TYPES)[number], string> = {
-  admision: "Admision",
-  evolucion: "Evolucion",
+  sesion: "Sesion",
   interconsulta: "Interconsulta",
   referencia_traslado: "Referencia o traslado",
-  egreso: "Egreso",
-  addendum: "Addendum"
+  egreso: "Egreso"
 };
 
-export function CreateNotaForm({ expedienteId, disabled = false }: CreateNotaFormProps) {
+export function CreateNotaForm({
+  expedienteId,
+  templates = {},
+  disabled = false
+}: CreateNotaFormProps) {
   const [state, formAction] = useActionState(createNotaClinicaAction, {});
+  const [modelType, setModelType] = useState<NotaTemplateModelType>("general");
+  const sections = templates[modelType]?.sections ?? DEFAULT_NOTA_TEMPLATE_SECTIONS;
 
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
       <input type="hidden" name="expedienteId" value={expedienteId} />
+      <input type="hidden" name="modelType" value={modelType} />
       <div>
         <h2 className="text-lg font-semibold text-ink">Nueva nota clinica</h2>
         <p className="mt-1 text-sm text-ink/65">
@@ -37,23 +50,41 @@ export function CreateNotaForm({ expedienteId, disabled = false }: CreateNotaFor
 
       <ActionMessage message={state.message} ok={state.ok} />
 
-      <label className="block">
-        <span className="text-sm font-medium text-ink">Tipo de nota</span>
-        <select
-          name="noteType"
-          disabled={disabled}
-          defaultValue="evolucion"
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-        >
-          {NOTA_CLINICA_TYPES.filter((type) => type !== "addendum").map((type) => (
-            <option key={type} value={type}>
-              {noteTypeLabels[type]}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="block">
+          <span className="text-sm font-medium text-ink">Tipo de nota</span>
+          <select
+            name="noteType"
+            disabled={disabled}
+            defaultValue="sesion"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          >
+            {NOTA_CLINICA_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {noteTypeLabels[type]}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <NotaFields disabled={disabled} />
+        <label className="block">
+          <span className="text-sm font-medium text-ink">Modelo de plantilla</span>
+          <select
+            value={modelType}
+            disabled={disabled}
+            onChange={(event) => setModelType(event.target.value as NotaTemplateModelType)}
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          >
+            {NOTA_TEMPLATE_MODEL_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {NOTA_TEMPLATE_MODEL_LABEL[type]}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <NotaFields sections={sections} disabled={disabled} />
 
       <SubmitButton disabled={disabled}>Crear borrador</SubmitButton>
     </form>

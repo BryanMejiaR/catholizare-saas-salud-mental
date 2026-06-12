@@ -1,12 +1,54 @@
 export const NOTA_CLINICA_TYPES = [
-  "admision",
-  "evolucion",
+  "sesion",
   "interconsulta",
   "referencia_traslado",
-  "egreso",
+  "egreso"
+] as const;
+
+export const LEGACY_NOTA_CLINICA_TYPES = [
+  "admision",
+  "evolucion",
   "addendum"
 ] as const;
-export type NotaClinicaType = (typeof NOTA_CLINICA_TYPES)[number];
+export type NotaClinicaType =
+  | (typeof NOTA_CLINICA_TYPES)[number]
+  | (typeof LEGACY_NOTA_CLINICA_TYPES)[number];
+
+export const NOTA_TEMPLATE_MODEL_TYPES = ["general", "tcc"] as const;
+export type NotaTemplateModelType = (typeof NOTA_TEMPLATE_MODEL_TYPES)[number];
+
+export const NOTA_TEMPLATE_MODEL_LABEL: Record<NotaTemplateModelType, string> = {
+  general: "General",
+  tcc: "TCC"
+};
+
+export const NOTA_TEMPLATE_FIELD_TYPES = ["text", "textarea", "select", "date", "time", "number"] as const;
+export type NotaTemplateFieldType = (typeof NOTA_TEMPLATE_FIELD_TYPES)[number];
+
+export type NotaTemplateField = {
+  id: string;
+  label: string;
+  type: NotaTemplateFieldType;
+  required?: boolean;
+  options?: string[];
+};
+
+export type NotaTemplateSection = {
+  id: string;
+  title: string;
+  description?: string;
+  fields: NotaTemplateField[];
+};
+
+export type NotaTemplate = {
+  id: string;
+  professional_id: string;
+  model_type: NotaTemplateModelType;
+  version: number;
+  sections: NotaTemplateSection[];
+  created_by_user_id: string | null;
+  created_at: string;
+};
 
 export const NOTA_CLINICA_STATUSES = [
   "borrador",
@@ -28,6 +70,13 @@ export type NotaClinica = {
   tcc_session_plan_item_id: string | null;
   tcc_session_number: number | null;
   tcc_phase: string | null;
+  session_time: string | null;
+  note_template_id: string | null;
+  note_template_version: number | null;
+  note_template_snapshot: {
+    sections: NotaTemplateSection[];
+  } | null;
+  note_template_values: Record<string, Record<string, string | number | boolean | null>> | null;
   note_type: NotaClinicaType;
   status: NotaClinicaStatus;
   session_date: string;
@@ -41,6 +90,19 @@ export type NotaClinica = {
   mood_score: number | null;
   anxiety_score: number | null;
   hope_score: number | null;
+  objective_scores: string | null;
+  patient_plan: string | null;
+  therapist_objectives: string | null;
+  mood_review: string | null;
+  previous_session_bridge: string | null;
+  session_agenda: string | null;
+  action_plan_review: string | null;
+  key_session_points: string | null;
+  session_summary_feedback: string | null;
+  home_action_plan: string | null;
+  patient_feedback: string | null;
+  observations: string | null;
+  next_session_at: string | null;
   created_by_user_id: string | null;
   created_at: string;
   updated_at: string;
@@ -97,3 +159,67 @@ export type NotaClinicaFilters = {
   dateFrom?: string;
   dateTo?: string;
 };
+
+export const DEFAULT_NOTA_TEMPLATE_SECTIONS: NotaTemplateSection[] = [
+  {
+    id: "datos_sesion",
+    title: "Nota de sesión",
+    fields: [
+      { id: "tcc_session_number", label: "N° Sesión:", type: "number" },
+      { id: "session_date", label: "Fecha:", type: "date", required: true },
+      { id: "session_time", label: "Hora:", type: "time" }
+    ]
+  },
+  {
+    id: "informacion_guia",
+    title: "INFORMACIÓN GUIA",
+    fields: [
+      { id: "objective_scores", label: "Puntajes Objetivos:", type: "textarea" },
+      { id: "patient_plan", label: "Plan del Paciente:", type: "textarea" },
+      { id: "therapist_objectives", label: "Objetivos del terapeuta:", type: "textarea" }
+    ]
+  },
+  {
+    id: "fase_inicial",
+    title: "Fase Inicial de sesión 10 min.",
+    fields: [
+      { id: "mood_review", label: "1. Revisión del Estado de Animo:", type: "textarea" },
+      { id: "previous_session_bridge", label: "2. Puente con la sesión anterior:", type: "textarea" },
+      { id: "session_agenda", label: "3. Establecer la Agenda de la sesión:", type: "textarea" },
+      { id: "action_plan_review", label: "4. Revisión de la Tarea (plan de acción):", type: "textarea" }
+    ]
+  },
+  {
+    id: "fase_media",
+    title: "Fase Media de la sesión 30 min.",
+    fields: [
+      { id: "key_session_points", label: "5. Puntos importantes de la sesión:", type: "textarea", required: true }
+    ]
+  },
+  {
+    id: "fase_final",
+    title: "Fase Final de la Sesión 15 min.",
+    fields: [
+      {
+        id: "session_summary_feedback",
+        label: "6. Resumen general de la sesión y Retroalimentación (terapeuta al paciente):",
+        type: "textarea"
+      },
+      {
+        id: "home_action_plan",
+        label: "7. Asignación de Tareas para el hogar/Plan de acción:",
+        type: "textarea"
+      },
+      { id: "patient_feedback", label: "8. Retroalimentación del paciente:", type: "textarea" }
+    ]
+  },
+  {
+    id: "seguimiento",
+    title: "Observaciones",
+    fields: [
+      { id: "observations", label: "Plan de seguimiento para próxima Sesión:", type: "textarea" },
+      { id: "next_session_at", label: "Proxima Sesión:", type: "date" },
+      { id: "risk_flags", label: "Riesgos o alertas:", type: "textarea" }
+    ]
+  }
+];

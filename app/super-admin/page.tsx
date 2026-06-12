@@ -22,6 +22,9 @@ export default async function SuperAdminPage() {
         <Link className="inline-flex font-medium text-moss" href="/super-admin/pro">
           Gestionar Catholizare Pro
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/help">
+          Gestionar ayuda
+        </Link>
       </div>
     </main>
   );

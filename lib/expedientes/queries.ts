@@ -10,13 +10,17 @@ import type {
   ExpedienteDetail,
   ExpedienteIdentificationData,
   ExpedienteSummary,
-  HistoriaClinica
+  HistoriaClinica,
+  PatientLifeHistory
 } from "@/lib/expedientes/types";
 
 const EXPEDIENTE_SELECT =
   "id, patient_id, professional_id, identification_data, initial_consultation_reason, clinical_status, consent_status, status, session_notes_count, assessments_count, documents_count, last_clinical_activity_at, created_at, updated_at";
 
-type ExpedienteRow = Omit<ExpedienteDetail, "patient" | "historia_clinica" | "consentimiento">;
+type ExpedienteRow = Omit<
+  ExpedienteDetail,
+  "patient" | "historia_clinica" | "consentimiento" | "life_history"
+>;
 
 async function getPatientsById(patientIds: string[]) {
   if (patientIds.length === 0) {
@@ -116,7 +120,7 @@ export async function getExpedienteDetail(profile: AuthProfile, expedienteId: st
 
   const row = data as ExpedienteRow;
   const patients = await getPatientsById([row.patient_id]);
-  const [{ data: historia }, { data: consentimiento }] = await Promise.all([
+  const [{ data: historia }, { data: consentimiento }, { data: lifeHistory }] = await Promise.all([
     supabaseAdmin
       .from("historias_clinicas")
       .select("*")
@@ -126,10 +130,17 @@ export async function getExpedienteDetail(profile: AuthProfile, expedienteId: st
       .maybeSingle(),
     supabaseAdmin
       .from("consentimientos")
-      .select("id, expediente_id, status, signed_at, modality, document_reference")
+      .select(
+        "id, expediente_id, status, signed_at, modality, document_reference, document_storage_path, document_file_name, document_content_type, document_size_bytes"
+      )
       .eq("expediente_id", expedienteId)
       .order("created_at", { ascending: false })
       .limit(1)
+      .maybeSingle(),
+    supabaseAdmin
+      .from("patient_life_histories")
+      .select("*")
+      .eq("expediente_id", expedienteId)
       .maybeSingle()
   ]);
 
@@ -155,6 +166,7 @@ export async function getExpedienteDetail(profile: AuthProfile, expedienteId: st
       account_status: "desconocido"
     },
     historia_clinica: (historia as HistoriaClinica | null) ?? null,
-    consentimiento: (consentimiento as Consentimiento | null) ?? null
+    consentimiento: (consentimiento as Consentimiento | null) ?? null,
+    life_history: (lifeHistory as PatientLifeHistory | null) ?? null
   } satisfies ExpedienteDetail;
 }

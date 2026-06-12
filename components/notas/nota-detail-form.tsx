@@ -25,7 +25,8 @@ export function NotaDetailForm({ note }: NotaDetailFormProps) {
       <div>
         <h2 className="text-lg font-semibold text-ink">Contenido de la nota</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Estado: {note.status}. Las notas confirmadas solo aceptan addendum o anulacion logica.
+          Estado: {note.status}. Las notas confirmadas quedan inmutables y solo permiten anulacion
+          logica.
         </p>
       </div>
 

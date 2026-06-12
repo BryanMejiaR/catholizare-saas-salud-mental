@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
@@ -65,14 +66,28 @@ const historiaSchema = z.object({
 const consentimientoSchema = z.object({
   expedienteId: z.string().uuid(),
   status: z.enum(CONSENTIMIENTO_STATUSES),
-  modality: z.enum(CONSENTIMIENTO_MODALITIES),
-  signedAt: optionalText,
-  documentReference: optionalText
+  signedAt: optionalText
 });
 
 const archiveSchema = z.object({
   expedienteId: z.string().uuid()
 });
+
+const lifeHistorySchema = z.object({
+  expedienteId: z.string().uuid(),
+  mode: z.enum(["activate", "reopen"])
+});
+
+const consentFileSchema = z
+  .preprocess((value) => (value instanceof File ? value : undefined), z.instanceof(File).optional())
+  .refine((file) => !file || file.size <= 10 * 1024 * 1024, "El archivo no puede exceder 10 MB.")
+  .refine(
+    (file) =>
+      !file ||
+      file.size === 0 ||
+      ["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(file.type),
+    "Solo se permiten PDF, JPG, PNG o WEBP."
+  );
 
 async function getActiveProfessional() {
   const profile = await getCurrentProfile();
@@ -103,6 +118,27 @@ async function assertExpedienteOwner(expedienteId: string, professionalId: strin
     professional_id: string;
     status: string;
   };
+}
+
+function consentModalityForStatus(status: (typeof CONSENTIMIENTO_STATUSES)[number]) {
+  if (status === "firmado_fisico") {
+    return "fisico" satisfies (typeof CONSENTIMIENTO_MODALITIES)[number];
+  }
+
+  if (status === "firmado_digital") {
+    return "digital" satisfies (typeof CONSENTIMIENTO_MODALITIES)[number];
+  }
+
+  return "pendiente" satisfies (typeof CONSENTIMIENTO_MODALITIES)[number];
+}
+
+function safeFileName(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120);
 }
 
 async function ensureAssignedPatient(patientId: string, professionalId: string) {
@@ -202,12 +238,6 @@ export async function createExpedienteAction(
     };
   }
 
-  const { error: historiaError } = await supabaseAdmin.from("historias_clinicas").insert({
-    expediente_id: data.id,
-    created_by: actor.id,
-    motivo_consulta: parsed.data.initialConsultationReason
-  });
-
   const { error: consentimientoError } = await supabaseAdmin.from("consentimientos").insert({
     expediente_id: data.id,
     status: "pendiente",
@@ -215,18 +245,7 @@ export async function createExpedienteAction(
     registered_by: actor.id
   });
 
-  if (historiaError || consentimientoError) {
-    if (historiaError) {
-      Sentry.captureException(historiaError, {
-        extra: {
-          expediente_id: data.id,
-          patient_id: parsed.data.patientId,
-          professional_id: actor.id,
-          failed_step: "historias_clinicas_insert"
-        }
-      });
-    }
-
+  if (consentimientoError) {
     if (consentimientoError) {
       Sentry.captureException(consentimientoError, {
         extra: {
@@ -238,9 +257,7 @@ export async function createExpedienteAction(
       });
     }
 
-    const failedStep = historiaError
-      ? "historias_clinicas_insert"
-      : "consentimientos_insert";
+    const failedStep = "consentimientos_insert";
 
     Sentry.captureMessage("Expediente initialization failed", {
       level: "error",
@@ -248,8 +265,7 @@ export async function createExpedienteAction(
         expediente_id: data.id,
         patient_id: parsed.data.patientId,
         professional_id: actor.id,
-        historia_error: Boolean(historiaError),
-        consentimiento_error: Boolean(consentimientoError)
+        consentimiento_error: true
       }
     });
 
@@ -271,8 +287,7 @@ export async function createExpedienteAction(
       metadata: {
         patient_id: parsed.data.patientId,
         failed_step: failedStep,
-        historia_error: Boolean(historiaError),
-        consentimiento_error: Boolean(consentimientoError)
+        consentimiento_error: true
       },
       context: "audit_expediente_child_create_error"
     });
@@ -558,13 +573,17 @@ export async function updateConsentimientoAction(
   const parsed = consentimientoSchema.safeParse({
     expedienteId: formData.get("expedienteId"),
     status: formData.get("status"),
-    modality: formData.get("modality"),
-    signedAt: formData.get("signedAt"),
-    documentReference: formData.get("documentReference")
+    signedAt: formData.get("signedAt")
   });
 
   if (!parsed.success) {
     return { message: parsed.error.issues[0]?.message ?? "Datos invalidos.", ok: false };
+  }
+
+  const fileResult = consentFileSchema.safeParse(formData.get("consentDocument"));
+
+  if (!fileResult.success) {
+    return { message: fileResult.error.issues[0]?.message ?? "Archivo invalido.", ok: false };
   }
 
   const expediente = await assertExpedienteOwner(parsed.data.expedienteId, actor.id);
@@ -598,15 +617,90 @@ export async function updateConsentimientoAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  const { data: existingConsent } = await supabaseAdmin
+    .from("consentimientos")
+    .select("document_storage_path")
+    .eq("expediente_id", expediente.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const consentFile = fileResult.data;
+  const hasNewFile = Boolean(consentFile && consentFile.size > 0);
+  const hasExistingFile = Boolean(existingConsent?.document_storage_path);
+
+  if (
+    parsed.data.status !== "pendiente" &&
+    parsed.data.status !== "excepcion_justificada" &&
+    !hasNewFile &&
+    !hasExistingFile
+  ) {
+    return {
+      message: "Sube el archivo o foto del consentimiento antes de marcarlo como firmado.",
+      ok: false
+    };
+  }
+
+  let uploadedDocument:
+    | {
+        path: string;
+        fileName: string;
+        contentType: string;
+        size: number;
+      }
+    | null = null;
+
+  if (hasNewFile && consentFile) {
+    const fileName = safeFileName(consentFile.name || "consentimiento");
+    const storagePath = `${actor.id}/${expediente.id}/${randomUUID()}-${fileName}`;
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("clinical-consents")
+      .upload(storagePath, Buffer.from(await consentFile.arrayBuffer()), {
+        contentType: consentFile.type || "application/octet-stream",
+        upsert: false
+      });
+
+    if (uploadError) {
+      Sentry.captureException(uploadError, {
+        extra: {
+          expediente_id: expediente.id,
+          file_name: fileName
+        }
+      });
+
+      await safeWriteAuditLog({
+        userId: actor.id,
+        role: actor.role,
+        action: "consentimiento_document_upload",
+        entityType: "consentimientos",
+        entityId: expediente.id,
+        result: "error",
+        context: "audit_consentimiento_document_upload_error"
+      });
+
+      return { message: "No fue posible subir el archivo del consentimiento.", ok: false };
+    }
+
+    uploadedDocument = {
+      path: storagePath,
+      fileName,
+      contentType: consentFile.type || "application/octet-stream",
+      size: consentFile.size
+    };
+  }
+
   const { error } = await supabaseAdmin.from("consentimientos").insert({
     expediente_id: expediente.id,
     status: parsed.data.status,
     signed_at: parsed.data.signedAt,
-    modality: parsed.data.modality,
-    document_reference: parsed.data.documentReference,
+    modality: consentModalityForStatus(parsed.data.status),
+    document_reference: uploadedDocument?.fileName ?? null,
+    document_storage_path: uploadedDocument?.path ?? existingConsent?.document_storage_path ?? null,
+    document_file_name: uploadedDocument?.fileName ?? null,
+    document_content_type: uploadedDocument?.contentType ?? null,
+    document_size_bytes: uploadedDocument?.size ?? null,
     obtained_by_professional_id: actor.id,
     registered_by: actor.id,
-    document_uploaded_at: parsed.data.documentReference ? new Date().toISOString() : null
+    document_uploaded_at: uploadedDocument ? new Date().toISOString() : null
   });
 
   if (!error) {
@@ -657,6 +751,137 @@ export async function updateConsentimientoAction(
   revalidatePath("/professional/expedientes");
 
   return { message: "Consentimiento registrado.", ok: true };
+}
+
+export async function updateLifeHistoryAccessAction(
+  _previousState: ExpedienteActionState,
+  formData: FormData
+): Promise<ExpedienteActionState> {
+  const actor = await getActiveProfessional();
+
+  if (!actor) {
+    return { message: "No tienes una sesion profesional activa.", ok: false };
+  }
+
+  const parsed = lifeHistorySchema.safeParse({
+    expedienteId: formData.get("expedienteId"),
+    mode: formData.get("mode")
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos invalidos.", ok: false };
+  }
+
+  const expediente = await assertExpedienteOwner(parsed.data.expedienteId, actor.id);
+
+  if (!expediente || expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "patient_life_history_access",
+      entityType: "patient_life_histories",
+      entityId: parsed.data.expedienteId,
+      result: "denied",
+      context: "audit_patient_life_history_access_denied"
+    });
+
+    return { message: "Solo puedes activar historias de vida en expedientes activos propios.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const now = new Date().toISOString();
+  const { data: existing } = await supabaseAdmin
+    .from("patient_life_histories")
+    .select("id, status")
+    .eq("expediente_id", expediente.id)
+    .maybeSingle();
+
+  const nextStatus = parsed.data.mode === "reopen" ? "reabierta" : "borrador";
+
+  if (existing && parsed.data.mode === "activate" && existing.status !== "inactiva") {
+    return { message: "La historia de vida ya fue activada para este paciente.", ok: false };
+  }
+
+  if (parsed.data.mode === "reopen" && existing?.status !== "enviada") {
+    return { message: "Solo puedes reabrir una historia de vida enviada.", ok: false };
+  }
+
+  const payload =
+    parsed.data.mode === "reopen"
+      ? {
+          status: nextStatus,
+          reopened_by_professional_id: actor.id,
+          reopened_at: now
+        }
+      : {
+          status: nextStatus,
+          activated_by_professional_id: actor.id,
+          activated_at: now
+        };
+
+  const { data, error } = existing
+    ? await supabaseAdmin
+        .from("patient_life_histories")
+        .update(payload)
+        .eq("id", existing.id)
+        .select("id")
+        .single()
+    : await supabaseAdmin
+        .from("patient_life_histories")
+        .insert({
+          expediente_id: expediente.id,
+          patient_id: expediente.patient_id,
+          professional_id: actor.id,
+          ...payload
+        })
+        .select("id")
+        .single();
+
+  if (error || !data) {
+    Sentry.captureException(error ?? new Error("Life history access update did not return id"), {
+      extra: {
+        expediente_id: expediente.id,
+        mode: parsed.data.mode
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "patient_life_history_access",
+      entityType: "patient_life_histories",
+      entityId: expediente.id,
+      result: "error",
+      context: "audit_patient_life_history_access_error"
+    });
+
+    return { message: "No fue posible actualizar el acceso a la historia de vida.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "patient_life_history_access",
+    entityType: "patient_life_histories",
+    entityId: data.id,
+    result: "success",
+    metadata: {
+      mode: parsed.data.mode,
+      next_status: nextStatus
+    },
+    context: "audit_patient_life_history_access_success"
+  });
+
+  revalidatePath(`/professional/expedientes/${expediente.id}`);
+  revalidatePath("/portal");
+
+  return {
+    message:
+      parsed.data.mode === "reopen"
+        ? "Historia de vida reabierta para edicion del paciente."
+        : "Historia de vida activada para el paciente.",
+    ok: true
+  };
 }
 
 export async function archiveExpedienteAction(

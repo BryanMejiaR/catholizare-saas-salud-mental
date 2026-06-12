@@ -7,7 +7,15 @@ import { z } from "zod";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
-import { NOTA_CLINICA_TYPES } from "@/lib/notas/types";
+import {
+  DEFAULT_NOTA_TEMPLATE_SECTIONS,
+  NOTA_CLINICA_TYPES,
+  NOTA_TEMPLATE_FIELD_TYPES,
+  NOTA_TEMPLATE_MODEL_TYPES,
+  type NotaTemplate,
+  type NotaTemplateModelType,
+  type NotaTemplateSection
+} from "@/lib/notas/types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type NotaActionState = {
@@ -31,6 +39,9 @@ type NotaAccess = {
   created_by_user_id: string | null;
   status: string;
   note_type: string;
+  note_template_snapshot: {
+    sections: NotaTemplateSection[];
+  } | null;
 };
 
 const allowedConsentStatuses = new Set([
@@ -39,55 +50,91 @@ const allowedConsentStatuses = new Set([
   "excepcion_justificada"
 ]);
 
-const optionalText = z
-  .string()
-  .trim()
-  .transform((value) => (value.length > 0 ? value : null));
-
 const optionalScore = z.preprocess(
   (value) => (value === "" || value === null ? undefined : value),
   z.coerce.number().int().min(1).max(10).optional()
 );
 
-const noteBodySchema = {
-  sessionDate: z.string().trim().min(1, "Selecciona la fecha de la sesion."),
-  content: z.string().trim().min(10, "Describe el contenido clinico de la nota."),
-  clinicalSummary: optionalText,
-  interventions: optionalText,
-  patientResponse: optionalText,
-  planNextSession: optionalText,
-  riskFlags: optionalText,
-  homeworkOrTasks: optionalText,
-  moodScore: optionalScore,
-  anxietyScore: optionalScore,
-  hopeScore: optionalScore
-};
-
 const createNotaSchema = z.object({
   expedienteId: z.string().uuid(),
   noteType: z.enum(NOTA_CLINICA_TYPES),
-  ...noteBodySchema
+  modelType: z.enum(NOTA_TEMPLATE_MODEL_TYPES).default("general")
 });
 
 const updateDraftSchema = z.object({
-  noteId: z.string().uuid(),
-  ...noteBodySchema
+  noteId: z.string().uuid()
+});
+
+const fieldSchema = z.object({
+  id: z.string().trim().min(1),
+  label: z.string().trim().min(1),
+  type: z.enum(NOTA_TEMPLATE_FIELD_TYPES),
+  required: z.boolean().optional(),
+  options: z.array(z.string().trim().min(1)).optional()
+});
+
+const sectionSchema = z.object({
+  id: z.string().trim().min(1),
+  title: z.string().trim().min(1),
+  description: z.string().trim().optional(),
+  fields: z.array(fieldSchema).min(1)
+});
+
+const templateSectionsSchema = z
+  .array(sectionSchema)
+  .min(1)
+  .superRefine((sections, context) => {
+    const sectionIds = new Set<string>();
+
+    sections.forEach((section, sectionIndex) => {
+      if (sectionIds.has(section.id)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Los IDs de secciones deben ser unicos.",
+          path: [sectionIndex, "id"]
+        });
+      }
+
+      sectionIds.add(section.id);
+
+      const fieldIds = new Set<string>();
+      section.fields.forEach((field, fieldIndex) => {
+        if (fieldIds.has(field.id)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Los IDs de campos deben ser unicos dentro de la seccion.",
+            path: [sectionIndex, "fields", fieldIndex, "id"]
+          });
+        }
+
+        if (field.type === "select" && (!field.options || field.options.length === 0)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Los campos de seleccion requieren opciones.",
+            path: [sectionIndex, "fields", fieldIndex, "options"]
+          });
+        }
+
+        fieldIds.add(field.id);
+      });
+    });
+  });
+
+const templateSchema = z.object({
+  modelType: z.enum(NOTA_TEMPLATE_MODEL_TYPES),
+  sectionsJson: z.string().trim().min(2)
 });
 
 const noteIdSchema = z.object({
   noteId: z.string().uuid()
 });
 
-const addendumSchema = z.object({
-  noteId: z.string().uuid(),
-  correctionReason: z.string().trim().min(5, "Describe el motivo de la correccion."),
-  content: z.string().trim().min(10, "Describe la correccion o aclaracion clinica.")
-});
-
 const annulSchema = z.object({
   noteId: z.string().uuid(),
   annulmentReason: z.string().trim().min(5, "Describe el motivo de la anulacion logica.")
 });
+
+type NotaTemplateValues = Record<string, Record<string, string | number | boolean | null>>;
 
 async function getActiveProfessional() {
   const profile = await getCurrentProfile();
@@ -119,7 +166,9 @@ async function assertNotaOwner(noteId: string, professionalId: string) {
   const supabaseAdmin = createSupabaseAdminClient();
   const { data, error } = await supabaseAdmin
     .from("notas_clinicas")
-    .select("id, expediente_id, patient_id, professional_id, created_by_user_id, status, note_type")
+    .select(
+      "id, expediente_id, patient_id, professional_id, created_by_user_id, status, note_type, note_template_snapshot"
+    )
     .eq("id", noteId)
     .eq("professional_id", professionalId)
     .single();
@@ -131,36 +180,151 @@ async function assertNotaOwner(noteId: string, professionalId: string) {
   return data as NotaAccess;
 }
 
-function parseNoteBody(formData: FormData) {
+function parseScores(formData: FormData) {
   return {
-    sessionDate: formData.get("sessionDate"),
-    content: formData.get("content"),
-    clinicalSummary: formData.get("clinicalSummary"),
-    interventions: formData.get("interventions"),
-    patientResponse: formData.get("patientResponse"),
-    planNextSession: formData.get("planNextSession"),
-    riskFlags: formData.get("riskFlags"),
-    homeworkOrTasks: formData.get("homeworkOrTasks"),
-    moodScore: formData.get("moodScore"),
-    anxietyScore: formData.get("anxietyScore"),
-    hopeScore: formData.get("hopeScore")
+    moodScore: optionalScore.safeParse(formData.get("mood_score")),
+    anxietyScore: optionalScore.safeParse(formData.get("anxiety_score")),
+    hopeScore: optionalScore.safeParse(formData.get("hope_score"))
   };
 }
 
-function noteBodyPayload(data: z.infer<typeof createNotaSchema> | z.infer<typeof updateDraftSchema>) {
+function parseTemplateSections(raw: string) {
+  try {
+    return templateSectionsSchema.safeParse(JSON.parse(raw));
+  } catch {
+    return templateSectionsSchema.safeParse(null);
+  }
+}
+
+function normalizeTemplateValues(formData: FormData, sections: NotaTemplateSection[]) {
+  const values: NotaTemplateValues = {};
+
+  for (const section of sections) {
+    values[section.id] = {};
+
+    for (const field of section.fields) {
+      const rawValue = formData.get(`field_${section.id}_${field.id}`);
+      const value = typeof rawValue === "string" ? rawValue.trim() : "";
+
+      if (field.required && value.length === 0) {
+        return {
+          success: false as const,
+          message: `Completa el campo obligatorio: ${field.label}`
+        };
+      }
+
+      if (field.type === "number") {
+        const numericValue = Number(value);
+        values[section.id][field.id] =
+          value === "" || !Number.isFinite(numericValue) ? null : numericValue;
+      } else {
+        values[section.id][field.id] = value.length > 0 ? value : null;
+      }
+    }
+  }
+
+  return { success: true as const, values };
+}
+
+function getTemplateValue(values: NotaTemplateValues, fieldId: string) {
+  for (const sectionValues of Object.values(values)) {
+    const value = sectionValues[fieldId];
+
+    if (value !== undefined && value !== null && String(value).trim().length > 0) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function getTextTemplateValue(values: NotaTemplateValues, fieldId: string) {
+  const value = getTemplateValue(values, fieldId);
+  return value === null ? undefined : String(value);
+}
+
+function noteBodyPayload(values: NotaTemplateValues, scores: ReturnType<typeof parseScores>) {
+  const sessionDate =
+    getTextTemplateValue(values, "session_date") ?? new Date().toISOString().slice(0, 10);
+  const tccSessionNumber = getTemplateValue(values, "tcc_session_number");
+  const content = Object.entries(values)
+    .flatMap(([sectionId, sectionValues]) =>
+      Object.entries(sectionValues).map(([fieldId, value]) =>
+        value === null ? null : `${sectionId}.${fieldId}:\n${String(value)}`
+      )
+    )
+    .filter(Boolean)
+    .join("\n\n");
+
   return {
-    session_date: data.sessionDate,
-    content: data.content,
-    clinical_summary: data.clinicalSummary,
-    interventions: data.interventions,
-    patient_response: data.patientResponse,
-    plan_next_session: data.planNextSession,
-    risk_flags: data.riskFlags,
-    homework_or_tasks: data.homeworkOrTasks,
-    mood_score: data.moodScore ?? null,
-    anxiety_score: data.anxietyScore ?? null,
-    hope_score: data.hopeScore ?? null
+    session_date: sessionDate,
+    session_time: getTextTemplateValue(values, "session_time"),
+    tcc_session_number: typeof tccSessionNumber === "number" ? tccSessionNumber : null,
+    objective_scores: getTextTemplateValue(values, "objective_scores"),
+    patient_plan: getTextTemplateValue(values, "patient_plan"),
+    therapist_objectives: getTextTemplateValue(values, "therapist_objectives"),
+    mood_review: getTextTemplateValue(values, "mood_review"),
+    previous_session_bridge: getTextTemplateValue(values, "previous_session_bridge"),
+    session_agenda: getTextTemplateValue(values, "session_agenda"),
+    action_plan_review: getTextTemplateValue(values, "action_plan_review"),
+    key_session_points: getTextTemplateValue(values, "key_session_points") ?? content,
+    session_summary_feedback: getTextTemplateValue(values, "session_summary_feedback"),
+    home_action_plan: getTextTemplateValue(values, "home_action_plan"),
+    patient_feedback: getTextTemplateValue(values, "patient_feedback"),
+    observations: getTextTemplateValue(values, "observations"),
+    next_session_at: getTextTemplateValue(values, "next_session_at"),
+    content,
+    clinical_summary: getTextTemplateValue(values, "session_summary_feedback"),
+    interventions: getTextTemplateValue(values, "key_session_points"),
+    patient_response: getTextTemplateValue(values, "patient_feedback"),
+    plan_next_session: getTextTemplateValue(values, "observations"),
+    risk_flags: getTextTemplateValue(values, "risk_flags"),
+    homework_or_tasks: getTextTemplateValue(values, "home_action_plan"),
+    mood_score: scores.moodScore.success ? scores.moodScore.data ?? null : null,
+    anxiety_score: scores.anxietyScore.success ? scores.anxietyScore.data ?? null : null,
+    hope_score: scores.hopeScore.success ? scores.hopeScore.data ?? null : null
   };
+}
+
+async function getOrCreateLatestNotaTemplate(
+  professionalId: string,
+  modelType: NotaTemplateModelType
+) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: latestTemplate, error: latestError } = await supabaseAdmin
+    .from("plantillas_nota_clinica")
+    .select("id, version, sections")
+    .eq("professional_id", professionalId)
+    .eq("model_type", modelType)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latestError) {
+    throw latestError;
+  }
+
+  if (latestTemplate) {
+    return latestTemplate as Pick<NotaTemplate, "id" | "version" | "sections">;
+  }
+
+  const { data: createdTemplate, error: createError } = await supabaseAdmin
+    .from("plantillas_nota_clinica")
+    .insert({
+      professional_id: professionalId,
+      model_type: modelType,
+      version: 1,
+      sections: DEFAULT_NOTA_TEMPLATE_SECTIONS,
+      created_by_user_id: professionalId
+    })
+    .select("id, version, sections")
+    .single();
+
+  if (createError || !createdTemplate) {
+    throw createError ?? new Error("Default note template insert did not return a row");
+  }
+
+  return createdTemplate as Pick<NotaTemplate, "id" | "version" | "sections">;
 }
 
 export async function createNotaClinicaAction(
@@ -176,15 +340,11 @@ export async function createNotaClinicaAction(
   const parsed = createNotaSchema.safeParse({
     expedienteId: formData.get("expedienteId"),
     noteType: formData.get("noteType"),
-    ...parseNoteBody(formData)
+    modelType: formData.get("modelType")
   });
 
   if (!parsed.success) {
     return { message: parsed.error.issues[0]?.message ?? "Datos invalidos.", ok: false };
-  }
-
-  if (parsed.data.noteType === "addendum") {
-    return { message: "Los addendums se crean desde la nota original.", ok: false };
   }
 
   const expediente = await assertExpedienteOwner(parsed.data.expedienteId, actor.id);
@@ -231,7 +391,28 @@ export async function createNotaClinicaAction(
       context: "audit_nota_clinica_create_denied_consent"
     });
 
-    return { message: "El expediente requiere consentimiento o excepcion justificada.", ok: false };
+    return { message: "El expediente requiere consentimiento informado firmado.", ok: false };
+  }
+
+  let template: Pick<NotaTemplate, "id" | "version" | "sections">;
+
+  try {
+    template = await getOrCreateLatestNotaTemplate(actor.id, parsed.data.modelType);
+  } catch (error) {
+    Sentry.captureException(error, {
+      extra: {
+        professional_id: actor.id,
+        model_type: parsed.data.modelType
+      }
+    });
+
+    return { message: "No fue posible cargar la plantilla de nota.", ok: false };
+  }
+
+  const normalizedValues = normalizeTemplateValues(formData, template.sections);
+
+  if (!normalizedValues.success) {
+    return { message: normalizedValues.message, ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -244,7 +425,13 @@ export async function createNotaClinicaAction(
       created_by_user_id: actor.id,
       note_type: parsed.data.noteType,
       status: "borrador",
-      ...noteBodyPayload(parsed.data)
+      note_template_id: template.id,
+      note_template_version: template.version,
+      note_template_snapshot: {
+        sections: template.sections
+      },
+      note_template_values: normalizedValues.values,
+      ...noteBodyPayload(normalizedValues.values, parseScores(formData))
     })
     .select("id")
     .single();
@@ -293,6 +480,102 @@ export async function createNotaClinicaAction(
   return { message: "Nota clinica creada en borrador.", ok: true };
 }
 
+export async function saveNotaTemplateAction(
+  _previousState: NotaActionState,
+  formData: FormData
+): Promise<NotaActionState> {
+  const actor = await getActiveProfessional();
+
+  if (!actor) {
+    return { message: "No tienes una sesion profesional activa.", ok: false };
+  }
+
+  const parsed = templateSchema.safeParse({
+    modelType: formData.get("modelType"),
+    sectionsJson: formData.get("sectionsJson")
+  });
+
+  if (!parsed.success) {
+    return { message: "Define la plantilla en formato valido.", ok: false };
+  }
+
+  const sections = parseTemplateSections(parsed.data.sectionsJson);
+
+  if (!sections.success) {
+    return {
+      message: sections.error.issues[0]?.message ?? "La estructura de secciones no es valida.",
+      ok: false
+    };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: latestTemplate } = await supabaseAdmin
+    .from("plantillas_nota_clinica")
+    .select("version")
+    .eq("professional_id", actor.id)
+    .eq("model_type", parsed.data.modelType)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextVersion = Number(latestTemplate?.version ?? 0) + 1;
+  const { error } = await supabaseAdmin.from("plantillas_nota_clinica").insert({
+    professional_id: actor.id,
+    model_type: parsed.data.modelType,
+    version: nextVersion,
+    sections: sections.data,
+    created_by_user_id: actor.id
+  });
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        professional_id: actor.id,
+        model_type: parsed.data.modelType,
+        version: nextVersion
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_template_update",
+      entityType: "plantillas_nota_clinica",
+      result: "error",
+      metadata: {
+        model_type: parsed.data.modelType
+      },
+      context: "audit_nota_template_update_error"
+    });
+
+    return {
+      message:
+        error.code === "23505"
+          ? "La plantilla cambio mientras guardabas. Recarga e intenta de nuevo."
+          : "No fue posible guardar la plantilla.",
+      ok: false
+    };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "nota_template_update",
+    entityType: "plantillas_nota_clinica",
+    result: "success",
+    metadata: {
+      model_type: parsed.data.modelType,
+      version: nextVersion
+    },
+    context: "audit_nota_template_update_success"
+  });
+
+  revalidatePath("/professional/notas/template");
+  revalidatePath("/professional/notas");
+
+  return { message: `Plantilla version ${nextVersion} guardada.`, ok: true };
+}
+
 export async function updateDraftNotaClinicaAction(
   _previousState: NotaActionState,
   formData: FormData
@@ -304,8 +587,7 @@ export async function updateDraftNotaClinicaAction(
   }
 
   const parsed = updateDraftSchema.safeParse({
-    noteId: formData.get("noteId"),
-    ...parseNoteBody(formData)
+    noteId: formData.get("noteId")
   });
 
   if (!parsed.success) {
@@ -372,10 +654,20 @@ export async function updateDraftNotaClinicaAction(
     return { message: "El expediente no esta activo y no puede modificarse.", ok: false };
   }
 
+  const sections = note.note_template_snapshot?.sections ?? DEFAULT_NOTA_TEMPLATE_SECTIONS;
+  const normalizedValues = normalizeTemplateValues(formData, sections);
+
+  if (!normalizedValues.success) {
+    return { message: normalizedValues.message, ok: false };
+  }
+
   const supabaseAdmin = createSupabaseAdminClient();
   const { error } = await supabaseAdmin
     .from("notas_clinicas")
-    .update(noteBodyPayload(parsed.data))
+    .update({
+      note_template_values: normalizedValues.values,
+      ...noteBodyPayload(normalizedValues.values, parseScores(formData))
+    })
     .eq("id", note.id)
     .eq("professional_id", actor.id)
     .eq("created_by_user_id", actor.id)
@@ -554,169 +846,6 @@ export async function confirmNotaClinicaAction(
   revalidatePath(`/professional/expedientes/${note.expediente_id}`);
 
   return { message: "Nota clinica confirmada.", ok: true };
-}
-
-export async function createNotaAddendumAction(
-  _previousState: NotaActionState,
-  formData: FormData
-): Promise<NotaActionState> {
-  const actor = await getActiveProfessional();
-
-  if (!actor) {
-    return { message: "No tienes una sesion profesional activa.", ok: false };
-  }
-
-  const parsed = addendumSchema.safeParse({
-    noteId: formData.get("noteId"),
-    correctionReason: formData.get("correctionReason"),
-    content: formData.get("content")
-  });
-
-  if (!parsed.success) {
-    return { message: parsed.error.issues[0]?.message ?? "Datos invalidos.", ok: false };
-  }
-
-  const note = await assertNotaOwner(parsed.data.noteId, actor.id);
-
-  if (!note) {
-    await safeWriteAuditLog({
-      userId: actor.id,
-      role: actor.role,
-      action: "nota_clinica_addendum",
-      entityType: "notas_clinicas",
-      entityId: parsed.data.noteId,
-      result: "denied",
-      context: "audit_nota_clinica_addendum_denied"
-    });
-
-    return { message: "No tienes permiso para corregir esta nota.", ok: false };
-  }
-
-  if (!["confirmada", "con_addendum", "exportada"].includes(note.status)) {
-    await safeWriteAuditLog({
-      userId: actor.id,
-      role: actor.role,
-      action: "nota_clinica_addendum",
-      entityType: "notas_clinicas",
-      entityId: note.id,
-      result: "denied",
-      metadata: {
-        current_status: note.status
-      },
-      context: "audit_nota_clinica_addendum_denied_status"
-    });
-
-    return { message: "Solo las notas confirmadas pueden corregirse con addendum.", ok: false };
-  }
-
-  const expediente = await assertExpedienteOwner(note.expediente_id, actor.id);
-
-  if (!expediente || expediente.status !== "activo") {
-    await safeWriteAuditLog({
-      userId: actor.id,
-      role: actor.role,
-      action: "nota_clinica_addendum",
-      entityType: "notas_clinicas",
-      entityId: note.id,
-      result: "denied",
-      context: "audit_nota_clinica_addendum_denied_not_active"
-    });
-
-    return { message: "El expediente no esta activo y no puede modificarse.", ok: false };
-  }
-
-  const now = new Date().toISOString();
-  const supabaseAdmin = createSupabaseAdminClient();
-  const { data, error } = await supabaseAdmin
-    .from("notas_clinicas")
-    .insert({
-      expediente_id: note.expediente_id,
-      patient_id: note.patient_id,
-      professional_id: actor.id,
-      created_by_user_id: actor.id,
-      note_type: "addendum",
-      status: "confirmada",
-      session_date: now.slice(0, 10),
-      content: parsed.data.content,
-      clinical_summary: parsed.data.correctionReason,
-      addendum_to_note_id: note.id,
-      correction_reason: parsed.data.correctionReason,
-      confirmed_at: now,
-      confirmed_by_user_id: actor.id
-    })
-    .select("id")
-    .single();
-
-  if (error || !data) {
-    Sentry.captureException(error ?? new Error("Addendum insert did not return an id"), {
-      extra: {
-        note_id: note.id,
-        expediente_id: note.expediente_id
-      }
-    });
-
-    await safeWriteAuditLog({
-      userId: actor.id,
-      role: actor.role,
-      action: "nota_clinica_addendum",
-      entityType: "notas_clinicas",
-      entityId: note.id,
-      result: "error",
-      context: "audit_nota_clinica_addendum_error"
-    });
-
-    return { message: "No fue posible registrar el addendum.", ok: false };
-  }
-
-  const { error: originalUpdateError } = await supabaseAdmin
-    .from("notas_clinicas")
-    .update({ status: "con_addendum" })
-    .eq("id", note.id)
-    .eq("professional_id", actor.id);
-
-  if (originalUpdateError) {
-    Sentry.captureException(originalUpdateError, {
-      extra: {
-        note_id: note.id,
-        addendum_id: data.id,
-        expediente_id: note.expediente_id
-      }
-    });
-
-    await safeWriteAuditLog({
-      userId: actor.id,
-      role: actor.role,
-      action: "nota_clinica_addendum",
-      entityType: "notas_clinicas",
-      entityId: data.id,
-      result: "error",
-      metadata: {
-        original_note_id: note.id
-      },
-      context: "audit_nota_clinica_addendum_original_update_error"
-    });
-
-    return { message: "El addendum se creo, pero no fue posible marcar la nota original.", ok: false };
-  }
-
-  await safeWriteAuditLog({
-    userId: actor.id,
-    role: actor.role,
-    action: "nota_clinica_addendum",
-    entityType: "notas_clinicas",
-    entityId: data.id,
-    result: "success",
-    metadata: {
-      expediente_id: note.expediente_id,
-      original_note_id: note.id
-    },
-    context: "audit_nota_clinica_addendum_success"
-  });
-
-  revalidatePath(`/professional/notas/${note.id}`);
-  revalidatePath(`/professional/expedientes/${note.expediente_id}`);
-
-  return { message: "Addendum registrado.", ok: true };
 }
 
 export async function annulNotaClinicaAction(

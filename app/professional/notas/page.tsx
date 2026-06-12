@@ -66,6 +66,9 @@ export default async function ProfessionalNotasPage({
           <Link href="/professional" className="text-sm font-medium text-moss">
             Volver al panel
           </Link>
+          <Link href="/professional/notas/template" className="text-sm font-medium text-moss">
+            Editar plantillas
+          </Link>
         </div>
 
         <NotasFilterForm filters={filters} patients={patients} />

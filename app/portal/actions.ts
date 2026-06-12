@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { getCurrentProfile } from "@/lib/auth/profile";
+import { LIFE_HISTORY_SECTIONS, type LifeHistoryAnswers } from "@/lib/life-history/schema";
 import { APPOINTMENT_REQUEST_TYPES } from "@/lib/portal/types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -29,6 +30,11 @@ const reviewSchema = z.object({
 
 const zoomJoinSchema = z.object({
   appointmentId: z.string().uuid()
+});
+
+const lifeHistorySchema = z.object({
+  lifeHistoryId: z.string().uuid(),
+  intent: z.enum(["draft", "submit"])
 });
 
 async function getActivePatient() {
@@ -65,6 +71,32 @@ async function getPatientAppointment(appointmentId: string, patientId: string) {
     status: string;
     zoom_join_url: string | null;
   };
+}
+
+function collectLifeHistoryAnswers(formData: FormData) {
+  const answers: LifeHistoryAnswers = {};
+
+  for (const section of LIFE_HISTORY_SECTIONS) {
+    for (const field of section.fields) {
+      if (field.type === "checkbox_group") {
+        const values = formData
+          .getAll(field.id)
+          .map((value) => `${value}`.trim())
+          .filter(Boolean);
+        answers[field.id] = values.slice(0, 30);
+
+        if (field.otherFieldId) {
+          answers[field.otherFieldId] = `${formData.get(field.otherFieldId) ?? ""}`
+            .trim()
+            .slice(0, 5000);
+        }
+      } else {
+        answers[field.id] = `${formData.get(field.id) ?? ""}`.trim().slice(0, 5000);
+      }
+    }
+  }
+
+  return answers;
 }
 
 export async function createAppointmentRequestAction(
@@ -158,6 +190,106 @@ export async function createAppointmentRequestAction(
   revalidatePath("/portal");
 
   return { message: "Solicitud enviada.", ok: true };
+}
+
+export async function saveLifeHistoryAction(
+  _previousState: PortalActionState,
+  formData: FormData
+): Promise<PortalActionState> {
+  const patient = await getActivePatient();
+
+  if (!patient) {
+    return { message: "No tienes una sesion de Paciente activa.", ok: false };
+  }
+
+  const parsed = lifeHistorySchema.safeParse({
+    lifeHistoryId: formData.get("lifeHistoryId"),
+    intent: formData.get("intent")
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos de historia de vida invalidos.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: lifeHistory, error: loadError } = await supabaseAdmin
+    .from("patient_life_histories")
+    .select("id, expediente_id, patient_id, professional_id, status, submitted_at")
+    .eq("id", parsed.data.lifeHistoryId)
+    .eq("patient_id", patient.id)
+    .single();
+
+  if (loadError || !lifeHistory || !["borrador", "reabierta"].includes(lifeHistory.status)) {
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_life_history_update",
+      entityType: "patient_life_histories",
+      entityId: parsed.data.lifeHistoryId,
+      result: "denied",
+      context: "audit_portal_life_history_update_denied"
+    });
+
+    return { message: "La historia de vida no esta disponible para edicion.", ok: false };
+  }
+
+  const nextStatus = parsed.data.intent === "submit" ? "enviada" : lifeHistory.status;
+  const updatePayload = {
+    answers: collectLifeHistoryAnswers(formData),
+    status: nextStatus,
+    ...(parsed.data.intent === "submit" ? { submitted_at: new Date().toISOString() } : {})
+  };
+  const { error } = await supabaseAdmin
+    .from("patient_life_histories")
+    .update(updatePayload)
+    .eq("id", lifeHistory.id)
+    .eq("patient_id", patient.id)
+    .in("status", ["borrador", "reabierta"]);
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        life_history_id: lifeHistory.id,
+        patient_id: patient.id
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_life_history_update",
+      entityType: "patient_life_histories",
+      entityId: lifeHistory.id,
+      result: "error",
+      context: "audit_portal_life_history_update_error"
+    });
+
+    return { message: "No fue posible guardar la historia de vida.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: patient.id,
+    role: patient.role,
+    action: "portal_life_history_update",
+    entityType: "patient_life_histories",
+    entityId: lifeHistory.id,
+    result: "success",
+    metadata: {
+      intent: parsed.data.intent,
+      next_status: nextStatus
+    },
+    context: "audit_portal_life_history_update_success"
+  });
+
+  revalidatePath("/portal");
+
+  return {
+    message:
+      parsed.data.intent === "submit"
+        ? "Historia de vida enviada a tu profesional."
+        : "Borrador guardado.",
+    ok: true
+  };
 }
 
 export async function submitExperienceReviewAction(

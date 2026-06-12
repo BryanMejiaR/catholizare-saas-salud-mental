@@ -13,10 +13,11 @@ type NotaClinicaExportPageProps = {
 const noteTypeLabels = {
   admision: "Admision",
   evolucion: "Evolucion",
+  sesion: "Sesion",
   interconsulta: "Interconsulta",
   referencia_traslado: "Referencia o traslado",
   egreso: "Egreso",
-  addendum: "Addendum"
+  addendum: "Correccion historica"
 } as const;
 
 function Field({ label, value }: { label: string; value: string | number | null }) {
@@ -29,6 +30,52 @@ function Field({ label, value }: { label: string; value: string | number | null 
       <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-ink/60">{label}</h2>
       <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-ink">{value}</p>
     </section>
+  );
+}
+
+function DynamicTemplateFields({
+  note
+}: {
+  note: Awaited<ReturnType<typeof getNotaClinicaExportData>>["note"];
+}) {
+  const sections = note.note_template_snapshot?.sections ?? [];
+  const values = note.note_template_values ?? {};
+
+  if (sections.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {sections.map((section) => (
+        <section key={section.id} className="break-inside-avoid border-t border-ink/15 py-4">
+          <h2 className="text-base font-semibold text-ink">{section.title}</h2>
+          {section.description ? (
+            <p className="mt-1 text-xs text-ink/60">{section.description}</p>
+          ) : null}
+          <div className="mt-3 space-y-3">
+            {section.fields.map((field) => {
+              const value = values[section.id]?.[field.id];
+
+              if (value === null || value === undefined || String(value).length === 0) {
+                return null;
+              }
+
+              return (
+                <div key={field.id}>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/60">
+                    {field.label}
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink">
+                    {String(value)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </>
   );
 }
 
@@ -90,13 +137,26 @@ export default async function NotaClinicaExportPage({ params }: NotaClinicaExpor
             </div>
           </section>
 
-          <Field label="Contenido clinico" value={note.content} />
-          <Field label="Resumen clinico" value={note.clinical_summary} />
-          <Field label="Intervenciones" value={note.interventions} />
-          <Field label="Respuesta del Paciente" value={note.patient_response} />
-          <Field label="Plan siguiente sesion" value={note.plan_next_session} />
-          <Field label="Riesgos o alertas" value={note.risk_flags} />
-          <Field label="Tareas o acuerdos" value={note.homework_or_tasks} />
+          <DynamicTemplateFields note={note} />
+          {note.note_template_snapshot ? null : (
+            <>
+              <Field label="Contenido clinico" value={note.content} />
+              <Field label="Puntajes Objetivos" value={note.objective_scores} />
+              <Field label="Plan del Paciente" value={note.patient_plan} />
+              <Field label="Objetivos del terapeuta" value={note.therapist_objectives} />
+              <Field label="Revision del Estado de Animo" value={note.mood_review} />
+              <Field label="Puente con la sesion anterior" value={note.previous_session_bridge} />
+              <Field label="Agenda de la sesion" value={note.session_agenda} />
+              <Field label="Revision de la Tarea" value={note.action_plan_review} />
+              <Field label="Puntos importantes de la sesion" value={note.key_session_points} />
+              <Field label="Resumen general y retroalimentacion" value={note.session_summary_feedback} />
+              <Field label="Tareas para el hogar / Plan de accion" value={note.home_action_plan} />
+              <Field label="Retroalimentacion del paciente" value={note.patient_feedback} />
+              <Field label="Plan siguiente sesion" value={note.plan_next_session} />
+              <Field label="Observaciones" value={note.observations} />
+              <Field label="Riesgos o alertas" value={note.risk_flags} />
+            </>
+          )}
           <Field label="Animo" value={note.mood_score} />
           <Field label="Ansiedad" value={note.anxiety_score} />
           <Field label="Esperanza" value={note.hope_score} />

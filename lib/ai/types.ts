@@ -13,6 +13,18 @@ export type AiFunctionType = (typeof AI_FUNCTION_TYPES)[number];
 
 export type ClinicalContextPackage = {
   task: AiFunctionType;
+  assessment?: {
+    id: string;
+    name: string;
+    type: string;
+    purpose: string;
+    applied_at: string;
+    input_method: string;
+    raw_scores?: Record<string, unknown>;
+    scaled_scores?: Record<string, unknown>;
+    percentiles?: Record<string, unknown>;
+    cutoff_points?: Record<string, unknown>;
+  };
   process?: {
     id: string;
     model_type: string;

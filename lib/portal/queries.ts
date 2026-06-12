@@ -6,7 +6,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
   PatientPortalSummary,
   PortalAppointment,
-  PortalAppointmentRequest
+  PortalAppointmentRequest,
+  PortalLifeHistory
 } from "@/lib/portal/types";
 
 type AppointmentRow = {
@@ -181,7 +182,10 @@ export async function getPortalDashboard(profile: AuthProfile) {
   const summary = await enrichSummary(
     summaryRows?.[0] as Omit<PatientPortalSummary, "professional"> | undefined
   );
-  const requests = await getPortalAppointmentRequests(profile.id);
+  const [requests, lifeHistory] = await Promise.all([
+    getPortalAppointmentRequests(profile.id),
+    getPortalLifeHistory(profile.id)
+  ]);
 
   await safeWriteAuditLog({
     userId: profile.id,
@@ -192,7 +196,8 @@ export async function getPortalDashboard(profile: AuthProfile) {
     metadata: {
       upcoming_count: upcomingAppointments.length,
       past_count: pastAppointments.length,
-      has_summary: Boolean(summary)
+      has_summary: Boolean(summary),
+      has_life_history: Boolean(lifeHistory)
     },
     context: "audit_portal_dashboard_read_success"
   });
@@ -201,7 +206,8 @@ export async function getPortalDashboard(profile: AuthProfile) {
     summary,
     upcomingAppointments,
     pastAppointments,
-    requests
+    requests,
+    lifeHistory
   };
 }
 
@@ -248,4 +254,35 @@ async function getPortalAppointmentRequests(patientId: string) {
   }
 
   return (data ?? []) satisfies PortalAppointmentRequest[];
+}
+
+async function getPortalLifeHistory(patientId: string): Promise<PortalLifeHistory | null> {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("patient_life_histories")
+    .select("id, expediente_id, professional_id, status, answers, submitted_at, updated_at")
+    .eq("patient_id", patientId)
+    .in("status", ["borrador", "enviada", "reabierta"])
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  const professionals = await getProfilesById([data.professional_id as string]);
+
+  return {
+    id: data.id as string,
+    expediente_id: data.expediente_id as string,
+    status: data.status as PortalLifeHistory["status"],
+    answers: (data.answers ?? {}) as Record<string, string | string[]>,
+    submitted_at: data.submitted_at as string | null,
+    updated_at: data.updated_at as string,
+    professional: professionals.get(data.professional_id as string) ?? {
+      full_name: "Profesional no disponible",
+      email: ""
+    }
+  };
 }

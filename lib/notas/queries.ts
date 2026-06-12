@@ -5,6 +5,8 @@ import type { AuthProfile } from "@/lib/auth/types";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
+  NotaTemplate,
+  NotaTemplateModelType,
   NotaClinica,
   NotaClinicaExportData,
   NotaClinicaFilters,
@@ -15,6 +17,41 @@ import type {
 const NOTA_SELECT = "*";
 const NOTA_SUMMARY_SELECT =
   "id, expediente_id, note_type, status, session_date, clinical_summary, created_at, confirmed_at, addendum_to_note_id";
+const NOTA_TEMPLATE_SELECT =
+  "id, professional_id, model_type, version, sections, created_by_user_id, created_at";
+
+export async function getLatestNotaTemplate(
+  profile: AuthProfile,
+  modelType: NotaTemplateModelType = "general"
+) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("plantillas_nota_clinica")
+    .select(NOTA_TEMPLATE_SELECT)
+    .eq("professional_id", profile.id)
+    .eq("model_type", modelType)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_template_read",
+      entityType: "plantillas_nota_clinica",
+      result: "error",
+      metadata: {
+        model_type: modelType
+      },
+      context: "audit_nota_template_read_error"
+    });
+
+    throw new Error(`Unable to load clinical note template: ${error.message}`);
+  }
+
+  return (data as NotaTemplate | null) ?? null;
+}
 
 async function getPatientsById(patientIds: string[]) {
   if (patientIds.length === 0) {
@@ -155,51 +192,6 @@ export async function getNotaClinicaDetail(profile: AuthProfile, noteId: string)
   });
 
   return note;
-}
-
-export async function getAddendumsForNota(profile: AuthProfile, noteId: string) {
-  const supabaseAdmin = createSupabaseAdminClient();
-  const { data, error } = await supabaseAdmin
-    .from("notas_clinicas")
-    .select(NOTA_SUMMARY_SELECT)
-    .eq("addendum_to_note_id", noteId)
-    .eq("professional_id", profile.id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    await safeWriteAuditLog({
-      userId: profile.id,
-      role: profile.role,
-      action: "nota_clinica_read",
-      entityType: "notas_clinicas",
-      entityId: noteId,
-      result: "error",
-      metadata: {
-        scope: "addendum_list"
-      },
-      context: "audit_nota_clinica_addendum_list_error"
-    });
-
-    throw new Error(`Unable to load clinical note addendums: ${error.message}`);
-  }
-
-  const rows = (data ?? []) as NotaClinicaSummary[];
-
-  await safeWriteAuditLog({
-    userId: profile.id,
-    role: profile.role,
-    action: "nota_clinica_read",
-    entityType: "notas_clinicas",
-    entityId: noteId,
-    result: "success",
-    metadata: {
-      scope: "addendum_list",
-      count: rows.length
-    },
-    context: "audit_nota_clinica_addendum_list_read"
-  });
-
-  return rows;
 }
 
 export async function getNotaClinicaExportData(profile: AuthProfile, noteId: string) {

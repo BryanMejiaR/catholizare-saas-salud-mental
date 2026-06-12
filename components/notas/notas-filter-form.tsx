@@ -11,12 +11,10 @@ type NotasFilterFormProps = {
 };
 
 const noteTypeLabels: Record<(typeof NOTA_CLINICA_TYPES)[number], string> = {
-  admision: "Admision",
-  evolucion: "Evolucion",
+  sesion: "Sesión",
   interconsulta: "Interconsulta",
   referencia_traslado: "Referencia o traslado",
-  egreso: "Egreso",
-  addendum: "Addendum"
+  egreso: "Egreso"
 };
 
 export function NotasFilterForm({ filters, patients }: NotasFilterFormProps) {

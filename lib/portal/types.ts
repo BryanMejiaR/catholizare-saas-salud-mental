@@ -38,9 +38,23 @@ export type PortalAppointmentRequest = {
   created_at: string;
 };
 
+export type PortalLifeHistory = {
+  id: string;
+  expediente_id: string;
+  status: "borrador" | "enviada" | "reabierta";
+  answers: Record<string, string | string[]>;
+  submitted_at: string | null;
+  updated_at: string;
+  professional: {
+    full_name: string;
+    email: string;
+  };
+};
+
 export type PortalDashboard = {
   summary: PatientPortalSummary | null;
   upcomingAppointments: PortalAppointment[];
   pastAppointments: PortalAppointment[];
   requests: PortalAppointmentRequest[];
+  lifeHistory: PortalLifeHistory | null;
 };

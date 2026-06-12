@@ -11,10 +11,11 @@ type NotasTableProps = {
 const noteTypeLabels: Record<NotaClinicaSummary["note_type"], string> = {
   admision: "Admision",
   evolucion: "Evolucion",
+  sesion: "Sesión",
   interconsulta: "Interconsulta",
   referencia_traslado: "Referencia o traslado",
   egreso: "Egreso",
-  addendum: "Addendum"
+  addendum: "Correccion historica"
 };
 
 function hasPatient(nota: NotaClinicaSummary | NotaClinicaListItem): nota is NotaClinicaListItem {

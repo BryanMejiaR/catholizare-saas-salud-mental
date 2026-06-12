@@ -22,7 +22,7 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
       <div>
         <h2 className="text-lg font-semibold text-ink">Consentimiento informado</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Registra estado y referencia del consentimiento antes de iniciar atencion ordinaria.
+          Registra el estado y adjunta archivo o foto del consentimiento en almacenamiento privado.
         </p>
       </div>
 
@@ -45,20 +45,6 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-ink">Modalidad</span>
-          <select
-            name="modality"
-            disabled={disabled}
-            defaultValue={consentimiento?.modality ?? "pendiente"}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-          >
-            <option value="pendiente">pendiente</option>
-            <option value="fisico">fisico</option>
-            <option value="digital">digital</option>
-          </select>
-        </label>
-
-        <label className="block">
           <span className="text-sm font-medium text-ink">Fecha de firma</span>
           <input
             name="signedAt"
@@ -69,14 +55,20 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-ink">Referencia de documento</span>
+        <label className="block md:col-span-2">
+          <span className="text-sm font-medium text-ink">Archivo o foto del consentimiento</span>
           <input
-            name="documentReference"
+            name="consentDocument"
+            type="file"
+            accept="application/pdf,image/jpeg,image/png,image/webp"
             disabled={disabled}
-            defaultValue={consentimiento?.document_reference ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none file:mr-3 file:rounded-md file:border-0 file:bg-moss file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
+          {consentimiento?.document_file_name ? (
+            <span className="mt-2 block text-xs text-ink/55">
+              Archivo actual: {consentimiento.document_file_name}
+            </span>
+          ) : null}
         </label>
       </div>
 

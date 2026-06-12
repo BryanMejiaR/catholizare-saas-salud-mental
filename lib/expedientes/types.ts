@@ -70,6 +70,28 @@ export type Consentimiento = {
   signed_at: string | null;
   modality: ConsentimientoModality;
   document_reference: string | null;
+  document_storage_path: string | null;
+  document_file_name: string | null;
+  document_content_type: string | null;
+  document_size_bytes: number | null;
+};
+
+export type PatientLifeHistoryStatus = "inactiva" | "borrador" | "enviada" | "reabierta";
+
+export type PatientLifeHistory = {
+  id: string;
+  expediente_id: string;
+  patient_id: string;
+  professional_id: string;
+  status: PatientLifeHistoryStatus;
+  answers: Record<string, string | string[]>;
+  activated_by_professional_id: string | null;
+  activated_at: string | null;
+  submitted_at: string | null;
+  reopened_by_professional_id: string | null;
+  reopened_at: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type ExpedienteDetail = ExpedienteSummary & {
@@ -80,4 +102,5 @@ export type ExpedienteDetail = ExpedienteSummary & {
   documents_count: number;
   historia_clinica: HistoriaClinica | null;
   consentimiento: Consentimiento | null;
+  life_history: PatientLifeHistory | null;
 };

@@ -2,11 +2,9 @@ import Link from "next/link";
 
 import { prepareNotaExportAction } from "@/app/notas/actions";
 import { requireRole } from "@/lib/auth/profile";
-import { getAddendumsForNota, getNotaClinicaDetail } from "@/lib/notas/queries";
-import { AddendumForm } from "@/components/notas/addendum-form";
+import { getNotaClinicaDetail } from "@/lib/notas/queries";
 import { AnnulNotaForm } from "@/components/notas/annul-nota-form";
 import { NotaDetailForm } from "@/components/notas/nota-detail-form";
-import { NotasTable } from "@/components/notas/notas-table";
 
 type NotaClinicaDetailPageProps = {
   params: Promise<{
@@ -17,7 +15,6 @@ type NotaClinicaDetailPageProps = {
 export default async function NotaClinicaDetailPage({ params }: NotaClinicaDetailPageProps) {
   const [{ id }, profile] = await Promise.all([params, requireRole(["profesional"])]);
   const note = await getNotaClinicaDetail(profile, id);
-  const addendums = note.note_type === "addendum" ? [] : await getAddendumsForNota(profile, note.id);
   const canExport = ["confirmada", "con_addendum", "exportada"].includes(note.status);
 
   return (
@@ -54,18 +51,6 @@ export default async function NotaClinicaDetailPage({ params }: NotaClinicaDetai
         </div>
 
         <NotaDetailForm note={note} />
-        {note.note_type !== "addendum" ? (
-          <section className="space-y-4">
-            <div>
-              <h2 className="text-lg font-semibold text-ink">Addendums vinculados</h2>
-              <p className="mt-1 text-sm text-ink/65">
-                Correcciones y aclaraciones conservadas junto a la nota original.
-              </p>
-            </div>
-            <NotasTable notas={addendums} emptyMessage="Esta nota no tiene addendums." />
-          </section>
-        ) : null}
-        <AddendumForm note={note} />
         <AnnulNotaForm note={note} />
       </div>
     </main>
