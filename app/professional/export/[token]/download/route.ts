@@ -59,11 +59,10 @@ export async function GET(_request: NextRequest, { params }: DownloadRouteProps)
   }
 
   try {
-    const zipPackage = await buildProfessionalExportPackage(profile.id, exportRequest.folio);
     const sessionReference = randomUUID();
     const ipAddress = getTrustedClientIp(headerStore);
     const userAgent = headerStore.get("user-agent");
-    const { error: updateError } = await supabaseAdmin
+    const { data: claimedRequest, error: updateError } = await supabaseAdmin
       .from("professional_export_requests")
       .update({
         status: "descargada",
@@ -73,11 +72,25 @@ export async function GET(_request: NextRequest, { params }: DownloadRouteProps)
         download_session_reference: sessionReference
       })
       .eq("id", exportRequest.id)
-      .eq("status", "aprobada");
+      .eq("status", "aprobada")
+      .select("id")
+      .single();
 
-    if (updateError) {
-      throw updateError;
+    if (updateError || !claimedRequest) {
+      await safeWriteAuditLog({
+        userId: profile.id,
+        role: profile.role,
+        action: "professional_export_download",
+        entityType: "professional_export_requests",
+        entityId: exportRequest.id,
+        result: "denied",
+        context: "audit_professional_export_download_already_claimed"
+      });
+
+      return NextResponse.redirect(new URL(`/professional/export/${token}`, _request.url));
     }
+
+    const zipPackage = await buildProfessionalExportPackage(profile.id, exportRequest.folio);
 
     await safeWriteAuditLog({
       userId: profile.id,

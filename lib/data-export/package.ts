@@ -11,6 +11,12 @@ type ExportFile = {
   outputPath: string;
 };
 
+type ExportZipEntry = {
+  name: string;
+  data: Buffer;
+  warning?: string;
+};
+
 function jsonBuffer(value: unknown) {
   return Buffer.from(JSON.stringify(value, null, 2), "utf8");
 }
@@ -84,10 +90,14 @@ export async function buildProfessionalExportPackage(professionalId: string, fol
       }))
   ];
   const downloadedFiles = await downloadStorageFiles(files);
+  const warnings = downloadedFiles
+    .map((file) => file.warning)
+    .filter((warning): warning is string => Boolean(warning));
   const manifest = {
     folio,
     generated_at: new Date().toISOString(),
     professional_id: professionalId,
+    warnings,
     counts: {
       patients: patients.length,
       expedientes: expedienteRows.length,
@@ -100,7 +110,8 @@ export async function buildProfessionalExportPackage(professionalId: string, fol
       pruebas_subidas: assessmentUploads.length,
       citas: citas.length,
       resumenes: resumenes.length,
-      files: downloadedFiles.length
+      files: downloadedFiles.length,
+      missing_files: warnings.length
     }
   };
   const packageJson = {
@@ -119,7 +130,7 @@ export async function buildProfessionalExportPackage(professionalId: string, fol
     resumenes
   };
   const packageData = jsonBuffer(packageJson);
-  const entries = [
+  const entries: ExportZipEntry[] = [
     { name: "manifest.json", data: jsonBuffer(manifest) },
     { name: "data/clinical-export.json", data: packageData },
     {
@@ -129,6 +140,19 @@ export async function buildProfessionalExportPackage(professionalId: string, fol
         "utf8"
       )
     },
+    ...(warnings.length > 0
+      ? [
+          {
+            name: "WARNINGS.txt",
+            data: Buffer.from(
+              `El paquete se genero con advertencias:\n${warnings
+                .map((warning) => `- ${warning}`)
+                .join("\n")}\n`,
+              "utf8"
+            )
+          }
+        ]
+      : []),
     ...downloadedFiles
   ];
   const zip = createZip(entries);
@@ -157,15 +181,17 @@ async function queryIn(table: string, select: string, column: string, values: st
 
 async function downloadStorageFiles(files: ExportFile[]) {
   const supabaseAdmin = createSupabaseAdminClient();
-  const entries = [];
+  const entries: ExportZipEntry[] = [];
 
   for (const file of files) {
     const { data, error } = await supabaseAdmin.storage.from(file.bucket).download(file.path);
 
     if (error || !data) {
+      const warning = `No fue posible descargar ${file.bucket}/${file.path}.`;
       entries.push({
         name: `${file.outputPath}.missing.txt`,
-        data: Buffer.from(`No fue posible descargar ${file.bucket}/${file.path}.\n`, "utf8")
+        data: Buffer.from(`${warning}\n`, "utf8"),
+        warning
       });
       continue;
     }

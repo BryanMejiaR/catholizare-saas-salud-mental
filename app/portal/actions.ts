@@ -85,6 +85,29 @@ function getFormFile(formData: FormData, fieldName: string) {
   return value;
 }
 
+function hasAllowedFileSignature(bytes: Buffer, contentType: string) {
+  if (contentType === "application/pdf") {
+    return bytes.subarray(0, 4).toString("ascii") === "%PDF";
+  }
+
+  if (contentType === "image/jpeg") {
+    return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  }
+
+  if (contentType === "image/png") {
+    return bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  }
+
+  if (contentType === "image/webp") {
+    return (
+      bytes.subarray(0, 4).toString("ascii") === "RIFF" &&
+      bytes.subarray(8, 12).toString("ascii") === "WEBP"
+    );
+  }
+
+  return false;
+}
+
 async function getPatientAppointment(appointmentId: string, patientId: string) {
   const supabaseAdmin = createSupabaseAdminClient();
   const { data, error } = await supabaseAdmin
@@ -389,6 +412,11 @@ export async function uploadAssessmentDocumentAction(
   const sanitizedName = safeFileName(file.name) || "prueba";
   const storagePath = `${patient.id}/${expediente.id}/${randomUUID()}-${sanitizedName}`;
   const bytes = Buffer.from(await file.arrayBuffer());
+
+  if (!hasAllowedFileSignature(bytes, file.type)) {
+    return { message: "El contenido del archivo no coincide con el tipo permitido.", ok: false };
+  }
+
   const { error: uploadError } = await supabaseAdmin.storage
     .from("assessment-submissions")
     .upload(storagePath, bytes, {
