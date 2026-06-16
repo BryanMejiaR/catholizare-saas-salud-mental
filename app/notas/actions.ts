@@ -204,7 +204,7 @@ function normalizeTemplateValues(formData: FormData, sections: NotaTemplateSecti
 
     for (const field of section.fields) {
       const rawValue = formData.get(`field_${section.id}_${field.id}`);
-      const value = typeof rawValue === "string" ? rawValue.trim() : "";
+      const value = typeof rawValue === "string" ? rawValue.trim().slice(0, 10000) : "";
 
       if (field.required && value.length === 0) {
         return {

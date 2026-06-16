@@ -167,7 +167,7 @@ function normalizeStepValues(formData: FormData, step: ProcessTemplateStep) {
 
   for (const field of step.fields) {
     const rawValue = formData.get(`field_${field.id}`);
-    const value = typeof rawValue === "string" ? rawValue.trim() : "";
+    const value = typeof rawValue === "string" ? rawValue.trim().slice(0, 10000) : "";
 
     if (field.type === "number") {
       const numericValue = Number(value);

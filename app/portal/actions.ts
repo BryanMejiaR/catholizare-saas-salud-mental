@@ -496,7 +496,7 @@ export async function submitExperienceReviewAction(
   const appointment = await getPatientAppointment(parsed.data.appointmentId, patient.id);
   const startsAt = appointment ? new Date(appointment.scheduled_at).getTime() : 0;
 
-  if (!appointment || startsAt > Date.now()) {
+  if (!appointment || appointment.status !== "completada" || startsAt > Date.now()) {
     await safeWriteAuditLog({
       userId: patient.id,
       role: patient.role,
@@ -507,7 +507,7 @@ export async function submitExperienceReviewAction(
       context: "audit_portal_experience_review_denied"
     });
 
-    return { message: "Solo puedes evaluar citas pasadas.", ok: false };
+    return { message: "Solo puedes evaluar citas completadas.", ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -604,7 +604,7 @@ export async function openZoomJoinUrlAction(formData: FormData) {
 
   const joinUrl = appointment.zoom_join_url;
 
-  if (!joinUrl) {
+  if (!joinUrl || !joinUrl.startsWith("https://zoom.us/")) {
     redirect("/portal");
   }
 
