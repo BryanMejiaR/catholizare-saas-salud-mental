@@ -13,7 +13,7 @@ export function ProcessesTable({ procesos }: ProcessesTableProps) {
         <thead className="bg-ink/5 text-ink/70">
           <tr>
             <th className="px-4 py-3 font-semibold">Paciente</th>
-            <th className="px-4 py-3 font-semibold">Modelo</th>
+            <th className="px-4 py-3 font-semibold">Enfoque</th>
             <th className="px-4 py-3 font-semibold">Estado</th>
             <th className="px-4 py-3 font-semibold">Inicio</th>
             <th className="px-4 py-3 font-semibold">Ultima actividad</th>

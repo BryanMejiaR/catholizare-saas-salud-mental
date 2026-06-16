@@ -21,12 +21,13 @@ export function StartProcessForm({ expedienteId, disabled = false }: StartProces
       <div>
         <h2 className="text-lg font-semibold text-ink">Proceso terapeutico</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Inicia un proceso General configurable o un proceso TCC con estructura fija Catholizare.
+          Selecciona el enfoque terapeutico inicial. La plantilla se guarda como snapshot editable
+          solo en procesos activos.
         </p>
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium text-ink">Modelo</span>
+        <span className="text-sm font-medium text-ink">Enfoque terapeutico</span>
         <select
           name="modelType"
           disabled={disabled}

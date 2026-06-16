@@ -1,6 +1,7 @@
 import { PortalAppointments } from "@/components/portal/portal-appointments";
 import { PortalSummary } from "@/components/portal/portal-summary";
 import { LifeHistoryForm } from "@/components/portal/life-history-form";
+import { AssessmentUploadForm } from "@/components/portal/assessment-upload-form";
 import { requireRole } from "@/lib/auth/profile";
 import { getPortalDashboard } from "@/lib/portal/queries";
 
@@ -19,6 +20,11 @@ export default async function PortalPage() {
         <PortalSummary summary={dashboard.summary} />
 
         <LifeHistoryForm lifeHistory={dashboard.lifeHistory} />
+
+        <AssessmentUploadForm
+          expedientes={dashboard.assessmentExpedientes}
+          uploads={dashboard.assessmentUploads}
+        />
 
         <PortalAppointments
           title="Proximas citas"

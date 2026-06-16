@@ -51,7 +51,7 @@ export function StartProcessSelectorForm({ expedientes }: StartProcessSelectorFo
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-ink">Modelo</span>
+        <span className="text-sm font-medium text-ink">Enfoque terapeutico</span>
         <select
           name="modelType"
           disabled={activeExpedientes.length === 0}

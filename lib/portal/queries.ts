@@ -7,6 +7,8 @@ import type {
   PatientPortalSummary,
   PortalAppointment,
   PortalAppointmentRequest,
+  PortalAssessmentExpedienteOption,
+  PortalAssessmentUpload,
   PortalLifeHistory
 } from "@/lib/portal/types";
 
@@ -105,7 +107,7 @@ export async function getPortalDashboard(profile: AuthProfile) {
   const nowIso = new Date().toISOString();
   const { data: expedientes, error: expedientesError } = await supabaseAdmin
     .from("expedientes")
-    .select("id")
+    .select("id, professional_id")
     .eq("patient_id", profile.id)
     .eq("status", "activo");
 
@@ -113,7 +115,8 @@ export async function getPortalDashboard(profile: AuthProfile) {
     throw new Error(`Unable to load patient portal expedientes: ${expedientesError.message}`);
   }
 
-  const expedienteIds = (expedientes ?? []).map((row) => row.id as string);
+  const activeExpedientes = (expedientes ?? []) as Array<{ id: string; professional_id: string }>;
+  const expedienteIds = activeExpedientes.map((row) => row.id);
   const summaryQuery =
     expedienteIds.length > 0
       ? supabaseAdmin
@@ -182,9 +185,11 @@ export async function getPortalDashboard(profile: AuthProfile) {
   const summary = await enrichSummary(
     summaryRows?.[0] as Omit<PatientPortalSummary, "professional"> | undefined
   );
-  const [requests, lifeHistory] = await Promise.all([
+  const [requests, lifeHistory, assessmentUploads, assessmentExpedientes] = await Promise.all([
     getPortalAppointmentRequests(profile.id),
-    getPortalLifeHistory(profile.id)
+    getPortalLifeHistory(profile.id),
+    getPortalAssessmentUploads(profile.id),
+    enrichAssessmentExpedientes(activeExpedientes)
   ]);
 
   await safeWriteAuditLog({
@@ -197,7 +202,8 @@ export async function getPortalDashboard(profile: AuthProfile) {
       upcoming_count: upcomingAppointments.length,
       past_count: pastAppointments.length,
       has_summary: Boolean(summary),
-      has_life_history: Boolean(lifeHistory)
+      has_life_history: Boolean(lifeHistory),
+      assessment_upload_count: assessmentUploads.length
     },
     context: "audit_portal_dashboard_read_success"
   });
@@ -207,7 +213,9 @@ export async function getPortalDashboard(profile: AuthProfile) {
     upcomingAppointments,
     pastAppointments,
     requests,
-    lifeHistory
+    lifeHistory,
+    assessmentExpedientes,
+    assessmentUploads
   };
 }
 
@@ -285,4 +293,36 @@ async function getPortalLifeHistory(patientId: string): Promise<PortalLifeHistor
       email: ""
     }
   };
+}
+
+async function enrichAssessmentExpedientes(
+  expedientes: Array<{ id: string; professional_id: string }>
+): Promise<PortalAssessmentExpedienteOption[]> {
+  const professionals = await getProfilesById([
+    ...new Set(expedientes.map((expediente) => expediente.professional_id))
+  ]);
+
+  return expedientes.map((expediente) => ({
+    id: expediente.id,
+    professional: professionals.get(expediente.professional_id) ?? {
+      full_name: "Profesional no disponible",
+      email: ""
+    }
+  }));
+}
+
+async function getPortalAssessmentUploads(patientId: string): Promise<PortalAssessmentUpload[]> {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("patient_assessment_uploads")
+    .select("id, expediente_id, assessment_label, file_name, status, created_at")
+    .eq("patient_id", patientId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (error) {
+    throw new Error(`Unable to load patient assessment uploads: ${error.message}`);
+  }
+
+  return (data ?? []) as PortalAssessmentUpload[];
 }

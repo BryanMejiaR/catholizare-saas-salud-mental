@@ -6,6 +6,7 @@ import type { AuthProfile } from "@/lib/auth/types";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
+  ProcessModelType,
   ProcessTemplate,
   ProcesoDetail,
   ProcesoListItem,
@@ -44,13 +45,16 @@ async function getPatientsById(patientIds: string[]) {
   );
 }
 
-export async function getLatestGeneralTemplate(profile: AuthProfile) {
+export async function getLatestProcessTemplate(
+  profile: AuthProfile,
+  modelType: ProcessModelType = "general"
+) {
   const supabaseAdmin = createSupabaseAdminClient();
   const { data, error } = await supabaseAdmin
     .from("plantillas_proceso")
     .select(TEMPLATE_SELECT)
     .eq("professional_id", profile.id)
-    .eq("model_type", "general")
+    .eq("model_type", modelType)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -61,6 +65,8 @@ export async function getLatestGeneralTemplate(profile: AuthProfile) {
 
   return (data as ProcessTemplate | null) ?? null;
 }
+
+export const getLatestGeneralTemplate = getLatestProcessTemplate;
 
 export async function getProcesosForProfessional(profile: AuthProfile) {
   const supabaseAdmin = createSupabaseAdminClient();

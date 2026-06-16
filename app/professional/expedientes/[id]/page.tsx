@@ -1,7 +1,10 @@
 import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/profile";
-import { getAssessmentsForExpediente } from "@/lib/evaluaciones/queries";
+import {
+  getAssessmentUploadsForExpediente,
+  getAssessmentsForExpediente
+} from "@/lib/evaluaciones/queries";
 import { getExpedienteDetail } from "@/lib/expedientes/queries";
 import { getLatestNotaTemplate, getNotasForExpediente } from "@/lib/notas/queries";
 import { getProcesoForExpediente } from "@/lib/procesos/queries";
@@ -22,11 +25,20 @@ type ExpedienteDetailPageProps = {
 
 export default async function ExpedienteDetailPage({ params }: ExpedienteDetailPageProps) {
   const [{ id }, profile] = await Promise.all([params, requireRole(["profesional"])]);
-  const [expediente, notas, proceso, assessments, generalNoteTemplate, tccNoteTemplate] = await Promise.all([
+  const [
+    expediente,
+    notas,
+    proceso,
+    assessments,
+    assessmentUploads,
+    generalNoteTemplate,
+    tccNoteTemplate
+  ] = await Promise.all([
     getExpedienteDetail(profile, id),
     getNotasForExpediente(profile, id),
     getProcesoForExpediente(profile, id),
     getAssessmentsForExpediente(profile, id),
+    getAssessmentUploadsForExpediente(profile, id),
     getLatestNotaTemplate(profile, "general"),
     getLatestNotaTemplate(profile, "tcc")
   ]);
@@ -90,13 +102,14 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
         <AssessmentsSection
           expedienteId={expediente.id}
           assessments={assessments}
+          uploads={assessmentUploads}
           disabled={!isActive}
         />
         <section className="space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-ink">Proceso terapeutico</h2>
             <p className="mt-1 text-sm text-ink/65">
-              Modelo General configurable por el Profesional.
+              Enfoque terapeutico configurable por el Profesional.
             </p>
           </div>
           {proceso ? (

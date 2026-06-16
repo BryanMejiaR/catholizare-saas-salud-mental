@@ -43,6 +43,9 @@ export default async function ProfessionalPage() {
             <Link className="inline-flex font-medium text-moss" href="/professional/help">
               Centro de ayuda
             </Link>
+            <Link className="inline-flex font-medium text-moss" href="/professional/export">
+              Solicitar exportacion
+            </Link>
           </div>
         </div>
 

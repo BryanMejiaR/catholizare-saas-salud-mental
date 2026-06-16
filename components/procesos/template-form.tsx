@@ -2,17 +2,20 @@
 
 import { useActionState, useMemo, useState } from "react";
 
-import { saveGeneralTemplateAction } from "@/app/procesos/actions";
+import { saveProcessTemplateAction } from "@/app/procesos/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { ActionMessage } from "@/components/users/action-message";
 import {
   PROCESS_FIELD_TYPES,
+  PROCESS_MODEL_LABEL,
+  type ProcessModelType,
   type ProcessFieldType,
   type ProcessTemplateField,
   type ProcessTemplateStep
 } from "@/lib/procesos/types";
 
 type TemplateFormProps = {
+  modelType: ProcessModelType;
   steps: ProcessTemplateStep[];
   version?: number;
 };
@@ -53,8 +56,8 @@ function moveItem<T>(items: T[], index: number, direction: -1 | 1) {
   return next;
 }
 
-export function TemplateForm({ steps, version }: TemplateFormProps) {
-  const [state, formAction] = useActionState(saveGeneralTemplateAction, {});
+export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
+  const [state, formAction] = useActionState(saveProcessTemplateAction, {});
   const [templateSteps, setTemplateSteps] = useState<ProcessTemplateStep[]>(steps);
   const stepsJson = useMemo(() => JSON.stringify(templateSteps), [templateSteps]);
 
@@ -146,9 +149,12 @@ export function TemplateForm({ steps, version }: TemplateFormProps) {
 
   return (
     <form action={formAction} className="space-y-5 rounded-lg border border-ink/10 bg-white p-5">
+      <input type="hidden" name="modelType" value={modelType} />
       <input type="hidden" name="stepsJson" value={stepsJson} />
       <div>
-        <h2 className="text-lg font-semibold text-ink">Plantilla General</h2>
+        <h2 className="text-lg font-semibold text-ink">
+          Plantilla {PROCESS_MODEL_LABEL[modelType]}
+        </h2>
         <p className="mt-1 text-sm text-ink/65">
           Version vigente: {version ?? "base Catholizare"}. Guardar crea una nueva version para
           procesos futuros.

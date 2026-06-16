@@ -7,12 +7,10 @@ import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import {
-  DEFAULT_TCC_TEMPLATE_STEPS,
-  DEFAULT_TCC_TEMPLATE_VERSION,
-  DEFAULT_GENERAL_TEMPLATE_STEPS,
   PROCESS_FIELD_TYPES,
   PROCESS_MODEL_TYPES,
   PROCESS_MODEL_LABEL,
+  PROCESS_DEFAULT_TEMPLATE_STEPS,
   type ProcessModelType,
   type ProcessTemplateStep,
   type ProcesoTerapeutico
@@ -86,6 +84,7 @@ const templateStepsSchema = z
   });
 
 const templateSchema = z.object({
+  modelType: z.enum(PROCESS_MODEL_TYPES),
   stepsJson: z.string().trim().min(2)
 });
 
@@ -181,13 +180,13 @@ function normalizeStepValues(formData: FormData, step: ProcessTemplateStep) {
   return values;
 }
 
-async function getOrCreateLatestTemplate(professionalId: string) {
+async function getOrCreateLatestTemplate(professionalId: string, modelType: ProcessModelType) {
   const supabaseAdmin = createSupabaseAdminClient();
   const { data: latestTemplate, error: latestError } = await supabaseAdmin
     .from("plantillas_proceso")
     .select("id, version, steps")
     .eq("professional_id", professionalId)
-    .eq("model_type", "general")
+    .eq("model_type", modelType)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -208,9 +207,9 @@ async function getOrCreateLatestTemplate(professionalId: string) {
     .from("plantillas_proceso")
     .insert({
       professional_id: professionalId,
-      model_type: "general",
+      model_type: modelType,
       version: 1,
-      steps: DEFAULT_GENERAL_TEMPLATE_STEPS,
+      steps: PROCESS_DEFAULT_TEMPLATE_STEPS[modelType],
       created_by_user_id: professionalId
     })
     .select("id, version, steps")
@@ -228,18 +227,10 @@ async function getOrCreateLatestTemplate(professionalId: string) {
 }
 
 async function getProcessTemplateSnapshot(professionalId: string, modelType: ProcessModelType) {
-  if (modelType === "tcc") {
-    return {
-      id: null,
-      version: DEFAULT_TCC_TEMPLATE_VERSION,
-      steps: DEFAULT_TCC_TEMPLATE_STEPS
-    };
-  }
-
-  return getOrCreateLatestTemplate(professionalId);
+  return getOrCreateLatestTemplate(professionalId, modelType);
 }
 
-export async function saveGeneralTemplateAction(
+export async function saveProcessTemplateAction(
   _previousState: ProcesoActionState,
   formData: FormData
 ): Promise<ProcesoActionState> {
@@ -250,6 +241,7 @@ export async function saveGeneralTemplateAction(
   }
 
   const parsed = templateSchema.safeParse({
+    modelType: formData.get("modelType"),
     stepsJson: formData.get("stepsJson")
   });
 
@@ -271,7 +263,7 @@ export async function saveGeneralTemplateAction(
     .from("plantillas_proceso")
     .select("version")
     .eq("professional_id", actor.id)
-    .eq("model_type", "general")
+    .eq("model_type", parsed.data.modelType)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -279,7 +271,7 @@ export async function saveGeneralTemplateAction(
   const nextVersion = Number(latestTemplate?.version ?? 0) + 1;
   const { error } = await supabaseAdmin.from("plantillas_proceso").insert({
     professional_id: actor.id,
-    model_type: "general",
+    model_type: parsed.data.modelType,
     version: nextVersion,
     steps: steps.data,
     created_by_user_id: actor.id
@@ -289,6 +281,7 @@ export async function saveGeneralTemplateAction(
     Sentry.captureException(error, {
       extra: {
         professional_id: actor.id,
+        model_type: parsed.data.modelType,
         version: nextVersion
       }
     });
@@ -317,16 +310,20 @@ export async function saveGeneralTemplateAction(
     action: "proceso_template_update",
     entityType: "plantillas_proceso",
     result: "success",
-    metadata: {
-      version: nextVersion
-    },
+      metadata: {
+        model_type: parsed.data.modelType,
+        version: nextVersion
+      },
     context: "audit_proceso_template_update_success"
   });
 
   revalidatePath("/professional/procesos/template");
+  revalidatePath("/professional/procesos");
 
   return { message: `Plantilla version ${nextVersion} guardada.`, ok: true };
 }
+
+export const saveGeneralTemplateAction = saveProcessTemplateAction;
 
 export async function startProcessAction(
   _previousState: ProcesoActionState,
@@ -472,19 +469,22 @@ export async function startProcessAction(
     action: "proceso_start",
     entityType: "procesos_terapeuticos",
     entityId: data.id,
-      result: "success",
-      metadata: {
-        expediente_id: expediente.id,
-        model_type: parsed.data.modelType,
-        template_version: latestTemplate.version
-      },
+    result: "success",
+    metadata: {
+      expediente_id: expediente.id,
+      model_type: parsed.data.modelType,
+      template_version: latestTemplate.version
+    },
     context: "audit_proceso_start_success"
   });
 
   revalidatePath(`/professional/expedientes/${expediente.id}`);
   revalidatePath("/professional/procesos");
 
-  return { message: `Proceso terapeutico ${PROCESS_MODEL_LABEL[parsed.data.modelType]} iniciado.`, ok: true };
+  return {
+    message: `Proceso terapeutico ${PROCESS_MODEL_LABEL[parsed.data.modelType]} iniciado.`,
+    ok: true
+  };
 }
 
 export const startGeneralProcessAction = startProcessAction;

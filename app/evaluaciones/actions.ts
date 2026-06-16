@@ -12,6 +12,9 @@ import {
   ASSESSMENT_INPUT_METHODS,
   PSYCHOLOGICAL_ASSESSMENT_TYPES
 } from "@/lib/evaluaciones/types";
+import { sanitizeAssessmentUploadResults } from "@/lib/evaluaciones/upload-results";
+import { anonymizeLifeHistoryAnswers } from "@/lib/life-history/anonymize";
+import type { LifeHistoryAnswers } from "@/lib/life-history/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type EvaluationActionState = {
@@ -60,6 +63,12 @@ const createAssessmentSchema = z.object({
 const aiDraftSchema = z.object({
   assessmentId: z.string().uuid(),
   directives: z.string().trim().min(10).max(4000)
+});
+
+const uploadResultsSchema = z.object({
+  uploadId: z.string().uuid(),
+  extractedResults: jsonObjectText,
+  professionalNotes: optionalText
 });
 
 const validateAssessmentSchema = z.object({
@@ -283,6 +292,27 @@ export async function requestAssessmentAiDraftAction(
     return { message: "No puedes solicitar IA para esta evaluacion.", ok: false };
   }
 
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: lifeHistory } = await supabaseAdmin
+    .from("patient_life_histories")
+    .select("status, answers, submitted_at")
+    .eq("expediente_id", expediente.id)
+    .in("status", ["enviada", "reabierta"])
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const anonymizedLifeHistory = lifeHistory
+    ? anonymizeLifeHistoryAnswers((lifeHistory.answers ?? {}) as LifeHistoryAnswers)
+    : null;
+  const lifeHistoryContext =
+    lifeHistory && anonymizedLifeHistory
+      ? {
+          status: lifeHistory.status as string,
+          submitted_at: lifeHistory.submitted_at as string | null,
+          answers: anonymizedLifeHistory
+        }
+      : null;
+
   const contextPackage: ClinicalContextPackage = {
     task: "analisis_evaluacion_imagen",
     assessment: {
@@ -296,7 +326,8 @@ export async function requestAssessmentAiDraftAction(
       scaled_scores: assessment.scaled_scores,
       percentiles: assessment.percentiles,
       cutoff_points: assessment.cutoff_points
-    }
+    },
+    ...(lifeHistoryContext ? { life_history: lifeHistoryContext } : {})
   };
 
   let draft;
@@ -327,7 +358,6 @@ export async function requestAssessmentAiDraftAction(
     return { message: "No fue posible generar el borrador con IA.", ok: false };
   }
 
-  const supabaseAdmin = createSupabaseAdminClient();
   const { data: aiSession, error: sessionError } = await supabaseAdmin
     .from("ai_sessions")
     .insert({
@@ -419,6 +449,104 @@ export async function requestAssessmentAiDraftAction(
     ok: true,
     draft: draft.content
   };
+}
+
+export async function updateAssessmentUploadResultsAction(
+  _previousState: EvaluationActionState,
+  formData: FormData
+): Promise<EvaluationActionState> {
+  const actor = await getActiveProfessional();
+
+  if (!actor) {
+    return { message: "No tienes una sesion profesional activa.", ok: false };
+  }
+
+  const parsed = uploadResultsSchema.safeParse({
+    uploadId: formData.get("uploadId"),
+    extractedResults: formData.get("extractedResults"),
+    professionalNotes: formData.get("professionalNotes")
+  });
+
+  if (!parsed.success) {
+    return { message: "Captura los resultados como objeto JSON valido.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: upload, error: loadError } = await supabaseAdmin
+    .from("patient_assessment_uploads")
+    .select("id, expediente_id, professional_id, assessment_code, status")
+    .eq("id", parsed.data.uploadId)
+    .eq("professional_id", actor.id)
+    .single();
+
+  const expediente = upload ? await assertExpedienteOwner(upload.expediente_id, actor.id) : null;
+
+  if (loadError || !upload || !expediente || expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "assessment_upload_results_update",
+      entityType: "patient_assessment_uploads",
+      entityId: parsed.data.uploadId,
+      result: "denied",
+      context: "audit_assessment_upload_results_denied"
+    });
+
+    return { message: "No puedes actualizar este envio de prueba.", ok: false };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("patient_assessment_uploads")
+    .update({
+      extracted_results: sanitizeAssessmentUploadResults(
+        upload.assessment_code,
+        parsed.data.extractedResults
+      ),
+      professional_notes: parsed.data.professionalNotes,
+      status: "analizada"
+    })
+    .eq("id", upload.id)
+    .eq("professional_id", actor.id);
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        context: "assessment_upload_results_update",
+        upload_id: upload.id,
+        expediente_id: upload.expediente_id
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "assessment_upload_results_update",
+      entityType: "patient_assessment_uploads",
+      entityId: upload.id,
+      result: "error",
+      context: "audit_assessment_upload_results_error"
+    });
+
+    return { message: "No fue posible guardar los resultados.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "assessment_upload_results_update",
+    entityType: "patient_assessment_uploads",
+    entityId: upload.id,
+    result: "success",
+    metadata: {
+      result_key_count: Object.keys(parsed.data.extractedResults).length,
+      result_keys: Object.keys(parsed.data.extractedResults).join(",")
+    },
+    context: "audit_assessment_upload_results_success"
+  });
+
+  revalidatePath(`/professional/expedientes/${upload.expediente_id}`);
+
+  return { message: "Resultados guardados.", ok: true };
 }
 
 export async function validateAssessmentAction(

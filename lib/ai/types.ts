@@ -25,6 +25,11 @@ export type ClinicalContextPackage = {
     percentiles?: Record<string, unknown>;
     cutoff_points?: Record<string, unknown>;
   };
+  life_history?: {
+    status: string;
+    submitted_at: string | null;
+    answers: Record<string, string | string[]>;
+  };
   process?: {
     id: string;
     model_type: string;

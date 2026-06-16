@@ -25,6 +25,9 @@ export default async function SuperAdminPage() {
         <Link className="inline-flex font-medium text-moss" href="/super-admin/help">
           Gestionar ayuda
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/exports">
+          Revisar exportaciones
+        </Link>
       </div>
     </main>
   );

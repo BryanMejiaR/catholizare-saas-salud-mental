@@ -25,12 +25,12 @@ export default async function ProfessionalProcesosPage() {
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-ink">Procesos terapeuticos</h1>
             <p className="mt-2 text-sm text-ink/65">
-              Modelos General configurable y TCC estructurado para cada caso clinico.
+              Enfoques terapeuticos configurables por plantilla y version para cada caso clinico.
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
             <Link href="/professional/procesos/template" className="text-sm font-medium text-moss">
-              Editar plantilla General
+              Editar plantillas
             </Link>
             <Link href="/professional" className="text-sm font-medium text-moss">
               Volver al panel

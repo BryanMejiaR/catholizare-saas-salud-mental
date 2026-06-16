@@ -51,10 +51,29 @@ export type PortalLifeHistory = {
   };
 };
 
+export type PortalAssessmentExpedienteOption = {
+  id: string;
+  professional: {
+    full_name: string;
+    email: string;
+  };
+};
+
+export type PortalAssessmentUpload = {
+  id: string;
+  expediente_id: string;
+  assessment_label: string;
+  file_name: string;
+  status: "recibida" | "analizada" | "vinculada" | "rechazada";
+  created_at: string;
+};
+
 export type PortalDashboard = {
   summary: PatientPortalSummary | null;
   upcomingAppointments: PortalAppointment[];
   pastAppointments: PortalAppointment[];
   requests: PortalAppointmentRequest[];
   lifeHistory: PortalLifeHistory | null;
+  assessmentExpedientes: PortalAssessmentExpedienteOption[];
+  assessmentUploads: PortalAssessmentUpload[];
 };
