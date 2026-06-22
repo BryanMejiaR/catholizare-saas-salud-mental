@@ -4,9 +4,10 @@ import { StatusForm } from "@/components/users/status-form";
 type UsersTableProps = {
   users: UserManagementProfile[];
   showStatusActions?: boolean;
+  currentUserId?: string;
 };
 
-export function UsersTable({ users, showStatusActions = false }: UsersTableProps) {
+export function UsersTable({ users, showStatusActions = false, currentUserId }: UsersTableProps) {
   return (
     <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
       <table className="w-full border-collapse text-left text-sm">
@@ -28,7 +29,11 @@ export function UsersTable({ users, showStatusActions = false }: UsersTableProps
               <td className="px-4 py-3 text-ink/70">{user.account_status}</td>
               {showStatusActions ? (
                 <td className="px-4 py-3">
-                  <StatusForm userId={user.id} currentStatus={user.account_status} />
+                  {user.id === currentUserId ? (
+                    <span className="text-sm text-ink/55">Cuenta actual</span>
+                  ) : (
+                    <StatusForm userId={user.id} currentStatus={user.account_status} />
+                  )}
                 </td>
               ) : null}
             </tr>

@@ -1,13 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
 import { writeAuthAuditLog } from "@/lib/auth/audit";
 import { clearSessionPolicyCookies } from "@/lib/auth/session-policy";
-import { getPublicEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function POST() {
-  const env = getPublicEnv();
+export async function POST(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user }
@@ -33,7 +31,7 @@ export async function POST() {
     }
   }
 
-  const response = NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL), 303);
+  const response = NextResponse.redirect(new URL("/auth/login", request.url), 303);
   clearSessionPolicyCookies(response);
 
   return response;

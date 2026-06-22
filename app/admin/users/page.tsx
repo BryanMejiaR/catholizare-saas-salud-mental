@@ -6,7 +6,7 @@ import { CreateUserForm } from "@/components/users/create-user-form";
 import { UsersTable } from "@/components/users/users-table";
 
 export default async function AdminUsersPage() {
-  await requireRole(["administrador"]);
+  const profile = await requireRole(["administrador"]);
   const [users, professionals] = await Promise.all([getAllUserProfiles(), getProfessionalProfiles()]);
 
   return (
@@ -25,7 +25,11 @@ export default async function AdminUsersPage() {
         </div>
 
         <CreateUserForm allowedRoles={["profesional", "paciente"]} professionals={professionals} />
-        <UsersTable users={users.filter((user) => user.role !== "super_administrador")} showStatusActions />
+        <UsersTable
+          users={users.filter((user) => user.role !== "super_administrador")}
+          showStatusActions
+          currentUserId={profile.id}
+        />
       </div>
     </main>
   );

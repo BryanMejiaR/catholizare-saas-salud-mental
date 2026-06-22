@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/profile";
 import {
+  getAssessmentRequestsForExpediente,
   getAssessmentUploadsForExpediente,
   getAssessmentsForExpediente
 } from "@/lib/evaluaciones/queries";
@@ -30,6 +31,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
     notas,
     proceso,
     assessments,
+    assessmentRequests,
     assessmentUploads,
     generalNoteTemplate,
     tccNoteTemplate
@@ -38,6 +40,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
     getNotasForExpediente(profile, id),
     getProcesoForExpediente(profile, id),
     getAssessmentsForExpediente(profile, id),
+    getAssessmentRequestsForExpediente(profile, id),
     getAssessmentUploadsForExpediente(profile, id),
     getLatestNotaTemplate(profile, "general"),
     getLatestNotaTemplate(profile, "tcc")
@@ -102,6 +105,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
         <AssessmentsSection
           expedienteId={expediente.id}
           assessments={assessments}
+          requests={assessmentRequests}
           uploads={assessmentUploads}
           disabled={!isActive}
         />

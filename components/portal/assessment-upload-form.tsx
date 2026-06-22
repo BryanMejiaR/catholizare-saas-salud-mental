@@ -4,17 +4,13 @@ import { useActionState } from "react";
 
 import { SubmitButton } from "@/components/auth/submit-button";
 import { uploadAssessmentDocumentAction } from "@/app/portal/actions";
-import {
-  PATIENT_ASSESSMENT_UPLOAD_LABEL,
-  PATIENT_ASSESSMENT_UPLOAD_TYPES
-} from "@/lib/evaluaciones/types";
 import type {
-  PortalAssessmentExpedienteOption,
+  PortalAssessmentRequest,
   PortalAssessmentUpload
 } from "@/lib/portal/types";
 
 type AssessmentUploadFormProps = {
-  expedientes: PortalAssessmentExpedienteOption[];
+  requests: PortalAssessmentRequest[];
   uploads: PortalAssessmentUpload[];
 };
 
@@ -23,9 +19,9 @@ const initialState = {
   ok: false
 };
 
-export function AssessmentUploadForm({ expedientes, uploads }: AssessmentUploadFormProps) {
+export function AssessmentUploadForm({ requests, uploads }: AssessmentUploadFormProps) {
   const [state, formAction] = useActionState(uploadAssessmentDocumentAction, initialState);
-  const hasExpedientes = expedientes.length > 0;
+  const pendingRequests = requests.filter((request) => request.status === "pendiente");
 
   return (
     <section className="rounded-lg border border-ink/10 bg-white p-5">
@@ -37,77 +33,56 @@ export function AssessmentUploadForm({ expedientes, uploads }: AssessmentUploadF
         </p>
       </div>
 
-      <form action={formAction} className="mt-5 grid gap-4 md:grid-cols-2">
-        <label className="text-sm font-medium text-ink">
-          Expediente
-          <select
-            name="expedienteId"
-            disabled={!hasExpedientes}
-            className="mt-2 w-full rounded-md border border-ink/15 bg-white px-3 py-2 text-sm"
-            required
-          >
-            {expedientes.map((expediente) => (
-              <option key={expediente.id} value={expediente.id}>
-                {expediente.professional.full_name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="text-sm font-medium text-ink">
-          Prueba
-          <select
-            name="assessmentCode"
-            disabled={!hasExpedientes}
-            className="mt-2 w-full rounded-md border border-ink/15 bg-white px-3 py-2 text-sm"
-            required
-          >
-            {PATIENT_ASSESSMENT_UPLOAD_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {PATIENT_ASSESSMENT_UPLOAD_LABEL[type]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="text-sm font-medium text-ink md:col-span-2">
-          Nombre si elegiste otra prueba
-          <input
-            name="otherAssessmentLabel"
-            maxLength={120}
-            disabled={!hasExpedientes}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 text-sm"
-          />
-        </label>
-
-        <label className="text-sm font-medium text-ink md:col-span-2">
-          Archivo o foto
-          <input
-            name="assessmentFile"
-            type="file"
-            accept="application/pdf,image/jpeg,image/png,image/webp"
-            disabled={!hasExpedientes}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 text-sm"
-            required
-          />
-        </label>
-
-        <div className="md:col-span-2">
-          <SubmitButton disabled={!hasExpedientes}>Enviar prueba</SubmitButton>
-          {state.message ? (
-            <p className={`mt-3 text-sm ${state.ok ? "text-moss" : "text-clay"}`}>
-              {state.message}
+      <div className="mt-5 space-y-4">
+        {pendingRequests.map((request) => (
+          <form key={request.id} action={formAction} className="rounded-md border border-ink/10 p-4">
+            <input type="hidden" name="requestId" value={request.id} />
+            <p className="text-sm font-semibold text-ink">{request.assessment_label}</p>
+            <p className="mt-1 text-xs text-ink/55">
+              Solicitada: {new Date(request.requested_at).toLocaleDateString("es-MX")}
             </p>
-          ) : null}
-          {!hasExpedientes ? (
-            <p className="mt-3 text-sm text-ink/60">
-              No hay un expediente activo disponible para recibir pruebas.
-            </p>
-          ) : null}
-        </div>
-      </form>
+            <label className="mt-3 block text-sm font-medium text-ink">
+              Archivo o foto
+              <input
+                name="assessmentFile"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png,image/webp"
+                className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 text-sm"
+                required
+              />
+            </label>
+            <div className="mt-3">
+              <SubmitButton>Enviar {request.assessment_label}</SubmitButton>
+            </div>
+          </form>
+        ))}
+
+        {state.message ? (
+          <p className={`text-sm ${state.ok ? "text-moss" : "text-clay"}`}>
+            {state.message}
+          </p>
+        ) : null}
+
+        {pendingRequests.length === 0 ? (
+          <p className="text-sm text-ink/65">
+            No tienes pruebas pendientes solicitadas por tu profesional.
+          </p>
+        ) : null}
+      </div>
 
       <div className="mt-6 divide-y divide-ink/10">
+        {requests
+          .filter((request) => request.status !== "pendiente")
+          .map((request) => (
+            <div key={request.id} className="py-3 first:pt-0 last:pb-0">
+              <p className="text-sm font-medium text-ink">{request.assessment_label}</p>
+              <p className="mt-1 text-xs text-ink/55">
+                Estado: {request.status} |{" "}
+                {new Date(request.requested_at).toLocaleDateString("es-MX")}
+              </p>
+            </div>
+          ))}
+
         {uploads.map((upload) => (
           <div key={upload.id} className="py-3 first:pt-0 last:pb-0">
             <p className="text-sm font-medium text-ink">{upload.assessment_label}</p>

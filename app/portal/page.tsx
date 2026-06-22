@@ -22,7 +22,7 @@ export default async function PortalPage() {
         <LifeHistoryForm lifeHistory={dashboard.lifeHistory} />
 
         <AssessmentUploadForm
-          expedientes={dashboard.assessmentExpedientes}
+          requests={dashboard.assessmentRequests}
           uploads={dashboard.assessmentUploads}
         />
 

@@ -10,6 +10,8 @@ import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import {
   ASSESSMENT_INPUT_METHODS,
+  PATIENT_ASSESSMENT_UPLOAD_LABEL,
+  PATIENT_ASSESSMENT_UPLOAD_TYPES,
   PSYCHOLOGICAL_ASSESSMENT_TYPES
 } from "@/lib/evaluaciones/types";
 import { sanitizeAssessmentUploadResults } from "@/lib/evaluaciones/upload-results";
@@ -69,6 +71,12 @@ const uploadResultsSchema = z.object({
   uploadId: z.string().uuid(),
   extractedResults: jsonObjectText,
   professionalNotes: optionalText
+});
+
+const requestAssessmentUploadSchema = z.object({
+  expedienteId: z.string().uuid(),
+  assessmentCode: z.enum(PATIENT_ASSESSMENT_UPLOAD_TYPES),
+  otherAssessmentLabel: z.string().trim().max(120).optional()
 });
 
 const validateAssessmentSchema = z.object({
@@ -547,6 +555,109 @@ export async function updateAssessmentUploadResultsAction(
   revalidatePath(`/professional/expedientes/${upload.expediente_id}`);
 
   return { message: "Resultados guardados.", ok: true };
+}
+
+export async function requestPatientAssessmentUploadAction(
+  _previousState: EvaluationActionState,
+  formData: FormData
+): Promise<EvaluationActionState> {
+  const actor = await getActiveProfessional();
+
+  if (!actor) {
+    return { message: "No tienes una sesion profesional activa.", ok: false };
+  }
+
+  const parsed = requestAssessmentUploadSchema.safeParse({
+    expedienteId: formData.get("expedienteId"),
+    assessmentCode: formData.get("assessmentCode"),
+    otherAssessmentLabel: `${formData.get("otherAssessmentLabel") ?? ""}` || undefined
+  });
+
+  if (!parsed.success) {
+    return { message: "Selecciona una prueba valida.", ok: false };
+  }
+
+  const expediente = await assertExpedienteOwner(parsed.data.expedienteId, actor.id);
+
+  if (!expediente || expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "assessment_upload_request",
+      entityType: "patient_assessment_requests",
+      entityId: parsed.data.expedienteId,
+      result: "denied",
+      context: "audit_assessment_upload_request_denied"
+    });
+
+    return { message: "No puedes solicitar pruebas para este expediente.", ok: false };
+  }
+
+  const assessmentLabel =
+    parsed.data.assessmentCode === "otra"
+      ? parsed.data.otherAssessmentLabel?.trim()
+      : PATIENT_ASSESSMENT_UPLOAD_LABEL[parsed.data.assessmentCode];
+
+  if (!assessmentLabel || assessmentLabel.length < 2) {
+    return { message: "Escribe el nombre de la prueba.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("patient_assessment_requests")
+    .insert({
+      expediente_id: expediente.id,
+      patient_id: expediente.patient_id,
+      professional_id: actor.id,
+      assessment_code: parsed.data.assessmentCode,
+      assessment_label: assessmentLabel,
+      requested_by: actor.id
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    if (error?.code === "23505") {
+      return { message: "Ya hay una solicitud pendiente para esta prueba.", ok: false };
+    }
+
+    Sentry.captureException(error ?? new Error("Assessment request insert did not return id"), {
+      extra: {
+        expediente_id: expediente.id,
+        assessment_code: parsed.data.assessmentCode
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "assessment_upload_request",
+      entityType: "patient_assessment_requests",
+      entityId: expediente.id,
+      result: "error",
+      context: "audit_assessment_upload_request_error"
+    });
+
+    return { message: "No fue posible solicitar la prueba.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "assessment_upload_request",
+    entityType: "patient_assessment_requests",
+    entityId: data.id,
+    result: "success",
+    metadata: {
+      assessment_code: parsed.data.assessmentCode
+    },
+    context: "audit_assessment_upload_request_success"
+  });
+
+  revalidatePath(`/professional/expedientes/${expediente.id}`);
+  revalidatePath("/portal");
+
+  return { message: "Prueba activada para el paciente.", ok: true };
 }
 
 export async function validateAssessmentAction(

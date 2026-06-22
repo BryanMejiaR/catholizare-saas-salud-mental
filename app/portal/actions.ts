@@ -8,10 +8,6 @@ import { z } from "zod";
 
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { getCurrentProfile } from "@/lib/auth/profile";
-import {
-  PATIENT_ASSESSMENT_UPLOAD_LABEL,
-  PATIENT_ASSESSMENT_UPLOAD_TYPES
-} from "@/lib/evaluaciones/types";
 import { LIFE_HISTORY_SECTIONS, type LifeHistoryAnswers } from "@/lib/life-history/schema";
 import { APPOINTMENT_REQUEST_TYPES } from "@/lib/portal/types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -43,9 +39,7 @@ const lifeHistorySchema = z.object({
 });
 
 const assessmentUploadSchema = z.object({
-  expedienteId: z.string().uuid(),
-  assessmentCode: z.enum(PATIENT_ASSESSMENT_UPLOAD_TYPES),
-  otherAssessmentLabel: z.string().trim().max(120).optional()
+  requestId: z.string().uuid()
 });
 
 const ALLOWED_ASSESSMENT_FILE_TYPES = new Set([
@@ -364,9 +358,7 @@ export async function uploadAssessmentDocumentAction(
   }
 
   const parsed = assessmentUploadSchema.safeParse({
-    expedienteId: formData.get("expedienteId"),
-    assessmentCode: formData.get("assessmentCode"),
-    otherAssessmentLabel: `${formData.get("otherAssessmentLabel") ?? ""}` || undefined
+    requestId: formData.get("requestId")
   });
   const file = getFormFile(formData, "assessmentFile");
 
@@ -378,20 +370,34 @@ export async function uploadAssessmentDocumentAction(
     return { message: "Solo se aceptan PDF, JPG, PNG o WEBP de hasta 10 MB.", ok: false };
   }
 
-  const assessmentLabel =
-    parsed.data.assessmentCode === "otra"
-      ? parsed.data.otherAssessmentLabel?.trim()
-      : PATIENT_ASSESSMENT_UPLOAD_LABEL[parsed.data.assessmentCode];
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: request, error: requestError } = await supabaseAdmin
+    .from("patient_assessment_requests")
+    .select(
+      "id, expediente_id, patient_id, professional_id, assessment_code, assessment_label, status"
+    )
+    .eq("id", parsed.data.requestId)
+    .eq("patient_id", patient.id)
+    .single();
 
-  if (!assessmentLabel || assessmentLabel.length < 2) {
-    return { message: "Escribe el nombre de la prueba.", ok: false };
+  if (requestError || !request || request.status !== "pendiente") {
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_assessment_upload",
+      entityType: "patient_assessment_requests",
+      entityId: parsed.data.requestId,
+      result: "denied",
+      context: "audit_portal_assessment_upload_request_denied"
+    });
+
+    return { message: "Esta prueba no esta disponible para subir.", ok: false };
   }
 
-  const supabaseAdmin = createSupabaseAdminClient();
   const { data: expediente, error: expedienteError } = await supabaseAdmin
     .from("expedientes")
     .select("id, patient_id, professional_id, status")
-    .eq("id", parsed.data.expedienteId)
+    .eq("id", request.expediente_id)
     .eq("patient_id", patient.id)
     .single();
 
@@ -401,7 +407,7 @@ export async function uploadAssessmentDocumentAction(
       role: patient.role,
       action: "portal_assessment_upload",
       entityType: "patient_assessment_uploads",
-      entityId: parsed.data.expedienteId,
+      entityId: request.expediente_id,
       result: "denied",
       context: "audit_portal_assessment_upload_denied"
     });
@@ -446,19 +452,24 @@ export async function uploadAssessmentDocumentAction(
     return { message: "No fue posible subir el archivo.", ok: false };
   }
 
-  const { error: insertError } = await supabaseAdmin.from("patient_assessment_uploads").insert({
-    expediente_id: expediente.id,
-    patient_id: patient.id,
-    professional_id: expediente.professional_id,
-    assessment_code: parsed.data.assessmentCode,
-    assessment_label: assessmentLabel,
-    file_storage_path: storagePath,
-    file_name: sanitizedName,
-    file_content_type: file.type,
-    file_size_bytes: file.size
-  });
+  const { data: upload, error: insertError } = await supabaseAdmin
+    .from("patient_assessment_uploads")
+    .insert({
+      expediente_id: expediente.id,
+      patient_id: patient.id,
+      professional_id: expediente.professional_id,
+      assessment_code: request.assessment_code,
+      assessment_label: request.assessment_label,
+      request_id: request.id,
+      file_storage_path: storagePath,
+      file_name: sanitizedName,
+      file_content_type: file.type,
+      file_size_bytes: file.size
+    })
+    .select("id")
+    .single();
 
-  if (insertError) {
+  if (insertError || !upload) {
     Sentry.captureException(insertError, {
       extra: {
         context: "portal_assessment_upload_insert",
@@ -481,6 +492,27 @@ export async function uploadAssessmentDocumentAction(
     return { message: "No fue posible registrar la prueba.", ok: false };
   }
 
+  const { error: requestUpdateError } = await supabaseAdmin
+    .from("patient_assessment_requests")
+    .update({
+      status: "subida",
+      uploaded_at: new Date().toISOString(),
+      upload_id: upload.id
+    })
+    .eq("id", request.id)
+    .eq("patient_id", patient.id)
+    .eq("status", "pendiente");
+
+  if (requestUpdateError) {
+    Sentry.captureException(requestUpdateError, {
+      extra: {
+        context: "portal_assessment_request_mark_uploaded",
+        request_id: request.id,
+        upload_id: upload.id
+      }
+    });
+  }
+
   await safeWriteAuditLog({
     userId: patient.id,
     role: patient.role,
@@ -489,7 +521,8 @@ export async function uploadAssessmentDocumentAction(
     entityId: expediente.id,
     result: "success",
     metadata: {
-      assessment_code: parsed.data.assessmentCode,
+      assessment_code: request.assessment_code,
+      request_id: request.id,
       file_content_type: file.type,
       file_size_bytes: file.size
     },

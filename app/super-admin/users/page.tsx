@@ -6,7 +6,7 @@ import { CreateUserForm } from "@/components/users/create-user-form";
 import { UsersTable } from "@/components/users/users-table";
 
 export default async function SuperAdminUsersPage() {
-  await requireRole(["super_administrador"]);
+  const profile = await requireRole(["super_administrador"]);
   const users = await getAllUserProfiles();
 
   return (
@@ -30,6 +30,7 @@ export default async function SuperAdminUsersPage() {
             (user) => user.role === "administrador" || user.role === "super_administrador"
           )}
           showStatusActions
+          currentUserId={profile.id}
         />
       </div>
     </main>

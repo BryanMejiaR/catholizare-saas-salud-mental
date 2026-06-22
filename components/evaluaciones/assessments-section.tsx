@@ -1,12 +1,18 @@
 import { AssessmentAiDraftForm } from "@/components/evaluaciones/assessment-ai-draft-form";
+import { AssessmentRequestForm } from "@/components/evaluaciones/assessment-request-form";
 import { AssessmentUploadResultsForm } from "@/components/evaluaciones/assessment-upload-results-form";
 import { CreateAssessmentForm } from "@/components/evaluaciones/create-assessment-form";
 import { ValidateAssessmentForm } from "@/components/evaluaciones/validate-assessment-form";
-import type { PatientAssessmentUpload, PsychologicalAssessment } from "@/lib/evaluaciones/types";
+import type {
+  PatientAssessmentRequest,
+  PatientAssessmentUpload,
+  PsychologicalAssessment
+} from "@/lib/evaluaciones/types";
 
 type AssessmentsSectionProps = {
   expedienteId: string;
   assessments: PsychologicalAssessment[];
+  requests: PatientAssessmentRequest[];
   uploads: PatientAssessmentUpload[];
   disabled?: boolean;
 };
@@ -30,6 +36,7 @@ function formatClinicalDate(value: string) {
 export function AssessmentsSection({
   expedienteId,
   assessments,
+  requests,
   uploads,
   disabled = false
 }: AssessmentsSectionProps) {
@@ -43,10 +50,38 @@ export function AssessmentsSection({
         </p>
       </div>
 
-      <CreateAssessmentForm expedienteId={expedienteId} disabled={disabled} />
+      <div className="rounded-lg border border-ink/10 bg-white p-5">
+        <h3 className="text-base font-semibold text-ink">Pruebas solicitadas al paciente</h3>
+        <p className="mt-1 text-sm text-ink/65">
+          Activa la prueba que el paciente debe subir desde su portal. Cada solicitud queda
+          auditada.
+        </p>
+        <div className="mt-4">
+          <AssessmentRequestForm expedienteId={expedienteId} disabled={disabled} />
+        </div>
+
+        <div className="mt-4 divide-y divide-ink/10">
+          {requests.map((request) => (
+            <div key={request.id} className="py-3 first:pt-0 last:pb-0">
+              <p className="text-sm font-semibold text-ink">{request.assessment_label}</p>
+              <p className="mt-1 text-xs text-ink/55">
+                Estado: {request.status} | Solicitada:{" "}
+                {new Date(request.requested_at).toLocaleDateString("es-MX")}
+                {request.uploaded_at
+                  ? ` | Subida: ${new Date(request.uploaded_at).toLocaleDateString("es-MX")}`
+                  : ""}
+              </p>
+            </div>
+          ))}
+
+          {requests.length === 0 ? (
+            <p className="text-sm text-ink/65">Aun no hay pruebas solicitadas.</p>
+          ) : null}
+        </div>
+      </div>
 
       <div className="rounded-lg border border-ink/10 bg-white p-5">
-        <h3 className="text-base font-semibold text-ink">Pruebas enviadas por paciente</h3>
+        <h3 className="text-base font-semibold text-ink">Resultados recibidos</h3>
         <p className="mt-1 text-sm text-ink/65">
           Archivos recibidos desde el portal. Aqui se muestran resultados estructurados, no
           reactivos ni contenido protegido de pruebas.
@@ -77,6 +112,8 @@ export function AssessmentsSection({
           ) : null}
         </div>
       </div>
+
+      <CreateAssessmentForm expedienteId={expedienteId} disabled={disabled} />
 
       <div className="space-y-4">
         {assessments.map((assessment) => {

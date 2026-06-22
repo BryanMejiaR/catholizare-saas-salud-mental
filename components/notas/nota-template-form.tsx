@@ -33,17 +33,6 @@ function newId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function normalizeId(value: string, fallback: string) {
-  const normalized = value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-
-  return normalized || fallback;
-}
-
 function moveItem<T>(items: T[], index: number, direction: -1 | 1) {
   const nextIndex = index + direction;
 
@@ -188,8 +177,7 @@ export function NotaTemplateForm({ modelType, sections, version }: NotaTemplateF
                   value={section.title}
                   onChange={(event) =>
                     updateSection(sectionIndex, {
-                      title: event.target.value,
-                      id: normalizeId(event.target.value, section.id)
+                      title: event.target.value
                     })
                   }
                   className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
@@ -214,8 +202,7 @@ export function NotaTemplateForm({ modelType, sections, version }: NotaTemplateF
                       value={field.label}
                       onChange={(event) =>
                         updateField(sectionIndex, fieldIndex, {
-                          label: event.target.value,
-                          id: normalizeId(event.target.value, field.id)
+                          label: event.target.value
                         })
                       }
                       className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"

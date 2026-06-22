@@ -3,7 +3,11 @@ import "server-only";
 import type { AuthProfile } from "@/lib/auth/types";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { PatientAssessmentUpload, PsychologicalAssessment } from "@/lib/evaluaciones/types";
+import type {
+  PatientAssessmentRequest,
+  PatientAssessmentUpload,
+  PsychologicalAssessment
+} from "@/lib/evaluaciones/types";
 
 const ASSESSMENT_SELECT =
   "id, expediente_id, patient_id, professional_id, linked_tcc_process_id, linked_reevaluation_cut_id, assessment_name, assessment_type, assessment_purpose, applied_at, input_method, raw_scores, scaled_scores, percentiles, cutoff_points, interpretation, limitations, implications, ai_draft_interpretation, comparison_notes, professional_validation_status, validated_by_user_id, validated_at, status, ai_session_id, annulment_reason, annulled_at, annulled_by_user_id, created_by, created_at, updated_at";
@@ -91,4 +95,49 @@ export async function getAssessmentUploadsForExpediente(
   });
 
   return (data ?? []) as PatientAssessmentUpload[];
+}
+
+export async function getAssessmentRequestsForExpediente(
+  profile: AuthProfile,
+  expedienteId: string
+) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("patient_assessment_requests")
+    .select(
+      "id, expediente_id, patient_id, professional_id, assessment_code, assessment_label, status, requested_by, requested_at, uploaded_at, upload_id, created_at, updated_at"
+    )
+    .eq("expediente_id", expedienteId)
+    .eq("professional_id", profile.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "assessment_request_read",
+      entityType: "patient_assessment_requests",
+      entityId: expedienteId,
+      result: "error",
+      context: "audit_assessment_request_list_error"
+    });
+
+    throw new Error(`Unable to load patient assessment requests: ${error.message}`);
+  }
+
+  await safeWriteAuditLog({
+    userId: profile.id,
+    role: profile.role,
+    action: "assessment_request_read",
+    entityType: "patient_assessment_requests",
+    entityId: expedienteId,
+    result: "success",
+    metadata: {
+      scope: "expediente_list",
+      count: data?.length ?? 0
+    },
+    context: "audit_assessment_request_list_success"
+  });
+
+  return (data ?? []) as PatientAssessmentRequest[];
 }

@@ -27,6 +27,7 @@ export const PATIENT_ASSESSMENT_UPLOAD_LABEL: Record<PatientAssessmentUploadType
 };
 
 export type PatientAssessmentUploadStatus = "recibida" | "analizada" | "vinculada" | "rechazada";
+export type PatientAssessmentRequestStatus = "pendiente" | "subida" | "cancelada";
 
 export type PsychologicalAssessmentStatus =
   | "borrador"
@@ -86,6 +87,22 @@ export type PatientAssessmentUpload = {
   extracted_results: Record<string, unknown>;
   professional_notes: string | null;
   ai_session_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PatientAssessmentRequest = {
+  id: string;
+  expediente_id: string;
+  patient_id: string;
+  professional_id: string;
+  assessment_code: PatientAssessmentUploadType | string;
+  assessment_label: string;
+  status: PatientAssessmentRequestStatus;
+  requested_by: string | null;
+  requested_at: string;
+  uploaded_at: string | null;
+  upload_id: string | null;
   created_at: string;
   updated_at: string;
 };

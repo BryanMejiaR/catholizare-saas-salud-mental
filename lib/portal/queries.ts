@@ -8,6 +8,7 @@ import type {
   PortalAppointment,
   PortalAppointmentRequest,
   PortalAssessmentExpedienteOption,
+  PortalAssessmentRequest,
   PortalAssessmentUpload,
   PortalLifeHistory
 } from "@/lib/portal/types";
@@ -185,9 +186,16 @@ export async function getPortalDashboard(profile: AuthProfile) {
   const summary = await enrichSummary(
     summaryRows?.[0] as Omit<PatientPortalSummary, "professional"> | undefined
   );
-  const [requests, lifeHistory, assessmentUploads, assessmentExpedientes] = await Promise.all([
+  const [
+    requests,
+    lifeHistory,
+    assessmentRequests,
+    assessmentUploads,
+    assessmentExpedientes
+  ] = await Promise.all([
     getPortalAppointmentRequests(profile.id),
     getPortalLifeHistory(profile.id),
+    getPortalAssessmentRequests(profile.id),
     getPortalAssessmentUploads(profile.id),
     enrichAssessmentExpedientes(activeExpedientes)
   ]);
@@ -215,6 +223,7 @@ export async function getPortalDashboard(profile: AuthProfile) {
     requests,
     lifeHistory,
     assessmentExpedientes,
+    assessmentRequests,
     assessmentUploads
   };
 }
@@ -325,4 +334,21 @@ async function getPortalAssessmentUploads(patientId: string): Promise<PortalAsse
   }
 
   return (data ?? []) as PortalAssessmentUpload[];
+}
+
+async function getPortalAssessmentRequests(patientId: string): Promise<PortalAssessmentRequest[]> {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("patient_assessment_requests")
+    .select("id, expediente_id, assessment_label, status, requested_at")
+    .eq("patient_id", patientId)
+    .in("status", ["pendiente", "subida"])
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    throw new Error(`Unable to load patient assessment requests: ${error.message}`);
+  }
+
+  return (data ?? []) as PortalAssessmentRequest[];
 }

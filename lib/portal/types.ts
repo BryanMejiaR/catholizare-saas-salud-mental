@@ -68,6 +68,14 @@ export type PortalAssessmentUpload = {
   created_at: string;
 };
 
+export type PortalAssessmentRequest = {
+  id: string;
+  expediente_id: string;
+  assessment_label: string;
+  status: "pendiente" | "subida" | "cancelada";
+  requested_at: string;
+};
+
 export type PortalDashboard = {
   summary: PatientPortalSummary | null;
   upcomingAppointments: PortalAppointment[];
@@ -75,5 +83,6 @@ export type PortalDashboard = {
   requests: PortalAppointmentRequest[];
   lifeHistory: PortalLifeHistory | null;
   assessmentExpedientes: PortalAssessmentExpedienteOption[];
+  assessmentRequests: PortalAssessmentRequest[];
   assessmentUploads: PortalAssessmentUpload[];
 };
