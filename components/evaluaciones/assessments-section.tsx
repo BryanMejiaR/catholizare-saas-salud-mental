@@ -1,7 +1,6 @@
 import { AssessmentAiDraftForm } from "@/components/evaluaciones/assessment-ai-draft-form";
 import { AssessmentRequestForm } from "@/components/evaluaciones/assessment-request-form";
 import { AssessmentUploadResultsForm } from "@/components/evaluaciones/assessment-upload-results-form";
-import { CreateAssessmentForm } from "@/components/evaluaciones/create-assessment-form";
 import { ValidateAssessmentForm } from "@/components/evaluaciones/validate-assessment-form";
 import type {
   PatientAssessmentRequest,
@@ -112,8 +111,6 @@ export function AssessmentsSection({
           ) : null}
         </div>
       </div>
-
-      <CreateAssessmentForm expedienteId={expedienteId} disabled={disabled} />
 
       <div className="space-y-4">
         {assessments.map((assessment) => {
