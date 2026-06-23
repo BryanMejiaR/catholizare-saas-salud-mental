@@ -73,6 +73,23 @@ function redirectWithSupabaseCookies(url: URL, response: NextResponse) {
   return redirectResponse;
 }
 
+function getForwardedHeaderValue(request: NextRequest, headerName: string) {
+  return request.headers.get(headerName)?.split(",")[0]?.trim() || null;
+}
+
+function buildPublicRedirectUrl(request: NextRequest, pathname: string) {
+  const forwardedHost = getForwardedHeaderValue(request, "x-forwarded-host");
+  const forwardedProto = getForwardedHeaderValue(request, "x-forwarded-proto");
+  const host = forwardedHost || request.headers.get("host") || request.nextUrl.host;
+  const isLocalHost = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+  const protocol =
+    process.env.NODE_ENV === "production" && !isLocalHost
+      ? "https"
+      : forwardedProto || request.nextUrl.protocol.replace(":", "");
+
+  return new URL(pathname, `${protocol}://${host}`);
+}
+
 async function writeSessionExpiredAudit(
   supabase: Awaited<ReturnType<typeof createSupabaseMiddlewareClient>>["supabase"],
   request: NextRequest,
@@ -101,7 +118,7 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
+    return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/login"), response);
   }
 
   const sessionExpiryReason = getSessionExpiryReason(request, now);
@@ -116,7 +133,7 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.signOut();
     clearSessionPolicyCookies(response);
 
-    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
+    return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/login"), response);
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -137,7 +154,7 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    return redirectWithSupabaseCookies(new URL("/auth/login", request.url), response);
+    return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/login"), response);
   }
 
   touchSessionPolicyCookies(request, response, now);
@@ -154,16 +171,19 @@ export async function middleware(request: NextRequest) {
 
   if (role && accountStatus && accountStatus !== "activo" && !pathname.startsWith("/api/auth/logout")) {
     if (accountStatus === "pendiente_activacion" && !pathname.startsWith("/auth/activate")) {
-      return redirectWithSupabaseCookies(new URL("/auth/activate", request.url), response);
+      return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/activate"), response);
     }
 
     if (accountStatus !== "pendiente_activacion" && !pathname.startsWith("/auth/inactive")) {
-      return redirectWithSupabaseCookies(new URL("/auth/inactive", request.url), response);
+      return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/inactive"), response);
     }
   }
 
   if (pathname.startsWith("/auth/login") && role) {
-    return redirectWithSupabaseCookies(new URL(ROLE_HOME_PATH[role], request.url), response);
+    return redirectWithSupabaseCookies(
+      buildPublicRedirectUrl(request, ROLE_HOME_PATH[role]),
+      response
+    );
   }
 
   if (isPublicPath) {
@@ -179,7 +199,10 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/super-admin");
 
     if (isRoleArea && !pathname.startsWith(rolePrefix)) {
-      return redirectWithSupabaseCookies(new URL(ROLE_HOME_PATH[role], request.url), response);
+      return redirectWithSupabaseCookies(
+        buildPublicRedirectUrl(request, ROLE_HOME_PATH[role]),
+        response
+      );
     }
   }
 

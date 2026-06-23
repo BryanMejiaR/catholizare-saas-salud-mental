@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getServerEnv } from "@/lib/env";
+import { buildPublicIntegrationCallback } from "@/lib/integrations/public-url";
 import type { GoogleCalendarEventResponse, GoogleTokenResponse } from "@/lib/google-calendar/types";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -41,8 +42,7 @@ export function getGoogleCalendarConfig(): GoogleCalendarConfig | null {
 
   if (
     !env.GOOGLE_CALENDAR_CLIENT_ID ||
-    !env.GOOGLE_CALENDAR_CLIENT_SECRET ||
-    !env.GOOGLE_CALENDAR_REDIRECT_URI
+    !env.GOOGLE_CALENDAR_CLIENT_SECRET
   ) {
     return null;
   }
@@ -50,7 +50,10 @@ export function getGoogleCalendarConfig(): GoogleCalendarConfig | null {
   return {
     clientId: env.GOOGLE_CALENDAR_CLIENT_ID,
     clientSecret: env.GOOGLE_CALENDAR_CLIENT_SECRET,
-    redirectUri: env.GOOGLE_CALENDAR_REDIRECT_URI
+    redirectUri: buildPublicIntegrationCallback(
+      "/api/integrations/google-calendar/callback",
+      env.GOOGLE_CALENDAR_REDIRECT_URI
+    )
   };
 }
 

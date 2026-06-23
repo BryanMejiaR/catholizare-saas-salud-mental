@@ -3,19 +3,19 @@ import * as Sentry from "@sentry/nextjs";
 
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { getCurrentProfile } from "@/lib/auth/profile";
-import { getPublicEnv } from "@/lib/env";
+import { getPublicAppUrl } from "@/lib/integrations/public-url";
 import { exchangeZoomCode, getZoomUser } from "@/lib/zoom/client";
 import { upsertZoomConnection } from "@/lib/zoom/connections";
 import { ZOOM_STATE_COOKIE } from "@/lib/zoom/oauth-state";
 
 export async function GET(request: NextRequest) {
-  const env = getPublicEnv();
+  const publicAppUrl = getPublicAppUrl();
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const expectedState = request.cookies.get(ZOOM_STATE_COOKIE)?.value;
   const profile = await getCurrentProfile();
-  const responseUrl = new URL("/professional/integrations", env.NEXT_PUBLIC_APP_URL);
+  const responseUrl = new URL("/professional/integrations", publicAppUrl);
 
   function redirectToIntegrations() {
     const response = NextResponse.redirect(responseUrl);
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!profile || profile.role !== "profesional" || profile.account_status !== "activo") {
-    return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL));
+    return NextResponse.redirect(new URL("/auth/login", publicAppUrl));
   }
 
   if (!code || !state || !expectedState || state !== expectedState) {

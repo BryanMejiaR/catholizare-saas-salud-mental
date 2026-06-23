@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
-import { getPublicEnv } from "@/lib/env";
+import { getPublicAppUrl } from "@/lib/integrations/public-url";
 import {
   exchangeGoogleCalendarCode,
   getGoogleCalendarUserEmail
@@ -12,13 +12,13 @@ import { GCAL_STATE_COOKIE } from "@/lib/google-calendar/oauth-state";
 import { upsertGoogleCalendarConnection } from "@/lib/google-calendar/connections";
 
 export async function GET(request: NextRequest) {
-  const env = getPublicEnv();
+  const publicAppUrl = getPublicAppUrl();
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const expectedState = request.cookies.get(GCAL_STATE_COOKIE)?.value;
   const profile = await getCurrentProfile();
-  const responseUrl = new URL("/professional/integrations", env.NEXT_PUBLIC_APP_URL);
+  const responseUrl = new URL("/professional/integrations", publicAppUrl);
 
   function redirectToIntegrations() {
     const response = NextResponse.redirect(responseUrl);
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!profile || profile.role !== "profesional" || profile.account_status !== "activo") {
-    return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL));
+    return NextResponse.redirect(new URL("/auth/login", publicAppUrl));
   }
 
   if (!code || !state || !expectedState || state !== expectedState) {

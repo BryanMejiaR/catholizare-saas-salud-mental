@@ -2,22 +2,22 @@ import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
-import { getPublicEnv } from "@/lib/env";
+import { getPublicAppUrl } from "@/lib/integrations/public-url";
 import { buildGoogleCalendarAuthUrl } from "@/lib/google-calendar/client";
 import { isGoogleCalendarConfigured } from "@/lib/google-calendar/connections";
 import { GCAL_STATE_COOKIE } from "@/lib/google-calendar/oauth-state";
 
 export async function GET() {
-  const env = getPublicEnv();
+  const publicAppUrl = getPublicAppUrl();
   const profile = await getCurrentProfile();
 
   if (!profile || profile.role !== "profesional" || profile.account_status !== "activo") {
-    return NextResponse.redirect(new URL("/auth/login", env.NEXT_PUBLIC_APP_URL));
+    return NextResponse.redirect(new URL("/auth/login", publicAppUrl));
   }
 
   if (!isGoogleCalendarConfigured()) {
     return NextResponse.redirect(
-      new URL("/professional/integrations?gcal=not_configured", env.NEXT_PUBLIC_APP_URL)
+      new URL("/professional/integrations?gcal=not_configured", publicAppUrl)
     );
   }
 

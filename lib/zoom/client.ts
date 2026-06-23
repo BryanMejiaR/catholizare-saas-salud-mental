@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getServerEnv } from "@/lib/env";
+import { buildPublicIntegrationCallback } from "@/lib/integrations/public-url";
 import type { ZoomMeetingResponse, ZoomTokenResponse, ZoomUserResponse } from "@/lib/zoom/types";
 
 const ZOOM_AUTH_URL = "https://zoom.us/oauth/authorize";
@@ -28,14 +29,17 @@ type ZoomMeetingInput = {
 export function getZoomConfig(): ZoomConfig | null {
   const env = getServerEnv();
 
-  if (!env.ZOOM_CLIENT_ID || !env.ZOOM_CLIENT_SECRET || !env.ZOOM_REDIRECT_URI) {
+  if (!env.ZOOM_CLIENT_ID || !env.ZOOM_CLIENT_SECRET) {
     return null;
   }
 
   return {
     clientId: env.ZOOM_CLIENT_ID,
     clientSecret: env.ZOOM_CLIENT_SECRET,
-    redirectUri: env.ZOOM_REDIRECT_URI
+    redirectUri: buildPublicIntegrationCallback(
+      "/api/integrations/zoom/callback",
+      env.ZOOM_REDIRECT_URI
+    )
   };
 }
 
