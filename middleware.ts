@@ -170,7 +170,12 @@ export async function middleware(request: NextRequest) {
   const accountStatus = profile.account_status as string;
 
   if (role && accountStatus && accountStatus !== "activo" && !pathname.startsWith("/api/auth/logout")) {
-    if (accountStatus === "pendiente_activacion" && !pathname.startsWith("/auth/activate")) {
+    const isActivationPath =
+      pathname.startsWith("/auth/activate") ||
+      pathname.startsWith("/auth/update-password") ||
+      pathname.startsWith("/auth/callback");
+
+    if (accountStatus === "pendiente_activacion" && !isActivationPath) {
       return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/activate"), response);
     }
 
