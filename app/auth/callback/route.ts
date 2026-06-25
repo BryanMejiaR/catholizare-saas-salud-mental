@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { getPublicEnv } from "@/lib/env";
+import { buildPublicRequestUrl } from "@/lib/integrations/public-url";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 
 export async function GET(request: NextRequest) {
@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
   const rawNext = requestUrl.searchParams.get("next") ?? "/";
   const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
-  const env = getPublicEnv();
   let supabaseResponse = NextResponse.next();
 
   if (code) {
@@ -17,7 +16,7 @@ export async function GET(request: NextRequest) {
     supabaseResponse = response;
   }
 
-  const redirectResponse = NextResponse.redirect(new URL(next, env.NEXT_PUBLIC_APP_URL));
+  const redirectResponse = NextResponse.redirect(buildPublicRequestUrl(request, next));
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     redirectResponse.cookies.set(cookie);
   });

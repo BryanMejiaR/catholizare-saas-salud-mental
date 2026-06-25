@@ -8,7 +8,7 @@ import { getCurrentProfile } from "@/lib/auth/profile";
 import { type UserRole, USER_ROLES } from "@/lib/auth/types";
 import { updateAuthUserAccessMetadata } from "@/lib/auth/admin-metadata";
 import { writeAuditLog } from "@/lib/audit/server";
-import { getPublicEnv } from "@/lib/env";
+import { getPublicAppUrl } from "@/lib/integrations/public-url";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { canCreateRole, canManageProfile, MANAGEABLE_ACCOUNT_STATUSES } from "@/lib/users/types";
 
@@ -105,7 +105,7 @@ export async function createManagedUserAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
-  const env = getPublicEnv();
+  const publicAppUrl = getPublicAppUrl();
 
   const existingProfile = await supabaseAdmin
     .from("profiles")
@@ -122,7 +122,7 @@ export async function createManagedUserAction(
       data: {
         full_name: target.fullName
       },
-      redirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/update-password`
+      redirectTo: new URL("/auth/callback?next=/auth/update-password", publicAppUrl).toString()
     });
 
   const userId = invitedUser.user?.id;
