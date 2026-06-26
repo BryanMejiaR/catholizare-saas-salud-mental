@@ -25,6 +25,7 @@ Para roles no Paciente, ambos campos permanecen vacíos/null.
 ## Flujos incluidos
 
 - Crear usuario por invitación mediante Supabase Auth Admin.
+- Enviar invitaciones mediante el proveedor SMTP configurado en Supabase Auth. Para Resend, ver `docs/RESEND-SUPABASE-SMTP.md`.
 - Crear `profile` en estado `pendiente_activacion`.
 - Sincronizar `app_metadata.role` y `app_metadata.account_status`.
 - Listar usuarios según rol.

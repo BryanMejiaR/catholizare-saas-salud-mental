@@ -33,5 +33,6 @@ No existe tabla `organizations` (ver D-12 en `docs/decisions-log.md`). Todas las
 ## Riesgos y pendientes
 
 - La vigencia real de enlaces de recuperación e invitación se configura en Supabase Auth; debe validarse en el proyecto Supabase Cloud.
+- Para superar límites de correo de Supabase Auth, el SMTP transaccional se debe configurar en Supabase Dashboard con Resend. Ver `docs/RESEND-SUPABASE-SMTP.md`.
 - La creación de usuarios por invitación pertenece a USERS-002, aunque AUTH-001 ya soporta el flujo de activación mediante callback y creación de contraseña.
 - La sincronización de `app_metadata.role` deberá quedar cerrada en USERS-002 para que middleware y RLS operen con el mismo origen de verdad.
