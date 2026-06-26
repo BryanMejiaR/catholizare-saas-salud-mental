@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 import { buildPublicRequestUrl } from "@/lib/integrations/public-url";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
@@ -12,7 +13,17 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const { supabase, response } = createSupabaseMiddlewareClient(request);
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error) {
+      Sentry.captureException(error, {
+        extra: {
+          context: "auth_callback_exchange_code"
+        }
+      });
+      return NextResponse.redirect(buildPublicRequestUrl(request, "/auth/login"));
+    }
+
     supabaseResponse = response;
   }
 

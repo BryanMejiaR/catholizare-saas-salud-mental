@@ -5,7 +5,7 @@ import { getPublicEnv } from "@/lib/env";
 
 export function createSupabaseMiddlewareClient(request: NextRequest) {
   const env = getPublicEnv();
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request
   });
 
@@ -19,9 +19,6 @@ export function createSupabaseMiddlewareClient(request: NextRequest) {
         },
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({
-            request
-          });
           cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options);
           });
