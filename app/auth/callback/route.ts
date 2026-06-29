@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
+import {
+  createInviteActivationToken,
+  getInviteActivationCookieOptions,
+  INVITE_ACTIVATION_COOKIE_NAME
+} from "@/lib/auth/invite-activation-token";
 import { getPublicEnv } from "@/lib/env";
 import { buildPublicRequestUrl } from "@/lib/integrations/public-url";
 
@@ -30,7 +35,7 @@ export async function GET(request: NextRequest) {
         }
       }
     );
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
       Sentry.captureException(error, {
@@ -39,6 +44,14 @@ export async function GET(request: NextRequest) {
         }
       });
       return NextResponse.redirect(buildPublicRequestUrl(request, "/auth/login"));
+    }
+
+    if (data.user) {
+      redirectResponse.cookies.set(
+        INVITE_ACTIVATION_COOKIE_NAME,
+        createInviteActivationToken(data.user.id),
+        getInviteActivationCookieOptions()
+      );
     }
   }
 

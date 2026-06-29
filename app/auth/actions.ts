@@ -1,7 +1,14 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 
+import {
+  getExpiredInviteActivationCookieOptions,
+  INVITE_ACTIVATION_COOKIE_NAME,
+  verifyInviteActivationToken
+} from "@/lib/auth/invite-activation-token";
 import { ROLE_HOME_PATH, type AuthProfile } from "@/lib/auth/types";
 import { updateAuthUserAccessMetadata } from "@/lib/auth/admin-metadata";
 import { PASSWORD_POLICY_MESSAGE, isValidPassword } from "@/lib/auth/password";
@@ -188,6 +195,70 @@ export async function requestPasswordResetAction(
   };
 }
 
+async function completePendingInviteActivation(
+  userId: string,
+  password: string
+): Promise<AuthActionState> {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from("profiles")
+    .select("id, role, account_status, email")
+    .eq("id", userId)
+    .single();
+
+  if (profileError || !profile || profile.account_status !== "pendiente_activacion") {
+    return { message: "El enlace expirÃ³ o la sesiÃ³n no estÃ¡ activa." };
+  }
+
+  const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    password
+  });
+
+  if (authError) {
+    Sentry.captureException(authError, {
+      extra: {
+        context: "invite_activation_admin_password_update",
+        userId
+      }
+    });
+
+    return { message: "No fue posible actualizar la contraseÃ±a." };
+  }
+
+  await supabaseAdmin
+    .from("profiles")
+    .update({
+      account_status: "activo",
+      failed_attempts: 0,
+      locked_until: null
+    })
+    .eq("id", userId);
+
+  await updateAuthUserAccessMetadata(userId, {
+    role: profile.role,
+    accountStatus: "activo"
+  });
+
+  await writeAuthAuditLog({
+    event: "password_changed",
+    actorId: userId,
+    email: profile.email,
+    result: "success",
+    metadata: {
+      activation_method: "signed_invite_cookie"
+    }
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set(
+    INVITE_ACTIVATION_COOKIE_NAME,
+    "",
+    getExpiredInviteActivationCookieOptions()
+  );
+
+  redirect(ROLE_HOME_PATH[profile.role as keyof typeof ROLE_HOME_PATH]);
+}
+
 export async function updatePasswordAction(
   _previousState: AuthActionState,
   formData: FormData
@@ -209,6 +280,15 @@ export async function updatePasswordAction(
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
+    const cookieStore = await cookies();
+    const activationToken = verifyInviteActivationToken(
+      cookieStore.get(INVITE_ACTIVATION_COOKIE_NAME)?.value
+    );
+
+    if (activationToken) {
+      return completePendingInviteActivation(activationToken.userId, password);
+    }
+
     return { message: "El enlace expiró o la sesión no está activa." };
   }
 
