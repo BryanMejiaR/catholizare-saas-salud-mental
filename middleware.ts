@@ -17,6 +17,7 @@ const PUBLIC_PATHS = [
   "/auth/login",
   "/auth/reset-password",
   "/auth/update-password",
+  "/auth/hash-session",
   "/auth/activate",
   "/auth/inactive",
   "/auth/callback"
