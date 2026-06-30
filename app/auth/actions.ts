@@ -207,6 +207,11 @@ async function completePendingInviteActivation(
     .single();
 
   if (profileError || !profile || profile.account_status !== "pendiente_activacion") {
+    console.warn("[auth_update_password] invite activation rejected by profile state", {
+      hasProfile: Boolean(profile),
+      profileError: profileError?.message,
+      status: profile?.account_status
+    });
     return { message: "El enlace expirÃ³ o la sesiÃ³n no estÃ¡ activa." };
   }
 
@@ -281,9 +286,15 @@ export async function updatePasswordAction(
 
   if (!user?.email) {
     const cookieStore = await cookies();
+    const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
     const activationToken = verifyInviteActivationToken(
       cookieStore.get(INVITE_ACTIVATION_COOKIE_NAME)?.value
     );
+
+    console.info("[auth_update_password] missing supabase session during password update", {
+      hasInviteActivationCookie: cookieNames.includes(INVITE_ACTIVATION_COOKIE_NAME),
+      cookieNames
+    });
 
     if (activationToken) {
       return completePendingInviteActivation(activationToken.userId, password);

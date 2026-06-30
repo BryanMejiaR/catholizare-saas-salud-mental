@@ -52,6 +52,10 @@ export async function GET(request: NextRequest) {
         createInviteActivationToken(data.user.id),
         getInviteActivationCookieOptions()
       );
+      console.info("[auth_callback] invite activation cookie issued", {
+        hasSupabaseSession: Boolean(data.session),
+        redirectHost: buildPublicRequestUrl(request, next).host
+      });
     }
   }
 

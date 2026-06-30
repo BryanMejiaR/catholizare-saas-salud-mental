@@ -78,7 +78,7 @@ export function getInviteActivationCookieOptions(): CookieOptions {
   return {
     httpOnly: true,
     maxAge: INVITE_ACTIVATION_TTL_SECONDS,
-    path: "/auth/update-password",
+    path: "/auth",
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production"
   };
