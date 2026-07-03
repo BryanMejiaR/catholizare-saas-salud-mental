@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { updateExpedienteIdentificationAction } from "@/app/expedientes/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
+import { PhoneInput } from "@/components/forms/phone-input";
 import { ActionMessage } from "@/components/users/action-message";
 import type { ExpedienteDetail } from "@/lib/expedientes/types";
 
@@ -65,23 +66,24 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
 
         <label className="block">
           <span className="text-sm font-medium text-ink">Sexo</span>
-          <input
+          <select
             name="sex"
             disabled={disabled}
             defaultValue={identification.sex ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-          />
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          >
+            <option value="">Seleccionar</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+          </select>
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-ink">Telefono</span>
-          <input
-            name="phone"
-            disabled={disabled}
-            defaultValue={identification.phone ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-          />
-        </label>
+        <PhoneInput
+          name="phone"
+          label="Telefono"
+          disabled={disabled}
+          defaultValue={identification.phone ?? ""}
+        />
       </div>
 
       <label className="block">
@@ -96,7 +98,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-medium text-ink">Contacto de emergencia</span>
+          <span className="text-sm font-medium text-ink">Contacto de confianza 1</span>
           <input
             name="emergencyContactName"
             disabled={disabled}
@@ -105,20 +107,19 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-ink">Telefono de emergencia</span>
-          <input
-            name="emergencyContactPhone"
-            disabled={disabled}
-            defaultValue={identification.emergencyContactPhone ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-          />
-        </label>
+        <PhoneInput
+          name="emergencyContactPhone"
+          label="Telefono de contacto de confianza 1"
+          disabled={disabled}
+          defaultValue={identification.emergencyContactPhone ?? ""}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-medium text-ink">Responsable legal</span>
+          <span className="text-sm font-medium text-ink">
+            Responsable en caso de menor de edad
+          </span>
           <input
             name="legalGuardianName"
             disabled={disabled}
@@ -127,15 +128,12 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-ink">Telefono responsable legal</span>
-          <input
-            name="legalGuardianPhone"
-            disabled={disabled}
-            defaultValue={identification.legalGuardianPhone ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-          />
-        </label>
+        <PhoneInput
+          name="legalGuardianPhone"
+          label="Telefono de responsable en caso de menor de edad"
+          disabled={disabled}
+          defaultValue={identification.legalGuardianPhone ?? ""}
+        />
       </div>
 
       <SubmitButton disabled={disabled}>Guardar identificacion</SubmitButton>

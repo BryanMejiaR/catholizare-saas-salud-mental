@@ -15,6 +15,14 @@ type CreateAssessmentFormProps = {
   disabled?: boolean;
 };
 
+function toLocalDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 const assessmentTypeLabels: Record<(typeof PSYCHOLOGICAL_ASSESSMENT_TYPES)[number], string> = {
   inventario: "Inventario",
   cuestionario: "Cuestionario",
@@ -36,6 +44,7 @@ const inputMethodLabels: Record<(typeof ASSESSMENT_INPUT_METHODS)[number], strin
 
 export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateAssessmentFormProps) {
   const [state, formAction] = useActionState(createAssessmentAction, {});
+  const defaultDate = toLocalDateInputValue(new Date());
 
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
@@ -67,6 +76,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
             name="appliedAt"
             type="date"
             disabled={disabled}
+            defaultValue={defaultDate}
             className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
         </label>

@@ -11,8 +11,19 @@ type CreateAppointmentFormProps = {
   patients: AgendaPatientOption[];
 };
 
+function toLocalDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) {
   const [state, formAction] = useActionState(createAppointmentAction, {});
+  const now = new Date();
+  const defaultDate = toLocalDateInputValue(now);
+  const defaultTime = now.toTimeString().slice(0, 5);
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
   return (
@@ -40,7 +51,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
           <option value="">Seleccionar paciente</option>
           {patients.map((patient) => (
             <option key={patient.id} value={patient.id}>
-              {patient.full_name} - {patient.email}
+              {patient.full_name}
             </option>
           ))}
         </select>
@@ -53,6 +64,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
             name="scheduledDate"
             type="date"
             required
+            defaultValue={defaultDate}
             className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
         </label>
@@ -63,6 +75,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
             name="scheduledTime"
             type="time"
             required
+            defaultValue={defaultTime}
             className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
         </label>

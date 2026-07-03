@@ -212,7 +212,7 @@ async function completePendingInviteActivation(
       profileError: profileError?.message,
       status: profile?.account_status
     });
-    return { message: "El enlace expirÃ³ o la sesiÃ³n no estÃ¡ activa." };
+    return { message: "El enlace expiró o la sesión no está activa." };
   }
 
   const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
@@ -227,7 +227,7 @@ async function completePendingInviteActivation(
       }
     });
 
-    return { message: "No fue posible actualizar la contraseÃ±a." };
+    return { message: "No fue posible actualizar la contraseña." };
   }
 
   await supabaseAdmin

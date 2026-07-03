@@ -1,5 +1,6 @@
 import { AssessmentAiDraftForm } from "@/components/evaluaciones/assessment-ai-draft-form";
 import { AssessmentRequestForm } from "@/components/evaluaciones/assessment-request-form";
+import { AssessmentResultsDraftBox } from "@/components/evaluaciones/assessment-results-draft-box";
 import { AssessmentUploadResultsForm } from "@/components/evaluaciones/assessment-upload-results-form";
 import { ValidateAssessmentForm } from "@/components/evaluaciones/validate-assessment-form";
 import type {
@@ -48,6 +49,8 @@ export function AssessmentsSection({
           manuales protegidos.
         </p>
       </div>
+
+      <AssessmentResultsDraftBox disabled={disabled} />
 
       <div className="rounded-lg border border-ink/10 bg-white p-5">
         <h3 className="text-base font-semibold text-ink">Pruebas solicitadas al paciente</h3>

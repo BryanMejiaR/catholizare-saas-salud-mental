@@ -11,7 +11,10 @@ import { getPublicEnv } from "@/lib/env";
 import { buildPublicRequestUrl } from "@/lib/integrations/public-url";
 
 function renderHashSessionBridge(next: string) {
-  const safeNext = JSON.stringify(next);
+  const safeNext = JSON.stringify(next)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
 
   return new NextResponse(
     `<!doctype html>

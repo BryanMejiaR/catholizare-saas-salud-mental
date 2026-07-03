@@ -11,16 +11,28 @@ import { SubmitButton } from "@/components/auth/submit-button";
 import { ActionMessage } from "@/components/users/action-message";
 import { PRO_BANNER_TYPES, PRO_CONTENT_STATUSES, PRO_RESOURCE_TYPES } from "@/lib/pro/types";
 
+function toLocalDateTimeInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 function Field({
   name,
   label,
   type = "text",
-  placeholder
+  placeholder,
+  defaultValue
 }: {
   name: string;
   label: string;
   type?: string;
   placeholder?: string;
+  defaultValue?: string;
 }) {
   return (
     <label className="block">
@@ -29,6 +41,7 @@ function Field({
         name={name}
         type={type}
         placeholder={placeholder}
+        defaultValue={defaultValue}
         className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
       />
     </label>
@@ -132,6 +145,7 @@ export function CreateProBannerForm() {
 
 export function CreateProEventForm() {
   const [state, formAction] = useActionState(createProEventAction, {});
+  const defaultStartsAt = toLocalDateTimeInputValue(new Date(Date.now() + 60 * 60 * 1000));
 
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
@@ -141,7 +155,12 @@ export function CreateProEventForm() {
       <Textarea name="description" label="Descripcion" />
       <div className="grid gap-4 md:grid-cols-2">
         <Field name="eventType" label="Tipo de evento" placeholder="Contagio de Fe" />
-        <Field name="startsAt" label="Fecha y hora" type="datetime-local" />
+        <Field
+          name="startsAt"
+          label="Fecha y hora"
+          type="datetime-local"
+          defaultValue={defaultStartsAt}
+        />
         <Field name="modality" label="Modalidad" placeholder="online" />
         <Field name="infoUrl" label="URL de informacion" type="url" />
         <Field name="registrationUrl" label="URL de registro" type="url" />

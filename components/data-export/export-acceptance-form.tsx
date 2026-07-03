@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { acceptProfessionalExportResponsibilityAction } from "@/app/data-export/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
+import { PhoneInput } from "@/components/forms/phone-input";
 
 type ExportAcceptanceFormProps = {
   token: string;
@@ -58,16 +59,7 @@ export function ExportAcceptanceForm({
             className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 text-sm"
           />
         </label>
-        <label className="text-sm font-medium text-ink">
-          Telefono
-          <input
-            name="phone"
-            minLength={7}
-            maxLength={40}
-            required
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 text-sm"
-          />
-        </label>
+        <PhoneInput name="phone" label="Telefono" required />
         <label className="text-sm font-medium text-ink">
           RFC
           <input

@@ -74,6 +74,19 @@ export type Consentimiento = {
   document_file_name: string | null;
   document_content_type: string | null;
   document_size_bytes: number | null;
+  acceptance_folio: string | null;
+  acceptance_document: string | null;
+  acceptance_document_version: string | null;
+  legal_accepted_at: string | null;
+  acceptance_actor_full_name: string | null;
+  acceptance_actor_email: string | null;
+  acceptance_actor_phone: string | null;
+  acceptance_actor_rfc: string | null;
+  acceptance_ip: string | null;
+  acceptance_user_agent: string | null;
+  acceptance_method: string | null;
+  acceptance_document_hash: string | null;
+  acceptance_session_reference: string | null;
 };
 
 export type PatientLifeHistoryStatus = "inactiva" | "borrador" | "enviada" | "reabierta";

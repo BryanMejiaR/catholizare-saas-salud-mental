@@ -163,62 +163,65 @@ export type NotaClinicaFilters = {
 export const DEFAULT_NOTA_TEMPLATE_SECTIONS: NotaTemplateSection[] = [
   {
     id: "datos_sesion",
-    title: "Nota de sesión",
+    title: "Nota de sesion",
     fields: [
-      { id: "tcc_session_number", label: "N° Sesión:", type: "number" },
+      { id: "tcc_session_number", label: "Numero de sesion:", type: "number" },
       { id: "session_date", label: "Fecha:", type: "date", required: true },
       { id: "session_time", label: "Hora:", type: "time" }
     ]
   },
   {
     id: "informacion_guia",
-    title: "INFORMACIÓN GUIA",
+    title: "Informacion guia",
     fields: [
-      { id: "objective_scores", label: "Puntajes Objetivos:", type: "textarea" },
-      { id: "patient_plan", label: "Plan del Paciente:", type: "textarea" },
+      { id: "objective_scores", label: "Puntajes objetivos:", type: "textarea" },
+      { id: "patient_plan", label: "Plan del paciente:", type: "textarea" },
       { id: "therapist_objectives", label: "Objetivos del terapeuta:", type: "textarea" }
     ]
   },
   {
     id: "fase_inicial",
-    title: "Fase Inicial de sesión 10 min.",
+    title: "Fase inicial de sesion 10 min.",
     fields: [
-      { id: "mood_review", label: "1. Revisión del Estado de Animo:", type: "textarea" },
-      { id: "previous_session_bridge", label: "2. Puente con la sesión anterior:", type: "textarea" },
-      { id: "session_agenda", label: "3. Establecer la Agenda de la sesión:", type: "textarea" },
-      { id: "action_plan_review", label: "4. Revisión de la Tarea (plan de acción):", type: "textarea" }
+      { id: "mood_review", label: "1. Revision del estado de animo:", type: "textarea" },
+      { id: "previous_session_bridge", label: "2. Puente con la sesion anterior:", type: "textarea" },
+      { id: "session_agenda", label: "3. Establecer la agenda de la sesion:", type: "textarea" },
+      { id: "action_plan_review", label: "4. Revision de la tarea o plan de accion:", type: "textarea" }
     ]
   },
   {
     id: "fase_media",
-    title: "Fase Media de la sesión 30 min.",
+    title: "Fase media de la sesion 30 min.",
     fields: [
-      { id: "key_session_points", label: "5. Puntos importantes de la sesión:", type: "textarea", required: true }
+      { id: "key_session_points", label: "5. Puntos importantes de la sesion:", type: "textarea", required: true }
     ]
   },
   {
     id: "fase_final",
-    title: "Fase Final de la Sesión 15 min.",
+    title: "Fase final de la sesion 15 min.",
     fields: [
       {
         id: "session_summary_feedback",
-        label: "6. Resumen general de la sesión y Retroalimentación (terapeuta al paciente):",
+        label: "6. Resumen general de la sesion y retroalimentacion del terapeuta al paciente:",
         type: "textarea"
       },
       {
         id: "home_action_plan",
-        label: "7. Asignación de Tareas para el hogar/Plan de acción:",
+        label: "7. Asignacion de tareas para el hogar o plan de accion:",
         type: "textarea"
       },
-      { id: "patient_feedback", label: "8. Retroalimentación del paciente:", type: "textarea" }
+      { id: "patient_feedback", label: "8. Retroalimentacion del paciente:", type: "textarea" }
     ]
   },
   {
     id: "seguimiento",
     title: "Observaciones",
     fields: [
-      { id: "observations", label: "Plan de seguimiento para próxima Sesión:", type: "textarea" },
-      { id: "next_session_at", label: "Proxima Sesión:", type: "date" },
+      { id: "observations", label: "Observaciones:", type: "textarea" },
+      { id: "follow_up_topic", label: "Plan de seguimiento - tema a tratar:", type: "textarea" },
+      { id: "follow_up_techniques", label: "Plan de seguimiento - tecnicas a usar:", type: "textarea" },
+      { id: "follow_up_homework", label: "Plan de seguimiento - tarea a dejar:", type: "textarea" },
+      { id: "next_session_at", label: "Proxima sesion:", type: "date" },
       { id: "risk_flags", label: "Riesgos o alertas:", type: "textarea" }
     ]
   }

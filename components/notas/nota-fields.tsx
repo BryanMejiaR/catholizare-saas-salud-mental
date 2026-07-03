@@ -18,6 +18,14 @@ const scores = [
   ["hope_score", "Esperanza 1-10"]
 ] as const;
 
+function toLocalDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function legacyValue(note: NotaClinica | undefined, fieldId: string) {
   if (!note) {
     return "";
@@ -69,6 +77,13 @@ function FieldInput({
 }) {
   const baseClass =
     "mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20";
+  const currentValue =
+    value ??
+    (field.type === "date"
+      ? toLocalDateInputValue(new Date())
+      : field.type === "time"
+        ? new Date().toTimeString().slice(0, 5)
+        : "");
 
   if (field.type === "textarea") {
     return (
@@ -77,7 +92,11 @@ function FieldInput({
         rows={4}
         disabled={disabled}
         required={field.required}
-        defaultValue={typeof value === "string" || typeof value === "number" ? String(value) : ""}
+        defaultValue={
+          typeof currentValue === "string" || typeof currentValue === "number"
+            ? String(currentValue)
+            : ""
+        }
         className={baseClass}
       />
     );
@@ -89,7 +108,7 @@ function FieldInput({
         name={name}
         disabled={disabled}
         required={field.required}
-        defaultValue={String(value ?? "")}
+        defaultValue={String(currentValue)}
         className={baseClass}
       >
         <option value="">Seleccionar</option>
@@ -108,7 +127,7 @@ function FieldInput({
       name={name}
       disabled={disabled}
       required={field.required}
-      defaultValue={String(value ?? "")}
+      defaultValue={String(currentValue)}
       className={baseClass}
     />
   );

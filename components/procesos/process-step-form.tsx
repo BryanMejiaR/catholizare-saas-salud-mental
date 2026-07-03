@@ -13,6 +13,14 @@ type ProcessStepFormProps = {
   step: ProcessTemplateStep;
 };
 
+function toLocalDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function FieldInput({
   field,
   value,
@@ -25,6 +33,11 @@ function FieldInput({
   const name = `field_${field.id}`;
   const baseClass =
     "mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20";
+  const currentValue =
+    value ??
+    (field.type === "date"
+      ? toLocalDateInputValue(new Date())
+      : "");
 
   if (field.type === "textarea") {
     return (
@@ -32,7 +45,7 @@ function FieldInput({
         name={name}
         rows={4}
         disabled={disabled}
-        defaultValue={typeof value === "string" ? value : ""}
+        defaultValue={typeof currentValue === "string" ? currentValue : ""}
         className={baseClass}
       />
     );
@@ -56,7 +69,7 @@ function FieldInput({
       type={field.type}
       name={name}
       disabled={disabled}
-      defaultValue={String(value ?? "")}
+      defaultValue={String(currentValue)}
       className={baseClass}
     />
   );

@@ -131,7 +131,7 @@ export async function getExpedienteDetail(profile: AuthProfile, expedienteId: st
     supabaseAdmin
       .from("consentimientos")
       .select(
-        "id, expediente_id, status, signed_at, modality, document_reference, document_storage_path, document_file_name, document_content_type, document_size_bytes"
+        "id, expediente_id, status, signed_at, modality, document_reference, document_storage_path, document_file_name, document_content_type, document_size_bytes, acceptance_folio, acceptance_document, acceptance_document_version, legal_accepted_at, acceptance_actor_full_name, acceptance_actor_email, acceptance_actor_phone, acceptance_actor_rfc, acceptance_ip, acceptance_user_agent, acceptance_method, acceptance_document_hash, acceptance_session_reference"
       )
       .eq("expediente_id", expedienteId)
       .order("created_at", { ascending: false })

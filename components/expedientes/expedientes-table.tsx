@@ -34,9 +34,9 @@ export function ExpedientesTable({ expedientes }: ExpedientesTableProps) {
               <td className="px-4 py-3">
                 <Link
                   href={`/professional/expedientes/${expediente.id}`}
-                  className="font-medium text-moss"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-moss px-3 text-xs font-semibold text-white transition hover:bg-ink"
                 >
-                  Abrir
+                  Abrir expediente
                 </Link>
               </td>
             </tr>

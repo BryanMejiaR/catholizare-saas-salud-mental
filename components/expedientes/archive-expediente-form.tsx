@@ -20,6 +20,9 @@ export function ArchiveExpedienteForm({ expedienteId, disabled }: ArchiveExpedie
       <p className="mt-1 text-sm text-ink/65">
         El archivado es logico. El expediente se conserva por trazabilidad y retencion normativa.
       </p>
+      <p className="mt-3 rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm font-semibold text-clay">
+        Si archivas este expediente no podras volverlo a modificar.
+      </p>
       <div className="mt-4">
         <ActionMessage message={state.message} ok={state.ok} />
       </div>

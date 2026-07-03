@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { saveLifeHistoryAction } from "@/app/portal/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
+import { PhoneInput } from "@/components/forms/phone-input";
 import { ActionMessage } from "@/components/users/action-message";
 import { LIFE_HISTORY_SECTIONS, type LifeHistoryField } from "@/lib/life-history/schema";
 import type { PortalLifeHistory } from "@/lib/portal/types";
@@ -78,6 +79,35 @@ function FieldControl({
           className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
         />
       </label>
+    );
+  }
+
+  if (field.id === "sexo") {
+    return (
+      <label className="block">
+        <span className="text-sm font-medium text-ink">{field.label}</span>
+        <select
+          name={field.id}
+          disabled={disabled}
+          defaultValue={getTextAnswer(answers, field.id)}
+          className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        >
+          <option value="">Seleccionar</option>
+          <option value="masculino">Masculino</option>
+          <option value="femenino">Femenino</option>
+        </select>
+      </label>
+    );
+  }
+
+  if (field.type === "tel") {
+    return (
+      <PhoneInput
+        name={field.id}
+        label={field.label}
+        disabled={disabled}
+        defaultValue={getTextAnswer(answers, field.id)}
+      />
     );
   }
 

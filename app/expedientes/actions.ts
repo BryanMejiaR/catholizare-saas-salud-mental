@@ -1,11 +1,13 @@
 "use server";
 
-import { randomUUID } from "crypto";
+import { createHash, randomBytes, randomUUID } from "crypto";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
+import { getTrustedClientIp } from "@/lib/audit/request-context";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import {
   CONSENTIMIENTO_MODALITIES,
@@ -33,7 +35,7 @@ const identificationSchema = z.object({
   expedienteId: z.string().uuid(),
   birthDate: optionalText,
   age: z.coerce.number().int().min(0).max(130).optional().or(z.literal("")),
-  sex: optionalText,
+  sex: z.enum(["masculino", "femenino"]).optional().or(z.literal("")),
   phone: optionalText,
   residence: optionalText,
   emergencyContactName: optionalText,
@@ -66,7 +68,9 @@ const historiaSchema = z.object({
 const consentimientoSchema = z.object({
   expedienteId: z.string().uuid(),
   status: z.enum(CONSENTIMIENTO_STATUSES),
-  signedAt: optionalText
+  acceptanceActorPhone: z.string().trim().min(7).max(40),
+  acceptanceActorRfc: z.string().trim().min(10).max(20),
+  legalAcceptance: z.literal("on")
 });
 
 const archiveSchema = z.object({
@@ -130,6 +134,25 @@ function consentModalityForStatus(status: (typeof CONSENTIMIENTO_STATUSES)[numbe
   }
 
   return "pendiente" satisfies (typeof CONSENTIMIENTO_MODALITIES)[number];
+}
+
+function sha256(value: string) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function createFolio(prefix: string) {
+  return `${prefix}-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${randomBytes(4)
+    .toString("hex")
+    .toUpperCase()}`;
+}
+
+async function getRequestContext() {
+  const headerStore = await headers();
+
+  return {
+    ipAddress: getTrustedClientIp(headerStore),
+    userAgent: headerStore.get("user-agent")
+  };
 }
 
 function safeFileName(name: string) {
@@ -378,7 +401,7 @@ export async function updateExpedienteIdentificationAction(
   const identificationData: ExpedienteIdentificationData = {
     birthDate: parsed.data.birthDate ?? undefined,
     age: parsed.data.age === "" ? undefined : parsed.data.age,
-    sex: parsed.data.sex ?? undefined,
+    sex: parsed.data.sex || undefined,
     phone: parsed.data.phone ?? undefined,
     residence: parsed.data.residence ?? undefined,
     emergencyContactName: parsed.data.emergencyContactName ?? undefined,
@@ -573,7 +596,9 @@ export async function updateConsentimientoAction(
   const parsed = consentimientoSchema.safeParse({
     expedienteId: formData.get("expedienteId"),
     status: formData.get("status"),
-    signedAt: formData.get("signedAt")
+    acceptanceActorPhone: formData.get("acceptanceActorPhone"),
+    acceptanceActorRfc: formData.get("acceptanceActorRfc"),
+    legalAcceptance: formData.get("legalAcceptance")
   });
 
   if (!parsed.success) {
@@ -619,7 +644,7 @@ export async function updateConsentimientoAction(
   const supabaseAdmin = createSupabaseAdminClient();
   const { data: existingConsent } = await supabaseAdmin
     .from("consentimientos")
-    .select("document_storage_path")
+    .select("document_storage_path, document_file_name, document_content_type, document_size_bytes")
     .eq("expediente_id", expediente.id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -688,19 +713,63 @@ export async function updateConsentimientoAction(
     };
   }
 
+  const acceptedAt = new Date().toISOString();
+  const acceptanceFolio = createFolio("CONS");
+  const sessionReference = randomUUID();
+  const { ipAddress, userAgent } = await getRequestContext();
+  const acceptanceDocument = JSON.stringify({
+    folio: acceptanceFolio,
+    document:
+      uploadedDocument?.fileName ??
+      existingConsent?.document_file_name ??
+      existingConsent?.document_storage_path ??
+      "sin_archivo",
+    document_version: "1.0",
+    accepted_at: acceptedAt,
+    actor_id: actor.id,
+    actor_role: actor.role,
+    actor_full_name: actor.full_name,
+    actor_email: actor.email,
+    actor_phone: parsed.data.acceptanceActorPhone,
+    actor_rfc: parsed.data.acceptanceActorRfc.toUpperCase(),
+    ip_address: ipAddress,
+    method: "Checkbox + boton Registrar consentimiento; codigo de 6 digitos pendiente MVP",
+    session_reference: sessionReference,
+    expediente_id: expediente.id,
+    consent_status: parsed.data.status
+  });
+
   const { error } = await supabaseAdmin.from("consentimientos").insert({
     expediente_id: expediente.id,
     status: parsed.data.status,
-    signed_at: parsed.data.signedAt,
+    signed_at: acceptedAt.slice(0, 10),
     modality: consentModalityForStatus(parsed.data.status),
-    document_reference: uploadedDocument?.fileName ?? null,
+    document_reference: uploadedDocument?.fileName ?? existingConsent?.document_file_name ?? null,
     document_storage_path: uploadedDocument?.path ?? existingConsent?.document_storage_path ?? null,
-    document_file_name: uploadedDocument?.fileName ?? null,
-    document_content_type: uploadedDocument?.contentType ?? null,
-    document_size_bytes: uploadedDocument?.size ?? null,
+    document_file_name: uploadedDocument?.fileName ?? existingConsent?.document_file_name ?? null,
+    document_content_type:
+      uploadedDocument?.contentType ?? existingConsent?.document_content_type ?? null,
+    document_size_bytes: uploadedDocument?.size ?? existingConsent?.document_size_bytes ?? null,
     obtained_by_professional_id: actor.id,
     registered_by: actor.id,
-    document_uploaded_at: uploadedDocument ? new Date().toISOString() : null
+    document_uploaded_at: uploadedDocument ? acceptedAt : null,
+    acceptance_folio: acceptanceFolio,
+    acceptance_document:
+      uploadedDocument?.fileName ??
+      existingConsent?.document_file_name ??
+      existingConsent?.document_storage_path ??
+      null,
+    acceptance_document_version: "1.0",
+    legal_accepted_at: acceptedAt,
+    acceptance_actor_full_name: actor.full_name,
+    acceptance_actor_email: actor.email,
+    acceptance_actor_phone: parsed.data.acceptanceActorPhone,
+    acceptance_actor_rfc: parsed.data.acceptanceActorRfc.toUpperCase(),
+    acceptance_ip: ipAddress,
+    acceptance_user_agent: userAgent,
+    acceptance_method: "Checkbox + boton Registrar consentimiento; codigo de 6 digitos pendiente MVP",
+    acceptance_document_hash: sha256(acceptanceDocument),
+    acceptance_session_reference: sessionReference
   });
 
   if (!error) {
@@ -714,6 +783,10 @@ export async function updateConsentimientoAction(
   }
 
   if (error) {
+    if (uploadedDocument) {
+      await supabaseAdmin.storage.from("clinical-consents").remove([uploadedDocument.path]);
+    }
+
     Sentry.captureException(error, {
       extra: {
         expediente_id: expediente.id,
@@ -742,7 +815,8 @@ export async function updateConsentimientoAction(
     entityId: expediente.id,
     result: "success",
     metadata: {
-      consent_status: parsed.data.status
+      consent_status: parsed.data.status,
+      acceptance_folio: acceptanceFolio
     },
     context: "audit_consentimiento_update_success"
   });
