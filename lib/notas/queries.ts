@@ -11,12 +11,15 @@ import type {
   NotaClinicaExportData,
   NotaClinicaFilters,
   NotaClinicaListItem,
-  NotaClinicaSummary
+  NotaClinicaSummary,
+  ExpedienteNotaMetric
 } from "@/lib/notas/types";
 
 const NOTA_SELECT = "*";
 const NOTA_SUMMARY_SELECT =
   "id, expediente_id, note_type, status, session_date, clinical_summary, created_at, confirmed_at, addendum_to_note_id";
+const NOTA_METRIC_SELECT =
+  "id, note_type, status, session_date, mood_review, tcc_session_number, note_template_values";
 const NOTA_TEMPLATE_SELECT =
   "id, professional_id, model_type, version, sections, created_by_user_id, created_at";
 
@@ -147,6 +150,61 @@ export async function getNotasForExpediente(profile: AuthProfile, expedienteId: 
   });
 
   return rows;
+}
+
+export async function getNotaMetricsForExpediente(profile: AuthProfile, expedienteId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: expediente, error: expedienteError } = await supabaseAdmin
+    .from("expedientes")
+    .select("id")
+    .eq("id", expedienteId)
+    .eq("professional_id", profile.id)
+    .single();
+
+  if (expedienteError || !expediente) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      entityId: expedienteId,
+      result: "denied",
+      metadata: {
+        scope: "expediente_metrics"
+      },
+      context: "audit_nota_clinica_metrics_denied"
+    });
+
+    notFound();
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .select(NOTA_METRIC_SELECT)
+    .eq("expediente_id", expedienteId)
+    .eq("professional_id", profile.id)
+    .neq("status", "anulada_logicamente")
+    .order("session_date", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_clinica_read",
+      entityType: "notas_clinicas",
+      entityId: expedienteId,
+      result: "error",
+      metadata: {
+        scope: "expediente_metrics"
+      },
+      context: "audit_nota_clinica_metrics_error"
+    });
+
+    throw new Error(`Unable to load clinical note metrics: ${error.message}`);
+  }
+
+  return (data ?? []) as ExpedienteNotaMetric[];
 }
 
 export async function getNotaClinicaDetail(profile: AuthProfile, noteId: string) {

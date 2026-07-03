@@ -58,7 +58,8 @@ const optionalScore = z.preprocess(
 const createNotaSchema = z.object({
   expedienteId: z.string().uuid(),
   noteType: z.enum(NOTA_CLINICA_TYPES),
-  modelType: z.enum(NOTA_TEMPLATE_MODEL_TYPES).default("general")
+  modelType: z.enum(NOTA_TEMPLATE_MODEL_TYPES).default("general"),
+  intent: z.enum(["draft", "confirm"]).default("draft")
 });
 
 const updateDraftSchema = z.object({
@@ -213,6 +214,20 @@ function normalizeTemplateValues(formData: FormData, sections: NotaTemplateSecti
         };
       }
 
+      if (field.id === "mood_review") {
+        const moodValue = Number(value);
+
+        if (value !== "" && (!Number.isFinite(moodValue) || moodValue < -5 || moodValue > 5)) {
+          return {
+            success: false as const,
+            message: "La revision del estado de animo debe estar entre -5 y +5."
+          };
+        }
+
+        values[section.id][field.id] = value === "" ? null : moodValue;
+        continue;
+      }
+
       if (field.type === "number") {
         const numericValue = Number(value);
         values[section.id][field.id] =
@@ -340,7 +355,8 @@ export async function createNotaClinicaAction(
   const parsed = createNotaSchema.safeParse({
     expedienteId: formData.get("expedienteId"),
     noteType: formData.get("noteType"),
-    modelType: formData.get("modelType")
+    modelType: formData.get("modelType"),
+    intent: formData.get("intent") === "confirm" ? "confirm" : "draft"
   });
 
   if (!parsed.success) {
@@ -416,6 +432,8 @@ export async function createNotaClinicaAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  const shouldConfirm = parsed.data.intent === "confirm";
+  const now = new Date().toISOString();
   const { data, error } = await supabaseAdmin
     .from("notas_clinicas")
     .insert({
@@ -424,7 +442,9 @@ export async function createNotaClinicaAction(
       professional_id: actor.id,
       created_by_user_id: actor.id,
       note_type: parsed.data.noteType,
-      status: "borrador",
+      status: shouldConfirm ? "confirmada" : "borrador",
+      confirmed_at: shouldConfirm ? now : null,
+      confirmed_by_user_id: shouldConfirm ? actor.id : null,
       note_template_id: template.id,
       note_template_version: template.version,
       note_template_snapshot: {
@@ -475,9 +495,28 @@ export async function createNotaClinicaAction(
     context: "audit_nota_clinica_create_success"
   });
 
+  if (shouldConfirm) {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_clinica_confirm",
+      entityType: "notas_clinicas",
+      entityId: data.id,
+      result: "success",
+      metadata: {
+        expediente_id: expediente.id,
+        source: "create_and_confirm"
+      },
+      context: "audit_nota_clinica_create_confirm_success"
+    });
+  }
+
   revalidatePath(`/professional/expedientes/${expediente.id}`);
 
-  return { message: "Nota clinica creada en borrador.", ok: true };
+  return {
+    message: shouldConfirm ? "Nota clinica guardada y confirmada." : "Nota clinica creada en borrador.",
+    ok: true
+  };
 }
 
 export async function saveNotaTemplateAction(
@@ -580,6 +619,10 @@ export async function updateDraftNotaClinicaAction(
   _previousState: NotaActionState,
   formData: FormData
 ): Promise<NotaActionState> {
+  if (formData.get("intent") === "confirm") {
+    return updateAndConfirmNotaClinicaAction(_previousState, formData);
+  }
+
   const actor = await getActiveProfessional();
 
   if (!actor) {
@@ -711,6 +754,151 @@ export async function updateDraftNotaClinicaAction(
   revalidatePath(`/professional/expedientes/${note.expediente_id}`);
 
   return { message: "Borrador guardado.", ok: true };
+}
+
+export async function updateAndConfirmNotaClinicaAction(
+  _previousState: NotaActionState,
+  formData: FormData
+): Promise<NotaActionState> {
+  const actor = await getActiveProfessional();
+
+  if (!actor) {
+    return { message: "No tienes una sesion profesional activa.", ok: false };
+  }
+
+  const parsed = updateDraftSchema.safeParse({
+    noteId: formData.get("noteId")
+  });
+
+  if (!parsed.success) {
+    return { message: parsed.error.issues[0]?.message ?? "Datos invalidos.", ok: false };
+  }
+
+  const note = await assertNotaOwner(parsed.data.noteId, actor.id);
+
+  if (!note) {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_clinica_confirm",
+      entityType: "notas_clinicas",
+      entityId: parsed.data.noteId,
+      result: "denied",
+      context: "audit_nota_clinica_update_confirm_denied"
+    });
+
+    return { message: "No tienes permiso para confirmar esta nota.", ok: false };
+  }
+
+  if (note.status !== "borrador") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_clinica_confirm",
+      entityType: "notas_clinicas",
+      entityId: note.id,
+      result: "denied",
+      metadata: {
+        current_status: note.status
+      },
+      context: "audit_nota_clinica_update_confirm_denied_status"
+    });
+
+    return { message: "Solo las notas en borrador pueden confirmarse.", ok: false };
+  }
+
+  if (note.created_by_user_id !== actor.id) {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_clinica_confirm",
+      entityType: "notas_clinicas",
+      entityId: note.id,
+      result: "denied",
+      context: "audit_nota_clinica_update_confirm_denied_creator"
+    });
+
+    return { message: "Solo quien creo el borrador puede confirmarlo.", ok: false };
+  }
+
+  const expediente = await assertExpedienteOwner(note.expediente_id, actor.id);
+
+  if (!expediente || expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_clinica_confirm",
+      entityType: "notas_clinicas",
+      entityId: note.id,
+      result: "denied",
+      context: "audit_nota_clinica_update_confirm_denied_not_active"
+    });
+
+    return { message: "El expediente no esta activo y no puede modificarse.", ok: false };
+  }
+
+  const sections = note.note_template_snapshot?.sections ?? DEFAULT_NOTA_TEMPLATE_SECTIONS;
+  const normalizedValues = normalizeTemplateValues(formData, sections);
+
+  if (!normalizedValues.success) {
+    return { message: normalizedValues.message, ok: false };
+  }
+
+  const now = new Date().toISOString();
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .update({
+      note_template_values: normalizedValues.values,
+      ...noteBodyPayload(normalizedValues.values, parseScores(formData)),
+      status: "confirmada",
+      confirmed_at: now,
+      confirmed_by_user_id: actor.id
+    })
+    .eq("id", note.id)
+    .eq("professional_id", actor.id)
+    .eq("created_by_user_id", actor.id)
+    .eq("status", "borrador");
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        note_id: note.id,
+        expediente_id: note.expediente_id
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "nota_clinica_confirm",
+      entityType: "notas_clinicas",
+      entityId: note.id,
+      result: "error",
+      context: "audit_nota_clinica_update_confirm_error"
+    });
+
+    return { message: "No fue posible guardar y confirmar la nota.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "nota_clinica_confirm",
+    entityType: "notas_clinicas",
+    entityId: note.id,
+    result: "success",
+    metadata: {
+      expediente_id: note.expediente_id,
+      source: "save_and_confirm"
+    },
+    context: "audit_nota_clinica_update_confirm_success"
+  });
+
+  revalidatePath(`/professional/notas/${note.id}`);
+  revalidatePath(`/professional/expedientes/${note.expediente_id}`);
+
+  return { message: "Nota clinica guardada y confirmada.", ok: true };
 }
 
 export async function confirmNotaClinicaAction(

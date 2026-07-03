@@ -139,6 +139,17 @@ export type NotaClinicaListItem = NotaClinicaSummary & {
   };
 };
 
+export type ExpedienteNotaMetric = Pick<
+  NotaClinica,
+  | "id"
+  | "note_type"
+  | "status"
+  | "session_date"
+  | "mood_review"
+  | "tcc_session_number"
+  | "note_template_values"
+>;
+
 export type NotaClinicaExportData = {
   note: NotaClinica;
   patient: {
@@ -183,7 +194,7 @@ export const DEFAULT_NOTA_TEMPLATE_SECTIONS: NotaTemplateSection[] = [
     id: "fase_inicial",
     title: "Fase inicial de sesion 10 min.",
     fields: [
-      { id: "mood_review", label: "1. Revision del estado de animo:", type: "textarea" },
+      { id: "mood_review", label: "1. Revision del estado de animo (-5 a +5):", type: "number" },
       { id: "previous_session_bridge", label: "2. Puente con la sesion anterior:", type: "textarea" },
       { id: "session_agenda", label: "3. Establecer la agenda de la sesion:", type: "textarea" },
       { id: "action_plan_review", label: "4. Revision de la tarea o plan de accion:", type: "textarea" }

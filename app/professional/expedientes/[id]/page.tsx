@@ -7,11 +7,16 @@ import {
   getAssessmentsForExpediente
 } from "@/lib/evaluaciones/queries";
 import { getExpedienteDetail } from "@/lib/expedientes/queries";
-import { getLatestNotaTemplate, getNotasForExpediente } from "@/lib/notas/queries";
+import {
+  getLatestNotaTemplate,
+  getNotaMetricsForExpediente,
+  getNotasForExpediente
+} from "@/lib/notas/queries";
 import { getProcesoForExpediente } from "@/lib/procesos/queries";
 import { AssessmentsSection } from "@/components/evaluaciones/assessments-section";
 import { ArchiveExpedienteForm } from "@/components/expedientes/archive-expediente-form";
 import { ConsentimientoForm } from "@/components/expedientes/consentimiento-form";
+import { ExpedienteClinicalInsights } from "@/components/expedientes/expediente-clinical-insights";
 import { IdentificationForm } from "@/components/expedientes/identification-form";
 import { LifeHistoryAccessPanel } from "@/components/expedientes/life-history-access-panel";
 import { CreateNotaForm } from "@/components/notas/create-nota-form";
@@ -25,6 +30,7 @@ type ExpedienteDetailPageProps = {
 };
 
 const sectionNavItems = [
+  ["dashboard", "Dashboard clinico"],
   ["identificacion", "Identificacion del paciente"],
   ["consentimiento", "Consentimiento informado"],
   ["historia-vida", "Historia de vida"],
@@ -39,6 +45,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
   const [
     expediente,
     notas,
+    noteMetrics,
     proceso,
     assessments,
     assessmentRequests,
@@ -48,6 +55,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
   ] = await Promise.all([
     getExpedienteDetail(profile, id),
     getNotasForExpediente(profile, id),
+    getNotaMetricsForExpediente(profile, id),
     getProcesoForExpediente(profile, id),
     getAssessmentsForExpediente(profile, id),
     getAssessmentRequestsForExpediente(profile, id),
@@ -96,6 +104,10 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
             <p className="text-sm text-ink/60">Documentos</p>
             <p className="mt-2 text-2xl font-semibold text-ink">{expediente.documents_count}</p>
           </div>
+        </section>
+
+        <section id="dashboard" className="scroll-mt-6">
+          <ExpedienteClinicalInsights notes={noteMetrics} process={proceso} />
         </section>
 
         {!isActive ? (

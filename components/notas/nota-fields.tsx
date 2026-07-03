@@ -18,6 +18,14 @@ const scores = [
   ["hope_score", "Esperanza 1-10"]
 ] as const;
 
+const moodScaleOptions = [
+  { value: "-5", label: "-5 Muy bajo" },
+  { value: "-3", label: "-3 Bajo" },
+  { value: "0", label: "0 Neutro" },
+  { value: "3", label: "+3 Estable" },
+  { value: "5", label: "+5 Muy positivo" }
+];
+
 function toLocalDateInputValue(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -84,6 +92,38 @@ function FieldInput({
       : field.type === "time"
         ? new Date().toTimeString().slice(0, 5)
         : "");
+
+  if (field.id === "mood_review") {
+    return (
+      <div className="mt-2 grid gap-3 lg:grid-cols-[minmax(10rem,0.6fr)_1fr] lg:items-start">
+        <select
+          name={name}
+          disabled={disabled}
+          required={field.required}
+          defaultValue={String(currentValue)}
+          className={baseClass.replace("mt-2 ", "")}
+        >
+          <option value="">Seleccionar</option>
+          {moodScaleOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="rounded-md border border-ink/10 bg-linen p-3">
+          <div className="grid grid-cols-5 gap-1 text-center text-[11px] text-ink/60">
+            {moodScaleOptions.map((option) => (
+              <span key={option.value}>
+                <strong className="block text-ink">{option.value === "3" || option.value === "5" ? `+${option.value}` : option.value}</strong>
+                {option.label.replace(/^[-+0-9]+\s*/, "")}
+              </span>
+            ))}
+          </div>
+          <div className="mt-3 h-2 rounded-full bg-gradient-to-r from-clay via-gold to-moss" />
+        </div>
+      </div>
+    );
+  }
 
   if (field.type === "textarea") {
     return (
@@ -158,7 +198,11 @@ export function NotaFields({
             {section.fields.map((field) => (
               <label
                 key={field.id}
-                className={field.type === "textarea" ? "block md:col-span-2" : "block"}
+                className={
+                  field.type === "textarea" || field.id === "mood_review"
+                    ? "block md:col-span-2"
+                    : "block"
+                }
               >
                 <span className="text-sm font-medium text-ink">{field.label}</span>
                 <FieldInput

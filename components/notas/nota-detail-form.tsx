@@ -29,12 +29,27 @@ export function NotaDetailForm({ note }: NotaDetailFormProps) {
           logica.
         </p>
       </div>
+      <p className="rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm font-semibold text-clay">
+        Al guardar y confirmar la nota clinica ya no se podra modificar y en caso de requerirlo se
+        debera anular y crear una nueva.
+      </p>
 
       <form action={draftAction} className="space-y-4">
         <input type="hidden" name="noteId" value={note.id} />
         <ActionMessage message={draftState.message} ok={draftState.ok} />
         <NotaFields note={note} disabled={!isDraft} />
-        <SubmitButton disabled={!isDraft}>Guardar borrador</SubmitButton>
+        <div className="grid gap-3 md:grid-cols-2">
+          <SubmitButton disabled={!isDraft}>Guardar borrador</SubmitButton>
+          <button
+            type="submit"
+            name="intent"
+            value="confirm"
+            disabled={!isDraft}
+            className="inline-flex h-11 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Guardar y confirmar nota clinica
+          </button>
+        </div>
       </form>
 
       {isDraft ? (
