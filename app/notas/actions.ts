@@ -49,6 +49,7 @@ const allowedConsentStatuses = new Set([
   "firmado_digital",
   "excepcion_justificada"
 ]);
+const allowedMoodReviewValues = new Set(["-5", "-3", "0", "3", "5"]);
 
 const optionalScore = z.preprocess(
   (value) => (value === "" || value === null ? undefined : value),
@@ -215,16 +216,14 @@ function normalizeTemplateValues(formData: FormData, sections: NotaTemplateSecti
       }
 
       if (field.id === "mood_review") {
-        const moodValue = Number(value);
-
-        if (value !== "" && (!Number.isFinite(moodValue) || moodValue < -5 || moodValue > 5)) {
+        if (value !== "" && !allowedMoodReviewValues.has(value)) {
           return {
             success: false as const,
-            message: "La revision del estado de animo debe estar entre -5 y +5."
+            message: "La revision del estado de animo debe ser -5, -3, 0, +3 o +5."
           };
         }
 
-        values[section.id][field.id] = value === "" ? null : moodValue;
+        values[section.id][field.id] = value === "" ? null : Number(value);
         continue;
       }
 

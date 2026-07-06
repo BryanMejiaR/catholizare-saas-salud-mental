@@ -73,6 +73,91 @@ function getTccProgress(process: ProcesoTerapeutico) {
   };
 }
 
+const tccMapStages = [
+  {
+    id: "pre-evaluacion",
+    range: "Sesion 0",
+    title: "Pre-evaluacion",
+    summary: "Consentimiento informado, historia de vida y preparacion del caso."
+  },
+  {
+    id: "evaluacion-inicial",
+    range: "Sesiones 1-2",
+    title: "Evaluacion y conceptualizacion",
+    summary: "Entrevista inicial, analisis de historia de vida, DSM/CIE y plan de tratamiento."
+  },
+  {
+    id: "intervencion-inicial",
+    range: "Sesiones 3-7",
+    title: "Intervencion inicial",
+    summary: "Notas de sesion, plan actual, indicadores y grafica de estado de animo."
+  },
+  {
+    id: "segunda-evaluacion",
+    range: "Sesion 8",
+    title: "Segundo corte de evaluacion",
+    summary: "Reaplicacion de tests, nuevos resultados y ajuste de conceptualizacion."
+  },
+  {
+    id: "intervencion-media",
+    range: "Sesiones 9-17",
+    title: "Intervencion y seguimiento",
+    summary: "Seguimiento de indicadores, notas de sesion y revision del estado de animo."
+  },
+  {
+    id: "tercera-evaluacion",
+    range: "Sesion 18",
+    title: "Tercer corte de evaluacion",
+    summary: "Nueva aplicacion de tests, analisis actualizado y decision de continuidad."
+  },
+  {
+    id: "alta",
+    range: "Sesion 19+",
+    title: "Alta opcional",
+    summary: "Cierre clinico o plan de mantenimiento segun evolucion del paciente."
+  }
+];
+
+function getTccStageIndex(sessionCount: number) {
+  if (sessionCount <= 0) {
+    return 0;
+  }
+
+  if (sessionCount <= 2) {
+    return 1;
+  }
+
+  if (sessionCount <= 7) {
+    return 2;
+  }
+
+  if (sessionCount === 8) {
+    return 3;
+  }
+
+  if (sessionCount <= 17) {
+    return 4;
+  }
+
+  if (sessionCount === 18) {
+    return 5;
+  }
+
+  return 6;
+}
+
+function getNextTccEvaluation(sessionCount: number) {
+  if (sessionCount < 8) {
+    return "Sesion 8: segundo corte de evaluacion";
+  }
+
+  if (sessionCount < 18) {
+    return "Sesion 18: tercer corte de evaluacion";
+  }
+
+  return "Alta opcional o plan de mantenimiento";
+}
+
 function MoodChart({ notes }: { notes: ExpedienteNotaMetric[] }) {
   const points = notes
     .map((note, index) => ({
@@ -125,6 +210,7 @@ export function ExpedienteClinicalInsights({ notes, process }: ExpedienteClinica
   const sessionNotes = notes.filter((note) => note.note_type === "sesion");
   const techniques = getTechniques(sessionNotes);
   const tccProgress = process?.model_type === "tcc" ? getTccProgress(process) : null;
+  const tccStageIndex = getTccStageIndex(sessionNotes.length);
   const nextCaseReviewSession = Math.max(8, Math.ceil((sessionNotes.length + 1) / 8) * 8);
 
   return (
@@ -160,16 +246,45 @@ export function ExpedienteClinicalInsights({ notes, process }: ExpedienteClinica
       </div>
 
       {tccProgress ? (
-        <div className="rounded-lg border border-ink/10 bg-white p-4">
+        <div className="rounded-lg border border-ink/10 bg-white p-4 lg:col-span-2">
           <p className="text-sm font-semibold text-ink">Mapa de progreso TCC</p>
-          <dl className="mt-3 space-y-3 text-sm">
+          <p className="mt-1 text-xs text-ink/55">
+            Basado en el flujo TCC de entrevista inicial, cortes de evaluacion y alta opcional.
+          </p>
+          <div className="mt-4 grid gap-2 md:grid-cols-7">
+            {tccMapStages.map((stage, index) => {
+              const isCurrent = index === tccStageIndex;
+              const isComplete = index < tccStageIndex;
+
+              return (
+                <div
+                  key={stage.id}
+                  className={[
+                    "rounded-md border p-3 text-xs",
+                    isCurrent
+                      ? "border-moss bg-moss/10 text-ink"
+                      : isComplete
+                        ? "border-moss/20 bg-moss/5 text-ink/70"
+                        : "border-ink/10 bg-linen text-ink/60"
+                  ].join(" ")}
+                >
+                  <p className="font-semibold text-ink">{stage.range}</p>
+                  <p className="mt-1 font-medium">{stage.title}</p>
+                  <p className="mt-2 leading-5">{stage.summary}</p>
+                </div>
+              );
+            })}
+          </div>
+          <dl className="mt-4 grid gap-3 text-sm md:grid-cols-3">
             <div>
               <dt className="font-medium text-ink/60">Etapa actual del tratamiento</dt>
-              <dd className="mt-1 text-ink">{tccProgress.currentStage}</dd>
+              <dd className="mt-1 text-ink">
+                {tccMapStages[tccStageIndex]?.title ?? tccProgress.currentStage}
+              </dd>
             </div>
             <div>
               <dt className="font-medium text-ink/60">Siguiente evaluacion del paciente</dt>
-              <dd className="mt-1 text-ink">Pendiente de programacion clinica</dd>
+              <dd className="mt-1 text-ink">{getNextTccEvaluation(sessionNotes.length)}</dd>
             </div>
             <div>
               <dt className="font-medium text-ink/60">Siguiente revision del caso</dt>

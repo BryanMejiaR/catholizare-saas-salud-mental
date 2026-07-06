@@ -22,11 +22,13 @@ const COUNTRY_CODES = [
 
 function splitPhone(value?: string | null) {
   const trimmed = value?.trim() ?? "";
-  const match = trimmed.match(/^(\+\d{1,4})\s*(.*)$/);
+  const country = [...COUNTRY_CODES]
+    .sort((left, right) => right.value.length - left.value.length)
+    .find((candidate) => trimmed.startsWith(candidate.value));
 
   return {
-    countryCode: match?.[1] ?? "+52",
-    number: match?.[2]?.trim() ?? trimmed.replace(/^\+/, "")
+    countryCode: country?.value ?? "+52",
+    number: country ? trimmed.slice(country.value.length).trim() : trimmed.replace(/^\+/, "")
   };
 }
 
