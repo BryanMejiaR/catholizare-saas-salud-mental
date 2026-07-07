@@ -1,13 +1,26 @@
 "use server";
 
-import { randomUUID } from "crypto";
+import { createHash, randomInt, randomUUID, timingSafeEqual } from "crypto";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
+import { getTrustedClientIp } from "@/lib/audit/request-context";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { getCurrentProfile } from "@/lib/auth/profile";
+import {
+  STANDARD_CONSENT_METHOD,
+  STANDARD_CONSENT_PROCEDURE,
+  STANDARD_CONSENT_TEXT,
+  STANDARD_CONSENT_TITLE,
+  STANDARD_CONSENT_VERSION,
+  standardConsentHash,
+  standardConsentPlainText
+} from "@/lib/consent/standard-consent";
+import { sendEmail } from "@/lib/email/resend";
+import { getServerEnv } from "@/lib/env";
 import { LIFE_HISTORY_SECTIONS, type LifeHistoryAnswers } from "@/lib/life-history/schema";
 import { APPOINTMENT_REQUEST_TYPES } from "@/lib/portal/types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -42,6 +55,18 @@ const assessmentUploadSchema = z.object({
   requestId: z.string().uuid()
 });
 
+const standardConsentCodeSchema = z.object({
+  consentimientoId: z.string().uuid()
+});
+
+const acceptStandardConsentSchema = z.object({
+  consentimientoId: z.string().uuid(),
+  code: z.string().trim().regex(/^\d{4}$/, "Ingresa el codigo de 4 digitos."),
+  acceptanceActorPhone: z.string().trim().min(7).max(40),
+  acceptanceActorRfc: z.string().trim().min(10).max(20),
+  legalAcceptance: z.literal("on")
+});
+
 const ALLOWED_ASSESSMENT_FILE_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
@@ -58,6 +83,135 @@ async function getActivePatient() {
   }
 
   return profile;
+}
+
+function sha256(value: string) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function createFolio(prefix: string) {
+  return `${prefix}-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${randomUUID()
+    .slice(0, 8)
+    .toUpperCase()}`;
+}
+
+function hashSignatureCode(consentimientoId: string, patientId: string, code: string) {
+  return sha256(`${consentimientoId}:${patientId}:${code}`);
+}
+
+function codeMatches(expectedHash: string | null, consentimientoId: string, patientId: string, code: string) {
+  if (!expectedHash) {
+    return false;
+  }
+
+  const expected = Buffer.from(expectedHash, "hex");
+  const actual = Buffer.from(hashSignatureCode(consentimientoId, patientId, code), "hex");
+
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+
+async function getRequestContext() {
+  const headerStore = await headers();
+
+  return {
+    ipAddress: getTrustedClientIp(headerStore),
+    userAgent: headerStore.get("user-agent")
+  };
+}
+
+async function getPendingStandardConsent(consentimientoId: string, patientId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: consentimiento, error } = await supabaseAdmin
+    .from("consentimientos")
+    .select(
+      "id, expediente_id, status, signature_code_hash, signature_code_expires_at, signature_code_attempts"
+    )
+    .eq("id", consentimientoId)
+    .eq("consent_flow", "standard")
+    .eq("status", "pendiente")
+    .single();
+
+  if (error || !consentimiento) {
+    return null;
+  }
+
+  const { data: expediente, error: expedienteError } = await supabaseAdmin
+    .from("expedientes")
+    .select("id, patient_id, professional_id, status")
+    .eq("id", consentimiento.expediente_id)
+    .eq("patient_id", patientId)
+    .eq("status", "activo")
+    .single();
+
+  if (expedienteError || !expediente) {
+    return null;
+  }
+
+  return {
+    consentimiento: consentimiento as {
+      id: string;
+      expediente_id: string;
+      status: "pendiente";
+      signature_code_hash: string | null;
+      signature_code_expires_at: string | null;
+      signature_code_attempts: number;
+    },
+    expediente: expediente as {
+      id: string;
+      patient_id: string;
+      professional_id: string;
+      status: string;
+    }
+  };
+}
+
+function renderLegalAcceptanceEmail(input: {
+  folio: string;
+  acceptedAt: string;
+  patientName: string;
+  patientEmail: string;
+  patientPhone: string;
+  patientRfc: string;
+  professionalName: string;
+  professionalEmail: string;
+  ipAddress: string | null;
+  userAgent: string | null;
+  sessionReference: string;
+  documentHash: string;
+}) {
+  const legalRows = [
+    ["Nombre de procedimiento", STANDARD_CONSENT_PROCEDURE],
+    ["Folio de aceptacion", input.folio],
+    ["Documento", STANDARD_CONSENT_TITLE],
+    ["Version", STANDARD_CONSENT_VERSION],
+    ["Fecha y hora", input.acceptedAt],
+    ["Nombre completo del paciente", input.patientName],
+    ["Correo electronico del paciente", input.patientEmail],
+    ["Telefono", input.patientPhone],
+    ["RFC", input.patientRfc],
+    ["Profesional responsable", input.professionalName],
+    ["Correo del profesional", input.professionalEmail],
+    ["Direccion IP", input.ipAddress ?? "no disponible"],
+    ["Metodo de aceptacion", STANDARD_CONSENT_METHOD],
+    ["HASH del documento", input.documentHash],
+    ["Referencia de sesion", input.sessionReference],
+    ["User agent", input.userAgent ?? "no disponible"]
+  ];
+  const rowsHtml = legalRows
+    .map(
+      ([label, value]) =>
+        `<tr><th style="text-align:left;padding:6px;border:1px solid #ddd;">${label}</th><td style="padding:6px;border:1px solid #ddd;">${value}</td></tr>`
+    )
+    .join("");
+  const textRows = legalRows.map(([label, value]) => `${label}: ${value}`).join("\n");
+  const acceptedHtml = STANDARD_CONSENT_TEXT.map(
+    (section) => `<h3>${section.title}</h3><p>${section.body}</p>`
+  ).join("");
+
+  return {
+    html: `<p>Haz aceptado el consentimiento informado hemos enviado una copia a tu correo</p><table style="border-collapse:collapse;">${rowsHtml}</table><h2>Informacion aceptada</h2>${acceptedHtml}`,
+    text: `Haz aceptado el consentimiento informado hemos enviado una copia a tu correo\n\n${textRows}\n\nInformacion aceptada\n\n${standardConsentPlainText()}`
+  };
 }
 
 function safeFileName(fileName: string) {
@@ -532,6 +686,313 @@ export async function uploadAssessmentDocumentAction(
   revalidatePath("/portal");
 
   return { message: "Prueba enviada a tu profesional.", ok: true };
+}
+
+export async function requestStandardConsentCodeAction(
+  _previousState: PortalActionState,
+  formData: FormData
+): Promise<PortalActionState> {
+  const patient = await getActivePatient();
+
+  if (!patient) {
+    return { message: "No tienes una sesion de Paciente activa.", ok: false };
+  }
+
+  const parsed = standardConsentCodeSchema.safeParse({
+    consentimientoId: formData.get("consentimientoId")
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos invalidos.", ok: false };
+  }
+
+  const pending = await getPendingStandardConsent(parsed.data.consentimientoId, patient.id);
+
+  if (!pending) {
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_standard_consent_code",
+      entityType: "consentimientos",
+      entityId: parsed.data.consentimientoId,
+      result: "denied",
+      context: "audit_portal_standard_consent_code_denied"
+    });
+
+    return { message: "No fue posible encontrar un consentimiento pendiente.", ok: false };
+  }
+
+  const code = String(randomInt(0, 10000)).padStart(4, "0");
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { error } = await supabaseAdmin
+    .from("consentimientos")
+    .update({
+      signature_code_hash: hashSignatureCode(pending.consentimiento.id, patient.id, code),
+      signature_code_expires_at: expiresAt,
+      signature_code_sent_at: new Date().toISOString(),
+      signature_code_attempts: 0
+    })
+    .eq("id", pending.consentimiento.id)
+    .eq("status", "pendiente");
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        context: "standard_consent_code_update",
+        consentimiento_id: pending.consentimiento.id
+      }
+    });
+
+    return { message: "No fue posible generar el codigo de firma.", ok: false };
+  }
+
+  const emailResult = await sendEmail({
+    to: patient.email,
+    subject: "Codigo para firmar consentimiento informado",
+    html: `<p>Tu codigo para firmar el consentimiento informado es:</p><p style="font-size:24px;font-weight:700;">${code}</p><p>Este codigo vence en 10 minutos.</p>`,
+    text: `Tu codigo para firmar el consentimiento informado es: ${code}\n\nEste codigo vence en 10 minutos.`
+  });
+
+  if (!emailResult.ok) {
+    Sentry.captureMessage("standard_consent_code_email_failed", {
+      level: "warning",
+      extra: {
+        consentimiento_id: pending.consentimiento.id,
+        patient_id: patient.id,
+        error: emailResult.error
+      }
+    });
+
+    return { message: "No fue posible enviar el codigo por correo.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: patient.id,
+    role: patient.role,
+    action: "portal_standard_consent_code",
+    entityType: "consentimientos",
+    entityId: pending.consentimiento.id,
+    result: "success",
+    context: "audit_portal_standard_consent_code_success"
+  });
+
+  return { message: "Enviamos un codigo de 4 digitos a tu correo.", ok: true };
+}
+
+export async function acceptStandardConsentAction(
+  _previousState: PortalActionState,
+  formData: FormData
+): Promise<PortalActionState> {
+  const patient = await getActivePatient();
+
+  if (!patient) {
+    return { message: "No tienes una sesion de Paciente activa.", ok: false };
+  }
+
+  const parsed = acceptStandardConsentSchema.safeParse({
+    consentimientoId: formData.get("consentimientoId"),
+    code: formData.get("code"),
+    acceptanceActorPhone: formData.get("acceptanceActorPhone"),
+    acceptanceActorRfc: formData.get("acceptanceActorRfc"),
+    legalAcceptance: formData.get("legalAcceptance")
+  });
+
+  if (!parsed.success) {
+    return { message: parsed.error.issues[0]?.message ?? "Datos invalidos.", ok: false };
+  }
+
+  const pending = await getPendingStandardConsent(parsed.data.consentimientoId, patient.id);
+
+  if (!pending) {
+    return { message: "No fue posible encontrar un consentimiento pendiente.", ok: false };
+  }
+
+  const attempts = pending.consentimiento.signature_code_attempts ?? 0;
+  const expiresAt = pending.consentimiento.signature_code_expires_at
+    ? new Date(pending.consentimiento.signature_code_expires_at).getTime()
+    : 0;
+  const isValidCode =
+    attempts < 5 &&
+    expiresAt >= Date.now() &&
+    codeMatches(
+      pending.consentimiento.signature_code_hash,
+      pending.consentimiento.id,
+      patient.id,
+      parsed.data.code
+    );
+
+  if (!isValidCode) {
+    const supabaseAdmin = createSupabaseAdminClient();
+    await supabaseAdmin
+      .from("consentimientos")
+      .update({ signature_code_attempts: attempts + 1 })
+      .eq("id", pending.consentimiento.id);
+
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_standard_consent_accept",
+      entityType: "consentimientos",
+      entityId: pending.consentimiento.id,
+      result: "denied",
+      context: "audit_portal_standard_consent_accept_denied_code"
+    });
+
+    return { message: "El codigo no es valido o ya expiro.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const [{ data: professional }, { ipAddress, userAgent }] = await Promise.all([
+    supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, email")
+      .eq("id", pending.expediente.professional_id)
+      .single()
+      .then((result) => result),
+    getRequestContext()
+  ]);
+  const acceptedAt = new Date().toISOString();
+  const acceptanceFolio = createFolio("CONS-PAC");
+  const sessionReference = randomUUID();
+  const patientRfc = parsed.data.acceptanceActorRfc.toUpperCase();
+  const acceptanceDocument = JSON.stringify({
+    folio: acceptanceFolio,
+    procedure: STANDARD_CONSENT_PROCEDURE,
+    document: STANDARD_CONSENT_TITLE,
+    document_version: STANDARD_CONSENT_VERSION,
+    standard_document_hash: standardConsentHash(),
+    accepted_at: acceptedAt,
+    actor_id: patient.id,
+    actor_role: patient.role,
+    actor_full_name: patient.full_name,
+    actor_email: patient.email,
+    actor_phone: parsed.data.acceptanceActorPhone,
+    actor_rfc: patientRfc,
+    professional_id: pending.expediente.professional_id,
+    professional_full_name: professional?.full_name ?? "Profesional no disponible",
+    professional_email: professional?.email ?? "",
+    ip_address: ipAddress,
+    user_agent: userAgent,
+    method: STANDARD_CONSENT_METHOD,
+    session_reference: sessionReference,
+    expediente_id: pending.expediente.id,
+    consent_status: "firmado_digital"
+  });
+  const acceptanceHash = sha256(acceptanceDocument);
+
+  const { error } = await supabaseAdmin.from("consentimientos").insert({
+    expediente_id: pending.expediente.id,
+    status: "firmado_digital",
+    signed_at: acceptedAt.slice(0, 10),
+    modality: "digital",
+    consent_flow: "standard",
+    document_reference: STANDARD_CONSENT_TITLE,
+    obtained_by_professional_id: pending.expediente.professional_id,
+    registered_by: patient.id,
+    standard_document_title: STANDARD_CONSENT_TITLE,
+    standard_document_version: STANDARD_CONSENT_VERSION,
+    acceptance_folio: acceptanceFolio,
+    acceptance_document: STANDARD_CONSENT_TITLE,
+    acceptance_document_version: STANDARD_CONSENT_VERSION,
+    legal_accepted_at: acceptedAt,
+    acceptance_actor_full_name: patient.full_name,
+    acceptance_actor_email: patient.email,
+    acceptance_actor_phone: parsed.data.acceptanceActorPhone,
+    acceptance_actor_rfc: patientRfc,
+    acceptance_ip: ipAddress,
+    acceptance_user_agent: userAgent,
+    acceptance_method: STANDARD_CONSENT_METHOD,
+    acceptance_document_hash: acceptanceHash,
+    acceptance_session_reference: sessionReference
+  });
+
+  if (!error) {
+    await supabaseAdmin
+      .from("expedientes")
+      .update({
+        consent_status: "firmado_digital",
+        last_clinical_activity_at: acceptedAt
+      })
+      .eq("id", pending.expediente.id)
+      .eq("patient_id", patient.id);
+  }
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        context: "standard_consent_accept_insert",
+        consentimiento_id: pending.consentimiento.id
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_standard_consent_accept",
+      entityType: "consentimientos",
+      entityId: pending.consentimiento.id,
+      result: "error",
+      context: "audit_portal_standard_consent_accept_error"
+    });
+
+    return { message: "No fue posible registrar la aceptacion del consentimiento.", ok: false };
+  }
+
+  const env = getServerEnv();
+  const email = renderLegalAcceptanceEmail({
+    folio: acceptanceFolio,
+    acceptedAt,
+    patientName: patient.full_name,
+    patientEmail: patient.email,
+    patientPhone: parsed.data.acceptanceActorPhone,
+    patientRfc,
+    professionalName: professional?.full_name ?? "Profesional no disponible",
+    professionalEmail: professional?.email ?? "",
+    ipAddress,
+    userAgent,
+    sessionReference,
+    documentHash: acceptanceHash
+  });
+  const emailResult = await sendEmail({
+    to: [patient.email, env.CATHOLIZARE_LEGAL_EMAIL],
+    subject: "Copia de consentimiento informado aceptado",
+    html: email.html,
+    text: email.text
+  });
+
+  if (!emailResult.ok) {
+    Sentry.captureMessage("standard_consent_acceptance_email_failed", {
+      level: "warning",
+      extra: {
+        consentimiento_id: pending.consentimiento.id,
+        patient_id: patient.id,
+        error: emailResult.error
+      }
+    });
+  }
+
+  await safeWriteAuditLog({
+    userId: patient.id,
+    role: patient.role,
+    action: "portal_standard_consent_accept",
+    entityType: "consentimientos",
+    entityId: pending.consentimiento.id,
+    result: "success",
+    metadata: {
+      acceptance_folio: acceptanceFolio,
+      email_sent: emailResult.ok
+    },
+    context: "audit_portal_standard_consent_accept_success"
+  });
+
+  revalidatePath("/portal");
+  revalidatePath(`/professional/expedientes/${pending.expediente.id}`);
+
+  return {
+    message: "Haz aceptado el consentimiento informado hemos enviado una copia a tu correo",
+    ok: true
+  };
 }
 
 export async function submitExperienceReviewAction(

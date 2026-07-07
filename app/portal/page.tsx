@@ -4,6 +4,7 @@ import { LifeHistoryForm } from "@/components/portal/life-history-form";
 import { AssessmentUploadForm } from "@/components/portal/assessment-upload-form";
 import { requireRole } from "@/lib/auth/profile";
 import { getPortalDashboard } from "@/lib/portal/queries";
+import { StandardConsentPanel } from "@/components/portal/standard-consent-panel";
 
 export default async function PortalPage() {
   const profile = await requireRole(["paciente"]);
@@ -18,6 +19,8 @@ export default async function PortalPage() {
         </div>
 
         <PortalSummary summary={dashboard.summary} />
+
+        <StandardConsentPanel consents={dashboard.standardConsents} />
 
         <LifeHistoryForm lifeHistory={dashboard.lifeHistory} />
 

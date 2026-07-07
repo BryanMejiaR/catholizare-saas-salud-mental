@@ -10,6 +10,12 @@ import { getCurrentProfile } from "@/lib/auth/profile";
 import { getTrustedClientIp } from "@/lib/audit/request-context";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import {
+  STANDARD_CONSENT_TITLE,
+  STANDARD_CONSENT_VERSION,
+  standardConsentPlainText
+} from "@/lib/consent/standard-consent";
+import { sendEmail } from "@/lib/email/resend";
+import {
   CONSENTIMIENTO_MODALITIES,
   CONSENTIMIENTO_STATUSES,
   type ExpedienteIdentificationData
@@ -71,6 +77,10 @@ const consentimientoSchema = z.object({
   acceptanceActorPhone: z.string().trim().min(7).max(40),
   acceptanceActorRfc: z.string().trim().min(10).max(20),
   legalAcceptance: z.literal("on")
+});
+
+const sendStandardConsentSchema = z.object({
+  expedienteId: z.string().uuid()
 });
 
 const archiveSchema = z.object({
@@ -646,6 +656,7 @@ export async function updateConsentimientoAction(
     .from("consentimientos")
     .select("document_storage_path, document_file_name, document_content_type, document_size_bytes")
     .eq("expediente_id", expediente.id)
+    .eq("consent_flow", "custom")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -744,6 +755,7 @@ export async function updateConsentimientoAction(
     status: parsed.data.status,
     signed_at: acceptedAt.slice(0, 10),
     modality: consentModalityForStatus(parsed.data.status),
+    consent_flow: "custom",
     document_reference: uploadedDocument?.fileName ?? existingConsent?.document_file_name ?? null,
     document_storage_path: uploadedDocument?.path ?? existingConsent?.document_storage_path ?? null,
     document_file_name: uploadedDocument?.fileName ?? existingConsent?.document_file_name ?? null,
@@ -825,6 +837,139 @@ export async function updateConsentimientoAction(
   revalidatePath("/professional/expedientes");
 
   return { message: "Consentimiento registrado.", ok: true };
+}
+
+export async function sendStandardConsentAction(
+  _previousState: ExpedienteActionState,
+  formData: FormData
+): Promise<ExpedienteActionState> {
+  const actor = await getActiveProfessional();
+
+  if (!actor) {
+    return { message: "No tienes una sesion profesional activa.", ok: false };
+  }
+
+  const parsed = sendStandardConsentSchema.safeParse({
+    expedienteId: formData.get("expedienteId")
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos invalidos.", ok: false };
+  }
+
+  const expediente = await assertExpedienteOwner(parsed.data.expedienteId, actor.id);
+
+  if (!expediente || expediente.status !== "activo") {
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "consentimiento_standard_send",
+      entityType: "consentimientos",
+      entityId: parsed.data.expedienteId,
+      result: "denied",
+      context: "audit_consentimiento_standard_send_denied"
+    });
+
+    return { message: "Solo puedes enviar consentimiento en expedientes activos propios.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: patient, error: patientError } = await supabaseAdmin
+    .from("profiles")
+    .select("id, full_name, email")
+    .eq("id", expediente.patient_id)
+    .single();
+
+  if (patientError || !patient) {
+    return { message: "No fue posible cargar los datos del paciente.", ok: false };
+  }
+
+  const now = new Date().toISOString();
+  const { error } = await supabaseAdmin.from("consentimientos").insert({
+    expediente_id: expediente.id,
+    status: "pendiente",
+    modality: "digital",
+    consent_flow: "standard",
+    document_reference: STANDARD_CONSENT_TITLE,
+    obtained_by_professional_id: actor.id,
+    registered_by: actor.id,
+    standard_document_title: STANDARD_CONSENT_TITLE,
+    standard_document_version: STANDARD_CONSENT_VERSION,
+    standard_sent_at: now,
+    standard_sent_by_professional_id: actor.id
+  });
+
+  if (!error) {
+    await supabaseAdmin
+      .from("expedientes")
+      .update({
+        consent_status: "pendiente",
+        last_clinical_activity_at: now
+      })
+      .eq("id", expediente.id);
+  }
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        expediente_id: expediente.id,
+        context: "standard_consent_insert"
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "consentimiento_standard_send",
+      entityType: "consentimientos",
+      entityId: expediente.id,
+      result: "error",
+      context: "audit_consentimiento_standard_send_error"
+    });
+
+    return { message: "No fue posible enviar el consentimiento estandar.", ok: false };
+  }
+
+  const emailResult = await sendEmail({
+    to: patient.email as string,
+    subject: "Consentimiento informado disponible",
+    html: `<p>Hola ${patient.full_name},</p><p>Tu profesional envio el consentimiento informado estandar para revision y firma en tu portal de paciente.</p><p>Ingresa a Catholizare para leerlo y firmarlo.</p><pre>${standardConsentPlainText()}</pre>`,
+    text: `Hola ${patient.full_name},\n\nTu profesional envio el consentimiento informado estandar para revision y firma en tu portal de paciente.\n\nIngresa a Catholizare para leerlo y firmarlo.\n\n${standardConsentPlainText()}`
+  });
+
+  if (!emailResult.ok) {
+    Sentry.captureMessage("standard_consent_notification_email_failed", {
+      level: "warning",
+      extra: {
+        expediente_id: expediente.id,
+        patient_id: patient.id,
+        error: emailResult.error
+      }
+    });
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "consentimiento_standard_send",
+    entityType: "consentimientos",
+    entityId: expediente.id,
+    result: "success",
+    metadata: {
+      document: STANDARD_CONSENT_TITLE,
+      version: STANDARD_CONSENT_VERSION,
+      email_sent: emailResult.ok
+    },
+    context: "audit_consentimiento_standard_send_success"
+  });
+
+  revalidatePath(`/professional/expedientes/${expediente.id}`);
+  revalidatePath("/portal");
+
+  return {
+    message: "El consentimiento informado estandar se hizo llegar al paciente en su portal.",
+    ok: true
+  };
 }
 
 export async function updateLifeHistoryAccessAction(

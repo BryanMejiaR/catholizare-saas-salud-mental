@@ -51,6 +51,23 @@ export type PortalLifeHistory = {
   };
 };
 
+export type PortalStandardConsent = {
+  id: string;
+  expediente_id: string;
+  status: "pendiente" | "firmado_digital";
+  title: string;
+  version: string;
+  sent_at: string | null;
+  document_text: Array<{
+    title: string;
+    body: string;
+  }>;
+  professional: {
+    full_name: string;
+    email: string;
+  };
+};
+
 export type PortalAssessmentExpedienteOption = {
   id: string;
   professional: {
@@ -81,6 +98,7 @@ export type PortalDashboard = {
   upcomingAppointments: PortalAppointment[];
   pastAppointments: PortalAppointment[];
   requests: PortalAppointmentRequest[];
+  standardConsents: PortalStandardConsent[];
   lifeHistory: PortalLifeHistory | null;
   assessmentExpedientes: PortalAssessmentExpedienteOption[];
   assessmentRequests: PortalAssessmentRequest[];

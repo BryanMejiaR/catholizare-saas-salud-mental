@@ -2,7 +2,10 @@
 
 import { useActionState, useRef, useState } from "react";
 
-import { updateConsentimientoAction } from "@/app/expedientes/actions";
+import {
+  sendStandardConsentAction,
+  updateConsentimientoAction
+} from "@/app/expedientes/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { PhoneInput } from "@/components/forms/phone-input";
 import { ActionMessage } from "@/components/users/action-message";
@@ -14,25 +17,96 @@ type ConsentimientoFormProps = {
 };
 
 export function ConsentimientoForm({ expediente, disabled = false }: ConsentimientoFormProps) {
-  const [state, formAction] = useActionState(updateConsentimientoAction, {});
+  const [customState, customFormAction] = useActionState(updateConsentimientoAction, {});
+  const [standardState, standardFormAction] = useActionState(sendStandardConsentAction, {});
+  const [mode, setMode] = useState<"standard" | "custom" | null>(
+    expediente.consentimiento?.consent_flow === "standard" ? "standard" : null
+  );
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const consentimiento = expediente.consentimiento;
   const maxFileSizeMb = 10;
 
   return (
-    <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
-      <input type="hidden" name="expedienteId" value={expediente.id} />
+    <section className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
       <div>
         <h2 className="text-lg font-semibold text-ink">Consentimiento informado</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Registra el estado y adjunta archivo o foto del consentimiento en almacenamiento privado.
+          Envia el consentimiento estandar al portal del paciente o registra uno personalizado.
         </p>
       </div>
 
-      <ActionMessage message={state.message} ok={state.ok} />
+      {consentimiento?.consent_flow === "standard" ? (
+        <div className="rounded-md border border-moss/20 bg-moss/10 px-3 py-2 text-sm text-ink">
+          <p className="font-medium">
+            Consentimiento estandar: {consentimiento.status}
+          </p>
+          {consentimiento.standard_sent_at ? (
+            <p className="mt-1 text-xs text-ink/65">
+              Enviado al paciente el{" "}
+              {new Date(consentimiento.standard_sent_at).toLocaleString("es-MX")}.
+            </p>
+          ) : null}
+          {consentimiento.legal_accepted_at ? (
+            <p className="mt-1 text-xs text-ink/65">
+              Firmado el {new Date(consentimiento.legal_accepted_at).toLocaleString("es-MX")}.
+              Folio: {consentimiento.acceptance_folio ?? "sin folio"}.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setMode("standard")}
+          className={`rounded-md border px-4 py-3 text-left text-sm transition ${
+            mode === "standard"
+              ? "border-moss bg-moss/10 text-ink"
+              : "border-ink/10 bg-white text-ink/75 hover:border-moss/40"
+          } disabled:cursor-not-allowed disabled:opacity-60`}
+        >
+          <span className="block font-semibold">Enviar consentimiento estandar</span>
+          <span className="mt-1 block text-xs">
+            El paciente lo leera y firmara desde su portal con codigo por correo.
+          </span>
+        </button>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setMode("custom")}
+          className={`rounded-md border px-4 py-3 text-left text-sm transition ${
+            mode === "custom"
+              ? "border-moss bg-moss/10 text-ink"
+              : "border-ink/10 bg-white text-ink/75 hover:border-moss/40"
+          } disabled:cursor-not-allowed disabled:opacity-60`}
+        >
+          <span className="block font-semibold">Subir consentimiento personalizado</span>
+          <span className="mt-1 block text-xs">
+            Usa un documento propio firmado fuera de la plataforma y subelo como evidencia.
+          </span>
+        </button>
+      </div>
+
+      {mode === "standard" ? (
+        <form action={standardFormAction} className="space-y-4 rounded-md border border-ink/10 p-4">
+          <input type="hidden" name="expedienteId" value={expediente.id} />
+          <ActionMessage message={standardState.message} ok={standardState.ok} />
+          <p className="text-sm text-ink/70">
+            Al enviar, el consentimiento informado estandar quedara disponible para firma en el
+            portal del paciente.
+          </p>
+          <SubmitButton disabled={disabled}>Enviar consentimiento informado estandar</SubmitButton>
+        </form>
+      ) : null}
+
+      {mode === "custom" ? (
+        <form action={customFormAction} className="space-y-4 rounded-md border border-ink/10 p-4">
+          <input type="hidden" name="expedienteId" value={expediente.id} />
+          <ActionMessage message={customState.message} ok={customState.ok} />
+
+          <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
           <span className="text-sm font-medium text-ink">Estado</span>
           <select
@@ -106,9 +180,9 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
             className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 uppercase outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
           />
         </label>
-      </div>
+          </div>
 
-      <label className="flex gap-3 rounded-md border border-gold/30 bg-gold/10 p-3 text-sm text-ink">
+          <label className="flex gap-3 rounded-md border border-gold/30 bg-gold/10 p-3 text-sm text-ink">
         <input
           name="legalAcceptance"
           type="checkbox"
@@ -120,9 +194,11 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
           Confirmo que el consentimiento informado fue revisado y registrado por el profesional.
           La fecha y hora se tomaran automaticamente al firmar y aceptar.
         </span>
-      </label>
+          </label>
 
-      <SubmitButton disabled={disabled}>Registrar consentimiento</SubmitButton>
-    </form>
+          <SubmitButton disabled={disabled}>Registrar consentimiento personalizado</SubmitButton>
+        </form>
+      ) : null}
+    </section>
   );
 }

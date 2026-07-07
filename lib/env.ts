@@ -26,7 +26,10 @@ const serverEnvSchema = publicEnvSchema.extend({
   ZOOM_CLIENT_ID: optionalStringEnv,
   ZOOM_CLIENT_SECRET: optionalStringEnv,
   ZOOM_REDIRECT_URI: optionalUrlEnv,
-  INTEGRATION_TOKEN_ENCRYPTION_KEY: optionalStringEnv
+  INTEGRATION_TOKEN_ENCRYPTION_KEY: optionalStringEnv,
+  RESEND_API_KEY: optionalStringEnv,
+  RESEND_FROM_EMAIL: optionalStringEnv,
+  CATHOLIZARE_LEGAL_EMAIL: z.string().email().default("catholizare@gmail.com")
 });
 
 export function getPublicEnv() {
@@ -52,6 +55,9 @@ export function getServerEnv() {
     ZOOM_CLIENT_ID: process.env.ZOOM_CLIENT_ID,
     ZOOM_CLIENT_SECRET: process.env.ZOOM_CLIENT_SECRET,
     ZOOM_REDIRECT_URI: process.env.ZOOM_REDIRECT_URI,
-    INTEGRATION_TOKEN_ENCRYPTION_KEY: process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY
+    INTEGRATION_TOKEN_ENCRYPTION_KEY: process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+    CATHOLIZARE_LEGAL_EMAIL: process.env.CATHOLIZARE_LEGAL_EMAIL
   });
 }

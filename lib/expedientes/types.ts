@@ -69,11 +69,16 @@ export type Consentimiento = {
   status: ConsentimientoStatus;
   signed_at: string | null;
   modality: ConsentimientoModality;
+  consent_flow: "custom" | "standard";
   document_reference: string | null;
   document_storage_path: string | null;
   document_file_name: string | null;
   document_content_type: string | null;
   document_size_bytes: number | null;
+  standard_document_title: string | null;
+  standard_document_version: string | null;
+  standard_sent_at: string | null;
+  standard_sent_by_professional_id: string | null;
   acceptance_folio: string | null;
   acceptance_document: string | null;
   acceptance_document_version: string | null;

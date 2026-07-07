@@ -2,6 +2,11 @@ import "server-only";
 
 import type { AuthProfile } from "@/lib/auth/types";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
+import {
+  STANDARD_CONSENT_TEXT,
+  STANDARD_CONSENT_TITLE,
+  STANDARD_CONSENT_VERSION
+} from "@/lib/consent/standard-consent";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
   PatientPortalSummary,
@@ -10,7 +15,8 @@ import type {
   PortalAssessmentExpedienteOption,
   PortalAssessmentRequest,
   PortalAssessmentUpload,
-  PortalLifeHistory
+  PortalLifeHistory,
+  PortalStandardConsent
 } from "@/lib/portal/types";
 
 type AppointmentRow = {
@@ -188,12 +194,14 @@ export async function getPortalDashboard(profile: AuthProfile) {
   );
   const [
     requests,
+    standardConsents,
     lifeHistory,
     assessmentRequests,
     assessmentUploads,
     assessmentExpedientes
   ] = await Promise.all([
     getPortalAppointmentRequests(profile.id),
+    getPortalStandardConsents(activeExpedientes),
     getPortalLifeHistory(profile.id),
     getPortalAssessmentRequests(profile.id),
     getPortalAssessmentUploads(profile.id),
@@ -210,6 +218,7 @@ export async function getPortalDashboard(profile: AuthProfile) {
       upcoming_count: upcomingAppointments.length,
       past_count: pastAppointments.length,
       has_summary: Boolean(summary),
+      standard_consent_count: standardConsents.length,
       has_life_history: Boolean(lifeHistory),
       assessment_upload_count: assessmentUploads.length
     },
@@ -221,11 +230,70 @@ export async function getPortalDashboard(profile: AuthProfile) {
     upcomingAppointments,
     pastAppointments,
     requests,
+    standardConsents,
     lifeHistory,
     assessmentExpedientes,
     assessmentRequests,
     assessmentUploads
   };
+}
+
+async function getPortalStandardConsents(
+  expedientes: Array<{ id: string; professional_id: string }>
+): Promise<PortalStandardConsent[]> {
+  if (expedientes.length === 0) {
+    return [];
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const expedienteIds = expedientes.map((expediente) => expediente.id);
+  const { data, error } = await supabaseAdmin
+    .from("consentimientos")
+    .select(
+      "id, expediente_id, status, standard_document_title, standard_document_version, standard_sent_at, created_at"
+    )
+    .in("expediente_id", expedienteIds)
+    .eq("consent_flow", "standard")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Unable to load portal standard consents: ${error.message}`);
+  }
+
+  const latestByExpediente = new Map<string, (typeof data)[number]>();
+
+  for (const row of data ?? []) {
+    if (!latestByExpediente.has(row.expediente_id as string)) {
+      latestByExpediente.set(row.expediente_id as string, row);
+    }
+  }
+
+  const professionals = await getProfilesById([
+    ...new Set(expedientes.map((expediente) => expediente.professional_id))
+  ]);
+  const professionalByExpediente = new Map(
+    expedientes.map((expediente) => [expediente.id, expediente.professional_id])
+  );
+
+  return [...latestByExpediente.values()]
+    .filter((row) => row.status === "pendiente")
+    .map((row) => {
+      const professionalId = professionalByExpediente.get(row.expediente_id as string) ?? "";
+
+      return {
+        id: row.id as string,
+        expediente_id: row.expediente_id as string,
+        status: row.status as "pendiente",
+        title: (row.standard_document_title as string | null) ?? STANDARD_CONSENT_TITLE,
+        version: (row.standard_document_version as string | null) ?? STANDARD_CONSENT_VERSION,
+        sent_at: row.standard_sent_at as string | null,
+        document_text: STANDARD_CONSENT_TEXT,
+        professional: professionals.get(professionalId) ?? {
+          full_name: "Profesional no disponible",
+          email: ""
+        }
+      };
+    });
 }
 
 async function enrichSummary(
