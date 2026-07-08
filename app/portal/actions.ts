@@ -179,6 +179,13 @@ function renderLegalAcceptanceEmail(input: {
   sessionReference: string;
   documentHash: string;
 }) {
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   const legalRows = [
     ["Nombre de procedimiento", STANDARD_CONSENT_PROCEDURE],
     ["Folio de aceptacion", input.folio],
@@ -200,12 +207,12 @@ function renderLegalAcceptanceEmail(input: {
   const rowsHtml = legalRows
     .map(
       ([label, value]) =>
-        `<tr><th style="text-align:left;padding:6px;border:1px solid #ddd;">${label}</th><td style="padding:6px;border:1px solid #ddd;">${value}</td></tr>`
+        `<tr><th style="text-align:left;padding:6px;border:1px solid #ddd;">${escapeHtml(label)}</th><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(value)}</td></tr>`
     )
     .join("");
   const textRows = legalRows.map(([label, value]) => `${label}: ${value}`).join("\n");
   const acceptedHtml = STANDARD_CONSENT_TEXT.map(
-    (section) => `<h3>${section.title}</h3><p>${section.body}</p>`
+    (section) => `<h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.body)}</p>`
   ).join("");
 
   return {
@@ -881,31 +888,39 @@ export async function acceptStandardConsentAction(
   });
   const acceptanceHash = sha256(acceptanceDocument);
 
-  const { error } = await supabaseAdmin.from("consentimientos").insert({
-    expediente_id: pending.expediente.id,
-    status: "firmado_digital",
-    signed_at: acceptedAt.slice(0, 10),
-    modality: "digital",
-    consent_flow: "standard",
-    document_reference: STANDARD_CONSENT_TITLE,
-    obtained_by_professional_id: pending.expediente.professional_id,
-    registered_by: patient.id,
-    standard_document_title: STANDARD_CONSENT_TITLE,
-    standard_document_version: STANDARD_CONSENT_VERSION,
-    acceptance_folio: acceptanceFolio,
-    acceptance_document: STANDARD_CONSENT_TITLE,
-    acceptance_document_version: STANDARD_CONSENT_VERSION,
-    legal_accepted_at: acceptedAt,
-    acceptance_actor_full_name: patient.full_name,
-    acceptance_actor_email: patient.email,
-    acceptance_actor_phone: parsed.data.acceptanceActorPhone,
-    acceptance_actor_rfc: patientRfc,
-    acceptance_ip: ipAddress,
-    acceptance_user_agent: userAgent,
-    acceptance_method: STANDARD_CONSENT_METHOD,
-    acceptance_document_hash: acceptanceHash,
-    acceptance_session_reference: sessionReference
-  });
+  const { error } = await supabaseAdmin
+    .from("consentimientos")
+    .update({
+      status: "firmado_digital",
+      signed_at: acceptedAt.slice(0, 10),
+      modality: "digital",
+      consent_flow: "standard",
+      document_reference: STANDARD_CONSENT_TITLE,
+      obtained_by_professional_id: pending.expediente.professional_id,
+      registered_by: patient.id,
+      standard_document_title: STANDARD_CONSENT_TITLE,
+      standard_document_version: STANDARD_CONSENT_VERSION,
+      acceptance_folio: acceptanceFolio,
+      acceptance_document: STANDARD_CONSENT_TITLE,
+      acceptance_document_version: STANDARD_CONSENT_VERSION,
+      legal_accepted_at: acceptedAt,
+      acceptance_actor_full_name: patient.full_name,
+      acceptance_actor_email: patient.email,
+      acceptance_actor_phone: parsed.data.acceptanceActorPhone,
+      acceptance_actor_rfc: patientRfc,
+      acceptance_ip: ipAddress,
+      acceptance_user_agent: userAgent,
+      acceptance_method: STANDARD_CONSENT_METHOD,
+      acceptance_document_hash: acceptanceHash,
+      acceptance_session_reference: sessionReference,
+      signature_code_hash: null,
+      signature_code_expires_at: null,
+      signature_code_attempts: 0
+    })
+    .eq("id", pending.consentimiento.id)
+    .eq("status", "pendiente")
+    .select("id")
+    .single();
 
   if (!error) {
     await supabaseAdmin
@@ -921,7 +936,7 @@ export async function acceptStandardConsentAction(
   if (error) {
     Sentry.captureException(error, {
       extra: {
-        context: "standard_consent_accept_insert",
+        context: "standard_consent_accept_update",
         consentimiento_id: pending.consentimiento.id
       }
     });
