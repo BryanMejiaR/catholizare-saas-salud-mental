@@ -39,14 +39,34 @@ function parseFilters(searchParams: Record<string, string | string[] | undefined
   } satisfies NotaClinicaFilters;
 }
 
+function parseView(value: string | string[] | undefined) {
+  return firstParam(value) === "confirmed" ? "confirmed" : "drafts";
+}
+
 export default async function ProfessionalNotasPage({
   searchParams
 }: ProfessionalNotasPageProps) {
   const [profile, params] = await Promise.all([requireRole(["profesional"]), searchParams]);
   const filters = parseFilters(params);
-  const [notas, pendingDrafts, patients] = await Promise.all([
-    getNotasForProfessional(profile, filters),
-    getNotasForProfessional(profile, { status: "borrador" }),
+  const view = parseView(params.view);
+  const baseFilters = { ...filters, status: undefined };
+  const visibleNotesPromise =
+    view === "drafts"
+      ? getNotasForProfessional(profile, { ...baseFilters, status: "borrador" })
+      : Promise.all([
+          getNotasForProfessional(profile, { ...baseFilters, status: "confirmada" }),
+          getNotasForProfessional(profile, { ...baseFilters, status: "con_addendum" }),
+          getNotasForProfessional(profile, { ...baseFilters, status: "exportada" })
+        ]).then((groups) =>
+          groups
+            .flat()
+            .sort(
+              (left, right) =>
+                new Date(right.session_date).getTime() - new Date(left.session_date).getTime()
+            )
+        );
+  const [notas, patients] = await Promise.all([
+    visibleNotesPromise,
     getPatientsForProfessional(profile.id)
   ]);
 
@@ -63,38 +83,58 @@ export default async function ProfessionalNotasPage({
               Consulta de notas propias por Paciente, tipo, estado, fecha y texto clinico.
             </p>
           </div>
-          <Link href="/professional" className="text-sm font-medium text-moss">
-            Volver al panel
-          </Link>
-          <Link href="/professional/notas/template" className="text-sm font-medium text-moss">
-            Editar plantillas
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/professional" className="text-sm font-medium text-moss">
+              Volver al panel
+            </Link>
+            <Link href="/professional/notas/template" className="text-sm font-medium text-moss">
+              Notas clinicas
+            </Link>
+          </div>
         </div>
 
-        <NotasFilterForm filters={filters} patients={patients} />
-        <section className="space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold text-ink">Borradores pendientes</h2>
-            <p className="mt-1 text-sm text-ink/65">
-              Notas iniciadas que aun no forman parte formal del expediente clinico.
-            </p>
-          </div>
-          <NotasTable
-            notas={pendingDrafts}
-            showPatient
-            emptyMessage="No hay borradores pendientes."
-          />
-        </section>
+        <NotasFilterForm filters={filters} patients={patients} view={view} />
 
         <section className="space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold text-ink">Resultados</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-ink">
+                {view === "drafts" ? "Borradores editables" : "Notas confirmadas no editables"}
+              </h2>
+              <p className="mt-1 text-sm text-ink/65">
+                {view === "drafts"
+                  ? "Notas guardadas como borrador editable."
+                  : "Notas guardadas como confirmadas, exportadas o con correcciones historicas."}
+              </p>
+            </div>
+            <div className="flex rounded-md border border-ink/10 bg-white p-1">
+              <Link
+                href="/professional/notas?view=drafts"
+                className={`rounded px-3 py-2 text-sm font-medium ${
+                  view === "drafts" ? "bg-moss text-white" : "text-ink/65"
+                }`}
+              >
+                Borradores
+              </Link>
+              <Link
+                href="/professional/notas?view=confirmed"
+                className={`rounded px-3 py-2 text-sm font-medium ${
+                  view === "confirmed" ? "bg-moss text-white" : "text-ink/65"
+                }`}
+              >
+                Confirmadas
+              </Link>
+            </div>
           </div>
-        <NotasTable
-          notas={notas}
-          showPatient
-          emptyMessage="No hay notas clinicas con estos filtros."
-        />
+          <NotasTable
+            notas={notas}
+            showPatient
+            emptyMessage={
+              view === "drafts"
+                ? "No hay borradores con estos filtros."
+                : "No hay notas confirmadas con estos filtros."
+            }
+          />
         </section>
       </div>
     </main>

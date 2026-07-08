@@ -21,7 +21,7 @@ const NOTA_SUMMARY_SELECT =
 const NOTA_METRIC_SELECT =
   "id, note_type, status, session_date, mood_review, tcc_session_number, note_template_values";
 const NOTA_TEMPLATE_SELECT =
-  "id, professional_id, model_type, version, sections, created_by_user_id, created_at";
+  "id, professional_id, model_type, name, version, sections, created_by_user_id, created_at";
 
 export async function getLatestNotaTemplate(
   profile: AuthProfile,
@@ -54,6 +54,38 @@ export async function getLatestNotaTemplate(
   }
 
   return (data as NotaTemplate | null) ?? null;
+}
+
+export async function getNotaTemplateVersions(
+  profile: AuthProfile,
+  modelType: NotaTemplateModelType
+) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("plantillas_nota_clinica")
+    .select(NOTA_TEMPLATE_SELECT)
+    .eq("professional_id", profile.id)
+    .eq("model_type", modelType)
+    .order("version", { ascending: false });
+
+  if (error) {
+    await safeWriteAuditLog({
+      userId: profile.id,
+      role: profile.role,
+      action: "nota_template_read",
+      entityType: "plantillas_nota_clinica",
+      result: "error",
+      metadata: {
+        model_type: modelType,
+        scope: "versions"
+      },
+      context: "audit_nota_template_versions_read_error"
+    });
+
+    throw new Error(`Unable to load clinical note template versions: ${error.message}`);
+  }
+
+  return (data ?? []) as NotaTemplate[];
 }
 
 async function getPatientsById(patientIds: string[]) {

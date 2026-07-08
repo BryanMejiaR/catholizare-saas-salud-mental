@@ -26,7 +26,7 @@ export default async function ProfessionalPage() {
               Consultar notas clinicas
             </Link>
             <Link className="inline-flex font-medium text-moss" href="/professional/notas/template">
-              Editar plantillas de notas
+              Notas clinicas
             </Link>
             <Link className="inline-flex font-medium text-moss" href="/professional/procesos">
               Gestionar procesos

@@ -50,7 +50,7 @@ export const PROCESS_MODEL_LABEL: Record<ProcessModelType, string> = {
   general: "Otros (modelo general)"
 };
 
-export const PROCESS_FIELD_TYPES = ["text", "textarea", "select", "date", "number"] as const;
+export const PROCESS_FIELD_TYPES = ["text", "textarea", "select", "date", "number", "checkbox"] as const;
 export type ProcessFieldType = (typeof PROCESS_FIELD_TYPES)[number];
 
 export type ProcessTemplateField = {

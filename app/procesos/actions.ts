@@ -169,7 +169,9 @@ function normalizeStepValues(formData: FormData, step: ProcessTemplateStep) {
     const rawValue = formData.get(`field_${field.id}`);
     const value = typeof rawValue === "string" ? rawValue.trim().slice(0, 10000) : "";
 
-    if (field.type === "number") {
+    if (field.type === "checkbox") {
+      values[field.id] = rawValue === "on";
+    } else if (field.type === "number") {
       const numericValue = Number(value);
       values[field.id] = value === "" || !Number.isFinite(numericValue) ? null : numericValue;
     } else {

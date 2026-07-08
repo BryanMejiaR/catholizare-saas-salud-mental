@@ -27,8 +27,7 @@ export default async function NotaClinicaDetailPage({ params }: NotaClinicaDetai
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-ink">{note.note_type}</h1>
             <p className="mt-2 text-sm text-ink/65">
-              Fecha: {new Date(note.session_date).toLocaleDateString("es-MX")} | Estado:{" "}
-              {note.status}
+              Fecha: {new Date(note.session_date).toLocaleDateString("es-MX")}
             </p>
           </div>
           <Link

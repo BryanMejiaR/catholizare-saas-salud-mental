@@ -16,6 +16,7 @@ import {
 
 type NotaTemplateFormProps = {
   modelType: NotaTemplateModelType;
+  name: string;
   sections: NotaTemplateSection[];
   version?: number;
 };
@@ -26,7 +27,8 @@ const fieldTypeLabels: Record<NotaTemplateFieldType, string> = {
   select: "Seleccion",
   date: "Fecha",
   time: "Hora",
-  number: "Numero"
+  number: "Numero",
+  checkbox: "Casilla Check"
 };
 
 function newId(prefix: string) {
@@ -46,8 +48,9 @@ function moveItem<T>(items: T[], index: number, direction: -1 | 1) {
   return next;
 }
 
-export function NotaTemplateForm({ modelType, sections, version }: NotaTemplateFormProps) {
+export function NotaTemplateForm({ modelType, name, sections, version }: NotaTemplateFormProps) {
   const [state, formAction] = useActionState(saveNotaTemplateAction, {});
+  const [templateName, setTemplateName] = useState(name);
   const [templateSections, setTemplateSections] = useState<NotaTemplateSection[]>(sections);
   const sectionsJson = useMemo(() => JSON.stringify(templateSections), [templateSections]);
 
@@ -121,11 +124,12 @@ export function NotaTemplateForm({ modelType, sections, version }: NotaTemplateF
   return (
     <form action={formAction} className="space-y-5 rounded-lg border border-ink/10 bg-white p-5">
       <input type="hidden" name="modelType" value={modelType} />
+      <input type="hidden" name="name" value={templateName} />
       <input type="hidden" name="sectionsJson" value={sectionsJson} />
 
       <div>
         <h2 className="text-lg font-semibold text-ink">
-          Plantilla de notas {NOTA_TEMPLATE_MODEL_LABEL[modelType]}
+          {templateName}
         </h2>
         <p className="mt-1 text-sm text-ink/65">
           Version vigente: {version ?? "base Catholizare"}. Guardar crea una nueva version para
@@ -134,6 +138,15 @@ export function NotaTemplateForm({ modelType, sections, version }: NotaTemplateF
       </div>
 
       <ActionMessage message={state.message} ok={state.ok} />
+
+      <label className="block">
+        <span className="text-sm font-medium text-ink">Nombre de la plantilla</span>
+        <input
+          value={templateName}
+          onChange={(event) => setTemplateName(event.target.value)}
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        />
+      </label>
 
       <div className="space-y-4">
         {templateSections.map((section, sectionIndex) => (

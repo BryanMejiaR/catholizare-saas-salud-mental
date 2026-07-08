@@ -25,7 +25,8 @@ const fieldTypeLabels: Record<ProcessFieldType, string> = {
   textarea: "Texto largo",
   select: "Seleccion",
   date: "Fecha",
-  number: "Numero"
+  number: "Numero",
+  checkbox: "Casilla Check"
 };
 
 function newId(prefix: string) {

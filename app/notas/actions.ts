@@ -9,6 +9,7 @@ import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import {
   DEFAULT_NOTA_TEMPLATE_SECTIONS,
+  NOTA_TEMPLATE_MODEL_LABEL,
   NOTA_CLINICA_TYPES,
   NOTA_TEMPLATE_FIELD_TYPES,
   NOTA_TEMPLATE_MODEL_TYPES,
@@ -124,6 +125,7 @@ const templateSectionsSchema = z
 
 const templateSchema = z.object({
   modelType: z.enum(NOTA_TEMPLATE_MODEL_TYPES),
+  name: z.string().trim().min(1).max(120),
   sectionsJson: z.string().trim().min(2)
 });
 
@@ -207,6 +209,11 @@ function normalizeTemplateValues(formData: FormData, sections: NotaTemplateSecti
     for (const field of section.fields) {
       const rawValue = formData.get(`field_${section.id}_${field.id}`);
       const value = typeof rawValue === "string" ? rawValue.trim().slice(0, 10000) : "";
+
+      if (field.type === "checkbox") {
+        values[section.id][field.id] = rawValue === "on";
+        continue;
+      }
 
       if (field.required && value.length === 0) {
         return {
@@ -327,6 +334,7 @@ async function getOrCreateLatestNotaTemplate(
     .insert({
       professional_id: professionalId,
       model_type: modelType,
+      name: `Nota clinica ${NOTA_TEMPLATE_MODEL_LABEL[modelType]}`,
       version: 1,
       sections: DEFAULT_NOTA_TEMPLATE_SECTIONS,
       created_by_user_id: professionalId
@@ -530,6 +538,7 @@ export async function saveNotaTemplateAction(
 
   const parsed = templateSchema.safeParse({
     modelType: formData.get("modelType"),
+    name: formData.get("name"),
     sectionsJson: formData.get("sectionsJson")
   });
 
@@ -560,6 +569,7 @@ export async function saveNotaTemplateAction(
   const { error } = await supabaseAdmin.from("plantillas_nota_clinica").insert({
     professional_id: actor.id,
     model_type: parsed.data.modelType,
+    name: parsed.data.name,
     version: nextVersion,
     sections: sections.data,
     created_by_user_id: actor.id
@@ -581,7 +591,8 @@ export async function saveNotaTemplateAction(
       entityType: "plantillas_nota_clinica",
       result: "error",
       metadata: {
-        model_type: parsed.data.modelType
+        model_type: parsed.data.modelType,
+        name: parsed.data.name
       },
       context: "audit_nota_template_update_error"
     });
@@ -603,6 +614,7 @@ export async function saveNotaTemplateAction(
     result: "success",
     metadata: {
       model_type: parsed.data.modelType,
+      name: parsed.data.name,
       version: nextVersion
     },
     context: "audit_nota_template_update_success"

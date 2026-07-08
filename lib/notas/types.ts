@@ -22,7 +22,15 @@ export const NOTA_TEMPLATE_MODEL_LABEL: Record<NotaTemplateModelType, string> = 
   tcc: "TCC"
 };
 
-export const NOTA_TEMPLATE_FIELD_TYPES = ["text", "textarea", "select", "date", "time", "number"] as const;
+export const NOTA_TEMPLATE_FIELD_TYPES = [
+  "text",
+  "textarea",
+  "select",
+  "date",
+  "time",
+  "number",
+  "checkbox"
+] as const;
 export type NotaTemplateFieldType = (typeof NOTA_TEMPLATE_FIELD_TYPES)[number];
 
 export type NotaTemplateField = {
@@ -44,6 +52,7 @@ export type NotaTemplate = {
   id: string;
   professional_id: string;
   model_type: NotaTemplateModelType;
+  name: string;
   version: number;
   sections: NotaTemplateSection[];
   created_by_user_id: string | null;

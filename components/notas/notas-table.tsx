@@ -18,6 +18,14 @@ const noteTypeLabels: Record<NotaClinicaSummary["note_type"], string> = {
   addendum: "Correccion historica"
 };
 
+const statusLabels: Record<NotaClinicaSummary["status"], string> = {
+  borrador: "Borrador editable",
+  confirmada: "Confirmada no editable",
+  con_addendum: "Con correccion historica",
+  anulada_logicamente: "Anulada logicamente",
+  exportada: "Exportada no editable"
+};
+
 function hasPatient(nota: NotaClinicaSummary | NotaClinicaListItem): nota is NotaClinicaListItem {
   return "patient" in nota;
 }
@@ -54,7 +62,7 @@ export function NotasTable({
                 </td>
               ) : null}
               <td className="px-4 py-3 text-ink">{noteTypeLabels[nota.note_type]}</td>
-              <td className="px-4 py-3 text-ink/70">{nota.status}</td>
+              <td className="px-4 py-3 text-ink/70">{statusLabels[nota.status]}</td>
               <td className="px-4 py-3 text-ink/70">
                 {new Date(nota.session_date).toLocaleDateString("es-MX")}
               </td>

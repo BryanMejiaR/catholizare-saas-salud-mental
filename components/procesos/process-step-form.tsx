@@ -64,6 +64,18 @@ function FieldInput({
     );
   }
 
+  if (field.type === "checkbox") {
+    return (
+      <input
+        type="checkbox"
+        name={name}
+        disabled={disabled}
+        defaultChecked={value === true || value === "true"}
+        className="mt-3 h-4 w-4 rounded border-ink/20 text-moss focus:ring-moss"
+      />
+    );
+  }
+
   return (
     <input
       type={field.type}

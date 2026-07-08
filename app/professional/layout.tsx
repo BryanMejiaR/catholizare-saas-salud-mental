@@ -1,4 +1,5 @@
 import { LogoutButton } from "@/components/auth/logout-button";
+import { AppBreadcrumbs } from "@/components/navigation/app-breadcrumbs";
 import { requireRole } from "@/lib/auth/profile";
 
 export default async function ProfessionalLayout({
@@ -10,6 +11,7 @@ export default async function ProfessionalLayout({
 
   return (
     <>
+      <AppBreadcrumbs homeHref="/professional" />
       <LogoutButton fullName={profile.full_name} />
       {children}
     </>
