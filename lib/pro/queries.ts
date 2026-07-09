@@ -3,6 +3,7 @@ import "server-only";
 import type { AuthProfile } from "@/lib/auth/types";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getPublicProEvents, getPublicProResources } from "@/lib/pro/public-site";
 import type { ProBanner, ProEvent, ProfessionalProDashboard, ProResource } from "@/lib/pro/types";
 
 const RESOURCE_SELECT =
@@ -20,6 +21,16 @@ function isVisibleWindow(row: { visible_from: string; visible_until: string | nu
   return from <= now && until > now;
 }
 
+function rotateVisibleBanners(banners: ProBanner[]) {
+  if (banners.length <= 2) {
+    return banners;
+  }
+
+  const daySeed = Math.floor(Date.now() / 86_400_000);
+  const start = daySeed % banners.length;
+  return [...banners.slice(start), ...banners.slice(0, start)].slice(0, 2);
+}
+
 export async function getProfessionalProDashboard(
   profile: AuthProfile,
   section = "dashboard"
@@ -29,7 +40,8 @@ export async function getProfessionalProDashboard(
     { data: resources, error: resourcesError },
     { data: banners, error: bannersError },
     { data: events, error: eventsError },
-    { data: dismissals, error: dismissalsError }
+    publicResourcesResult,
+    publicEventsResult
   ] = await Promise.all([
     supabaseAdmin
       .from("pro_resources")
@@ -50,13 +62,11 @@ export async function getProfessionalProDashboard(
       .gte("starts_at", new Date().toISOString())
       .order("starts_at", { ascending: true })
       .limit(6),
-    supabaseAdmin
-      .from("pro_banner_dismissals")
-      .select("banner_id")
-      .eq("professional_id", profile.id)
+    getPublicProResources(),
+    getPublicProEvents()
   ]);
 
-  if (resourcesError || bannersError || eventsError || dismissalsError) {
+  if (resourcesError || bannersError || eventsError) {
     await safeWriteAuditLog({
       userId: profile.id,
       role: profile.role,
@@ -72,20 +82,22 @@ export async function getProfessionalProDashboard(
     throw new Error("Unable to load Catholizare Pro content.");
   }
 
-  const dismissedBannerIds = new Set((dismissals ?? []).map((row) => row.banner_id as string));
   const visibleResources = ((resources ?? []) as ProResource[]).filter(
     (resource) =>
       isVisibleWindow(resource) &&
-      (resource.display_sections.includes(section) || resource.display_sections.includes("resources"))
+      (resource.display_sections.includes(section) || resource.display_sections.includes("resources")) &&
+      !resource.title.toLowerCase().includes("precio")
   );
-  const visibleBanners = ((banners ?? []) as ProBanner[])
+  const visibleBanners = rotateVisibleBanners(((banners ?? []) as ProBanner[])
     .filter(
       (banner) =>
         isVisibleWindow(banner) &&
         banner.display_sections.includes(section) &&
-        !dismissedBannerIds.has(banner.id)
-    )
-    .slice(0, 2);
+        !banner.title.toLowerCase().includes("precio") &&
+        !banner.body.toLowerCase().includes("precio")
+    ));
+  const mergedResources = [...(publicResourcesResult ?? []), ...visibleResources].slice(0, 12);
+  const mergedEvents = [...(publicEventsResult ?? []), ...((events ?? []) as ProEvent[])].slice(0, 8);
 
   await safeWriteAuditLog({
     userId: profile.id,
@@ -95,16 +107,16 @@ export async function getProfessionalProDashboard(
     result: "success",
     metadata: {
       section,
-      resources_count: visibleResources.length,
+      resources_count: mergedResources.length,
       banners_count: visibleBanners.length
     },
     context: "audit_pro_content_read_success"
   });
 
   return {
-    resources: visibleResources,
+    resources: mergedResources,
     banners: visibleBanners,
-    events: (events ?? []) as ProEvent[]
+    events: mergedEvents
   };
 }
 

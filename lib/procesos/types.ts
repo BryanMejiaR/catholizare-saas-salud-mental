@@ -174,38 +174,85 @@ export const PROCESS_DEFAULT_TEMPLATE_STEPS: Record<ProcessModelType, ProcessTem
   general: DEFAULT_GENERAL_TEMPLATE_STEPS,
   tcc: [
     {
-      id: "evaluacion_formulacion",
-      title: "Evaluacion y formulacion cognitivo-conductual",
-      description: "Problemas, disparadores, pensamientos, emociones, conductas y mantenedores.",
+      id: "sesion_0_preparacion",
+      title: "Sesion 0: Preparacion inicial",
+      description: "Activacion del proceso, consentimiento informado e historia de vida.",
       fields: [
-        field("problemas_objetivo", "Problemas objetivo"),
-        field("situaciones_disparadoras", "Situaciones disparadoras"),
-        field("pensamientos_creencias", "Pensamientos automaticos y creencias"),
-        field("emociones_respuestas", "Emociones, respuestas fisiologicas y conductas"),
-        field("mantenedores", "Factores mantenedores")
+        field("hotlink_enviado", "Hotlink o acceso enviado al paciente", "checkbox"),
+        field("consentimiento_revisado", "Consentimiento informado revisado", "checkbox"),
+        field("historia_vida_activada", "Historia de vida activada para el paciente", "checkbox"),
+        field("recordatorios", "Recordatorios o seguimiento previo por correo"),
+        field("observaciones_preparacion", "Observaciones de preparacion")
       ]
     },
     {
-      id: "plan_intervencion",
-      title: "Plan de intervencion TCC",
+      id: "sesiones_1_2_evaluacion",
+      title: "Sesiones 1 y 2: Evaluacion",
+      description: "Entrevista inicial, conceptualizacion y analisis de informacion base.",
       fields: [
-        field("objetivos_medibles", "Objetivos medibles"),
-        field("psicoeducacion", "Psicoeducacion"),
-        field("reestructuracion", "Reestructuracion cognitiva"),
-        field("activacion_exposicion", "Activacion conductual, exposicion o experimentos"),
-        field("tareas", "Tareas entre sesiones")
+        field("entrevista_inicial", "Formato de entrevista inicial revisado"),
+        field("historia_vida_resultados", "Analisis de historia de vida y resultados de test"),
+        field("conceptualizacion", "Conceptualizacion del caso"),
+        field("diagnostico_dsm", "Analisis desde DSM / CIE si aplica"),
+        field("objetivos_iniciales", "Objetivos iniciales del tratamiento"),
+        field("resultado_evaluacion", "Resultado esperado de evaluacion inicial")
       ]
     },
     {
-      id: "seguimiento",
-      title: "Seguimiento y prevencion de recaidas",
+      id: "sesiones_3_7_intervencion_inicial",
+      title: "Sesiones 3 a 7: Intervencion inicial",
+      description: "Aplicacion del plan de tratamiento y notas de sesion.",
       fields: [
-        field("indicadores", "Indicadores de avance"),
-        field("habilidades", "Habilidades adquiridas"),
-        field("plan_recaidas", "Plan de prevencion de recaidas")
+        field("plan_tratamiento_actual", "Plan de tratamiento actual"),
+        field("intervenciones_aplicadas", "Intervenciones aplicadas"),
+        field("notas_sesion", "Notas de sesion relevantes"),
+        field("estado_animo_grafica", "Resumen de grafica de estado de animo"),
+        field("ajustes_plan", "Ajustes al plan")
       ]
     },
-    commonClosureStep
+    {
+      id: "sesion_8_evaluacion",
+      title: "Sesion 8: Evaluacion",
+      description: "Primer corte de evaluacion y reenvio de pruebas.",
+      fields: [
+        field("primer_corte", "Primer corte de evaluacion"),
+        field("tests_reenviados", "Tests reenviados al paciente"),
+        field("analisis_formatos", "Analisis de formatos disponibles"),
+        field("conceptualizacion_actualizada", "Conceptualizacion actualizada"),
+        field("resultados_test", "Nuevos resultados de test"),
+        field("programacion_siguientes", "Programacion de siguientes 8 sesiones")
+      ]
+    },
+    {
+      id: "sesiones_9_17_intervencion",
+      title: "Sesiones 9 a 17: Intervencion",
+      description: "Continuidad del tratamiento con seguimiento de estado de animo.",
+      fields: [
+        field("plan_actual", "Plan de sesion actual"),
+        field("intervenciones_semana", "Intervenciones aplicadas"),
+        field("resumen_estado_animo", "Resumen de grafica de estado de animo"),
+        field("notas_sesion", "Notas de sesion"),
+        field("proximo_corte", "Indicadores para proximo corte")
+      ]
+    },
+    {
+      id: "sesion_18_reevaluacion",
+      title: "Sesion 18: Reevaluacion",
+      description: "Segundo corte de evaluacion y comparacion con resultados iniciales.",
+      fields: [
+        field("segundo_corte", "Segundo corte de evaluacion"),
+        field("tests_reaplicados", "Aplicacion nuevamente de test iniciales"),
+        field("comparacion_resultados", "Comparacion de resultados"),
+        field("conceptualizacion_final", "Conceptualizacion actualizada"),
+        field("decision_continuidad", "Decision de continuidad, mantenimiento o cierre")
+      ]
+    },
+    {
+      ...commonClosureStep,
+      id: "sesion_19_alta",
+      title: "Sesion 19+: Alta del paciente",
+      description: "Cierre clinico, plan de mantenimiento y alta."
+    }
   ],
   gestalt: [
     {

@@ -15,7 +15,7 @@ export function ProBannerList({ banners }: ProBannerListProps) {
       {banners.map((banner) => (
         <section key={banner.id} className="rounded-lg border border-moss/20 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
+            <div className="max-w-3xl">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-moss">
                 Catholizare Pro
               </p>
@@ -32,6 +32,15 @@ export function ProBannerList({ banners }: ProBannerListProps) {
                 </a>
               ) : null}
             </div>
+            {banner.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={banner.image_url}
+                alt=""
+                className="h-24 w-32 rounded-md object-cover"
+                loading="lazy"
+              />
+            ) : null}
             {banner.dismissible ? (
               <form action={dismissProBannerAction}>
                 <input type="hidden" name="bannerId" value={banner.id} />

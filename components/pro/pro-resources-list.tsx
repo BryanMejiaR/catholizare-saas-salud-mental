@@ -8,9 +8,19 @@ export function ProResourcesList({ resources }: ProResourcesListProps) {
   return (
     <section className="rounded-lg border border-ink/10 bg-white p-5">
       <h2 className="text-lg font-semibold text-ink">Recursos</h2>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
         {resources.map((resource) => (
-          <article key={resource.id} className="rounded-md border border-ink/10 p-4">
+          <article key={resource.id} className="overflow-hidden rounded-md border border-ink/10">
+            {resource.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={resource.image_url}
+                alt=""
+                className="h-36 w-full object-cover"
+                loading="lazy"
+              />
+            ) : null}
+            <div className="p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-moss">
@@ -31,8 +41,9 @@ export function ProResourcesList({ resources }: ProResourcesListProps) {
               rel="noreferrer"
               className="mt-4 inline-flex font-medium text-moss"
             >
-              Abrir recurso
+              Ver mas
             </a>
+            </div>
           </article>
         ))}
 

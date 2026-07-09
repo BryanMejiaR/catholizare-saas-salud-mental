@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 
 import { cancelAppointmentAction } from "@/app/agenda/actions";
@@ -55,6 +56,7 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
             <th className="px-4 py-3 font-semibold">Duracion</th>
             <th className="px-4 py-3 font-semibold">Tipo</th>
             <th className="px-4 py-3 font-semibold">Estado</th>
+            <th className="px-4 py-3 font-semibold">Notas clinicas</th>
             <th className="px-4 py-3 font-semibold">Videollamada</th>
             <th className="px-4 py-3 font-semibold">Accion</th>
           </tr>
@@ -67,7 +69,9 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                 <p className="mt-1 text-xs text-ink/60">{appointment.patient.email}</p>
               </td>
               <td className="px-4 py-3 text-ink/70">
-                {formatAppointmentDate(appointment.scheduled_at)}
+                <Link href={`/professional/agenda/${appointment.id}`} className="font-medium text-moss">
+                  {formatAppointmentDate(appointment.scheduled_at)}
+                </Link>
               </td>
               <td className="px-4 py-3 text-ink/70">{appointment.duration_minutes} min</td>
               <td className="px-4 py-3 text-ink/70">{appointment.type}</td>
@@ -80,6 +84,13 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                     {appointment.cancellation_reason}
                   </p>
                 ) : null}
+              </td>
+              <td className="px-4 py-3 text-ink/70">
+                <Link href={`/professional/agenda/${appointment.id}`} className="font-medium text-moss">
+                  {(appointment.related_notes_count ?? 0) > 0
+                    ? `${appointment.related_notes_count} nota(s)`
+                    : "Sin notas"}
+                </Link>
               </td>
               <td className="px-4 py-3 text-ink/70">
                 {appointment.zoom_start_url ? (
@@ -112,7 +123,7 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
 
           {appointments.length === 0 ? (
             <tr>
-              <td className="px-4 py-6 text-center text-ink/60" colSpan={7}>
+              <td className="px-4 py-6 text-center text-ink/60" colSpan={8}>
                 No hay citas para mostrar.
               </td>
             </tr>

@@ -31,9 +31,25 @@ export default async function ProfessionalPage() {
             <Link className="inline-flex font-medium text-moss" href="/professional/procesos">
               Gestionar procesos
             </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/agenda">
-              Gestionar agenda
-            </Link>
+            <div className="group relative inline-flex">
+              <Link className="inline-flex font-medium text-moss" href="/professional/agenda">
+                Gestionar agenda
+              </Link>
+              <div className="absolute left-0 top-full z-10 hidden min-w-44 rounded-md border border-ink/10 bg-white p-2 shadow-lg group-hover:block">
+                <Link
+                  className="block rounded px-3 py-2 text-sm text-ink hover:bg-linen"
+                  href="/professional/agenda#agregar-cita"
+                >
+                  Agregar citas
+                </Link>
+                <Link
+                  className="block rounded px-3 py-2 text-sm text-ink hover:bg-linen"
+                  href="/professional/agenda"
+                >
+                  Agenda
+                </Link>
+              </div>
+            </div>
             <Link className="inline-flex font-medium text-moss" href="/professional/integrations">
               Gestionar integraciones
             </Link>

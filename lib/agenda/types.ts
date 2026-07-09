@@ -32,10 +32,21 @@ export type AppointmentListItem = Appointment & {
     full_name: string;
     email: string;
   };
+  related_notes_count?: number;
 };
 
 export type AgendaPatientOption = {
   id: string;
   full_name: string;
   email: string;
+};
+
+export type AppointmentStats = {
+  programadas: number;
+  completadas: number;
+  no_tomadas: number;
+  canceladas: number;
+  reagendadas: number;
+  videollamadas: number;
+  presenciales: number;
 };
