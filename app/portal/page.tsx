@@ -5,6 +5,7 @@ import { AssessmentUploadForm } from "@/components/portal/assessment-upload-form
 import { requireRole } from "@/lib/auth/profile";
 import { getPortalDashboard } from "@/lib/portal/queries";
 import { StandardConsentPanel } from "@/components/portal/standard-consent-panel";
+import { PatientAnnouncements } from "@/components/portal/patient-announcements";
 
 export default async function PortalPage() {
   const profile = await requireRole(["paciente"]);
@@ -19,6 +20,8 @@ export default async function PortalPage() {
         </div>
 
         <PortalSummary summary={dashboard.summary} />
+
+        <PatientAnnouncements announcements={dashboard.announcements} />
 
         <StandardConsentPanel consents={dashboard.standardConsents} />
 

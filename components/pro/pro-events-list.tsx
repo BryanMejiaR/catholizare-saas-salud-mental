@@ -11,6 +11,10 @@ export function ProEventsList({ events }: ProEventsListProps) {
       <div className="mt-4 divide-y divide-ink/10">
         {events.map((event) => (
           <article key={event.id} className="py-4 first:pt-0 last:pb-0">
+            {event.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img alt="" className="mb-3 h-36 w-full rounded-md object-cover" src={event.image_url} />
+            ) : null}
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-moss">
               {event.event_type}
             </p>

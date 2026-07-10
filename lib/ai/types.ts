@@ -30,6 +30,14 @@ export type ClinicalContextPackage = {
     submitted_at: string | null;
     answers: Record<string, string | string[]>;
   };
+  assessment_summary?: Array<{
+    id: string;
+    type: string;
+    status: string;
+    applied_at?: string | null;
+    scores?: Record<string, unknown> | null;
+    interpretation_available?: boolean;
+  }>;
   process?: {
     id: string;
     model_type: string;

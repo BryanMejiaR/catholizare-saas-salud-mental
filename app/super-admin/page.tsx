@@ -1,9 +1,12 @@
 import Link from "next/link";
 
+import { SystemHealthPanel } from "@/components/admin/system-health-panel";
+import { getSystemHealthChecks } from "@/lib/admin/system-health";
 import { requireRole } from "@/lib/auth/profile";
 
 export default async function SuperAdminPage() {
   const profile = await requireRole(["super_administrador"]);
+  const healthChecks = await getSystemHealthChecks();
 
   return (
     <main className="min-h-screen bg-linen px-6 py-8">
@@ -20,7 +23,10 @@ export default async function SuperAdminPage() {
           Consultar auditoria
         </Link>
         <Link className="inline-flex font-medium text-moss" href="/super-admin/pro">
-          Gestionar Catholizare Pro
+          Centro de anuncios a profesionales
+        </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/patient-announcements">
+          Centro de anuncios a pacientes
         </Link>
         <Link className="inline-flex font-medium text-moss" href="/super-admin/help">
           Gestionar ayuda
@@ -29,6 +35,7 @@ export default async function SuperAdminPage() {
           Revisar exportaciones
         </Link>
       </div>
+      <SystemHealthPanel checks={healthChecks} />
     </main>
   );
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
@@ -65,6 +66,13 @@ const eventSchema = z.object({
 const dismissBannerSchema = z.object({
   bannerId: z.string().uuid()
 });
+const deleteAnnouncementSchema = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["resource", "banner", "event"]),
+  audience: z.enum(["professional", "patient"]).default("professional")
+});
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 async function getActiveAdmin() {
   const profile = await getCurrentProfile();
@@ -98,6 +106,65 @@ function adminProPath(role: AdminProRole) {
   return role === "super_administrador" ? "/super-admin/pro" : "/admin/pro";
 }
 
+function adminPatientAnnouncementsPath() {
+  return "/super-admin/patient-announcements";
+}
+
+function getOptionalFile(formData: FormData, name: string) {
+  const file = formData.get(name);
+  return file instanceof File && file.size > 0 ? file : null;
+}
+
+function safeFileName(name: string) {
+  return name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 120);
+}
+
+async function uploadAnnouncementImage(
+  supabaseAdmin: ReturnType<typeof createSupabaseAdminClient>,
+  file: File | null,
+  actorId: string
+) {
+  if (!file) {
+    return null;
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.has(file.type) || file.size > MAX_IMAGE_BYTES) {
+    throw new Error("La imagen debe ser JPG, PNG, WEBP o GIF y pesar maximo 5 MB.");
+  }
+
+  const path = `${actorId}/${randomUUID()}-${safeFileName(file.name)}`;
+  const { error } = await supabaseAdmin.storage
+    .from("announcement-assets")
+    .upload(path, Buffer.from(await file.arrayBuffer()), {
+      contentType: file.type,
+      upsert: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabaseAdmin.storage.from("announcement-assets").getPublicUrl(path);
+  return {
+    path,
+    publicUrl: data.publicUrl
+  };
+}
+
+async function removeAnnouncementImage(
+  supabaseAdmin: ReturnType<typeof createSupabaseAdminClient>,
+  path: string | null | undefined
+) {
+  if (path) {
+    await supabaseAdmin.storage.from("announcement-assets").remove([path]);
+  }
+}
+
 export async function createProResourceAction(
   _previousState: ProActionState,
   formData: FormData
@@ -127,13 +194,23 @@ export async function createProResourceAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  let uploadedImage = null;
+
+  try {
+    uploadedImage = await uploadAnnouncementImage(supabaseAdmin, getOptionalFile(formData, "imageFile"), actor.id);
+  } catch (error) {
+    Sentry.captureException(error, { extra: { context: "pro_resource_image_upload" } });
+    return { message: error instanceof Error ? error.message : "No fue posible subir la imagen.", ok: false };
+  }
+
   const { error } = await supabaseAdmin.from("pro_resources").insert({
     title: parsed.data.title,
     description: parsed.data.description,
     resource_type: parsed.data.resourceType,
     category: parsed.data.category,
     url: parsed.data.url,
-    image_url: parsed.data.imageUrl ?? null,
+    image_url: uploadedImage?.publicUrl ?? parsed.data.imageUrl ?? null,
+    image_storage_path: uploadedImage?.path ?? null,
     tags: parseCsv(parsed.data.tags),
     status: parsed.data.status,
     featured: parsed.data.featured,
@@ -143,6 +220,7 @@ export async function createProResourceAction(
   });
 
   if (error) {
+    await removeAnnouncementImage(supabaseAdmin, uploadedImage?.path);
     Sentry.captureException(error, { extra: { context: "pro_resource_create" } });
     await safeWriteAuditLog({
       userId: actor.id,
@@ -168,6 +246,81 @@ export async function createProResourceAction(
   revalidatePath("/professional/resources");
 
   return { message: "Recurso creado.", ok: true };
+}
+
+export async function createPatientResourceAction(
+  _previousState: ProActionState,
+  formData: FormData
+): Promise<ProActionState> {
+  const actor = await getActiveAdmin();
+
+  if (!actor || actor.role !== "super_administrador") {
+    return { message: "Solo super admin puede administrar anuncios a pacientes.", ok: false };
+  }
+
+  const parsed = resourceSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    resourceType: formData.get("resourceType"),
+    category: formData.get("category"),
+    url: formData.get("url"),
+    imageUrl: formData.get("imageUrl"),
+    tags: formData.get("tags"),
+    status: formData.get("status"),
+    featured: formData.get("featured") === "on",
+    displaySections: formData.get("displaySections"),
+    sortOrder: formData.get("sortOrder")
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos de recurso invalidos.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  let uploadedImage = null;
+
+  try {
+    uploadedImage = await uploadAnnouncementImage(supabaseAdmin, getOptionalFile(formData, "imageFile"), actor.id);
+  } catch (error) {
+    Sentry.captureException(error, { extra: { context: "patient_resource_image_upload" } });
+    return { message: error instanceof Error ? error.message : "No fue posible subir la imagen.", ok: false };
+  }
+
+  const { error } = await supabaseAdmin.from("patient_resources").insert({
+    title: parsed.data.title,
+    description: parsed.data.description,
+    resource_type: parsed.data.resourceType,
+    category: parsed.data.category,
+    url: parsed.data.url,
+    image_url: uploadedImage?.publicUrl ?? parsed.data.imageUrl ?? null,
+    image_storage_path: uploadedImage?.path ?? null,
+    tags: parseCsv(parsed.data.tags),
+    status: parsed.data.status,
+    featured: parsed.data.featured,
+    display_sections: parseCsv(parsed.data.displaySections),
+    sort_order: parsed.data.sortOrder,
+    created_by: actor.id
+  });
+
+  if (error) {
+    await removeAnnouncementImage(supabaseAdmin, uploadedImage?.path);
+    Sentry.captureException(error, { extra: { context: "patient_resource_create" } });
+    return { message: "No fue posible crear el recurso para pacientes.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "patient_resource_create",
+    entityType: "patient_resources",
+    result: "success",
+    context: "audit_patient_resource_create_success"
+  });
+
+  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePath("/portal");
+
+  return { message: "Recurso para pacientes creado.", ok: true };
 }
 
 export async function createProBannerAction(
@@ -197,12 +350,23 @@ export async function createProBannerAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  let uploadedImage = null;
+
+  try {
+    uploadedImage = await uploadAnnouncementImage(supabaseAdmin, getOptionalFile(formData, "imageFile"), actor.id);
+  } catch (error) {
+    Sentry.captureException(error, { extra: { context: "pro_banner_image_upload" } });
+    return { message: error instanceof Error ? error.message : "No fue posible subir la imagen.", ok: false };
+  }
+
   const { error } = await supabaseAdmin.from("pro_banners").insert({
     title: parsed.data.title,
     body: parsed.data.body,
     banner_type: parsed.data.bannerType,
     cta_label: parsed.data.ctaLabel || null,
     cta_url: parsed.data.ctaUrl ?? null,
+    image_url: uploadedImage?.publicUrl ?? null,
+    image_storage_path: uploadedImage?.path ?? null,
     display_sections: parseCsv(parsed.data.displaySections),
     status: parsed.data.status,
     priority: parsed.data.priority,
@@ -211,6 +375,7 @@ export async function createProBannerAction(
   });
 
   if (error) {
+    await removeAnnouncementImage(supabaseAdmin, uploadedImage?.path);
     Sentry.captureException(error, { extra: { context: "pro_banner_create" } });
     await safeWriteAuditLog({
       userId: actor.id,
@@ -236,6 +401,78 @@ export async function createProBannerAction(
   revalidatePath("/professional");
 
   return { message: "Banner creado.", ok: true };
+}
+
+export async function createPatientBannerAction(
+  _previousState: ProActionState,
+  formData: FormData
+): Promise<ProActionState> {
+  const actor = await getActiveAdmin();
+
+  if (!actor || actor.role !== "super_administrador") {
+    return { message: "Solo super admin puede administrar anuncios a pacientes.", ok: false };
+  }
+
+  const parsed = bannerSchema.safeParse({
+    title: formData.get("title"),
+    body: formData.get("body"),
+    bannerType: formData.get("bannerType"),
+    ctaLabel: formData.get("ctaLabel"),
+    ctaUrl: formData.get("ctaUrl"),
+    displaySections: formData.get("displaySections"),
+    status: formData.get("status"),
+    priority: formData.get("priority"),
+    dismissible: formData.get("dismissible") === "on"
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos de banner invalidos.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  let uploadedImage = null;
+
+  try {
+    uploadedImage = await uploadAnnouncementImage(supabaseAdmin, getOptionalFile(formData, "imageFile"), actor.id);
+  } catch (error) {
+    Sentry.captureException(error, { extra: { context: "patient_banner_image_upload" } });
+    return { message: error instanceof Error ? error.message : "No fue posible subir la imagen.", ok: false };
+  }
+
+  const { error } = await supabaseAdmin.from("patient_banners").insert({
+    title: parsed.data.title,
+    body: parsed.data.body,
+    banner_type: parsed.data.bannerType,
+    cta_label: parsed.data.ctaLabel || null,
+    cta_url: parsed.data.ctaUrl ?? null,
+    image_url: uploadedImage?.publicUrl ?? null,
+    image_storage_path: uploadedImage?.path ?? null,
+    display_sections: parseCsv(parsed.data.displaySections),
+    status: parsed.data.status,
+    priority: parsed.data.priority,
+    dismissible: parsed.data.dismissible,
+    created_by: actor.id
+  });
+
+  if (error) {
+    await removeAnnouncementImage(supabaseAdmin, uploadedImage?.path);
+    Sentry.captureException(error, { extra: { context: "patient_banner_create" } });
+    return { message: "No fue posible crear el banner para pacientes.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "patient_banner_create",
+    entityType: "patient_banners",
+    result: "success",
+    context: "audit_patient_banner_create_success"
+  });
+
+  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePath("/portal");
+
+  return { message: "Banner para pacientes creado.", ok: true };
 }
 
 export async function createProEventAction(
@@ -273,6 +510,15 @@ export async function createProEventAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  let uploadedImage = null;
+
+  try {
+    uploadedImage = await uploadAnnouncementImage(supabaseAdmin, getOptionalFile(formData, "imageFile"), actor.id);
+  } catch (error) {
+    Sentry.captureException(error, { extra: { context: "pro_event_image_upload" } });
+    return { message: error instanceof Error ? error.message : "No fue posible subir la imagen.", ok: false };
+  }
+
   const { error } = await supabaseAdmin.from("pro_events").insert({
     title: parsed.data.title,
     description: parsed.data.description,
@@ -281,10 +527,13 @@ export async function createProEventAction(
     modality: parsed.data.modality,
     info_url: parsed.data.infoUrl ?? null,
     registration_url: parsed.data.registrationUrl ?? null,
+    image_url: uploadedImage?.publicUrl ?? null,
+    image_storage_path: uploadedImage?.path ?? null,
     created_by: actor.id
   });
 
   if (error) {
+    await removeAnnouncementImage(supabaseAdmin, uploadedImage?.path);
     Sentry.captureException(error, { extra: { context: "pro_event_create" } });
     await safeWriteAuditLog({
       userId: actor.id,
@@ -310,6 +559,158 @@ export async function createProEventAction(
   revalidatePath("/professional");
 
   return { message: "Evento creado.", ok: true };
+}
+
+export async function createPatientEventAction(
+  _previousState: ProActionState,
+  formData: FormData
+): Promise<ProActionState> {
+  const actor = await getActiveAdmin();
+
+  if (!actor || actor.role !== "super_administrador") {
+    return { message: "Solo super admin puede administrar anuncios a pacientes.", ok: false };
+  }
+
+  const parsed = eventSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    eventType: formData.get("eventType"),
+    startsAt: formData.get("startsAt"),
+    modality: formData.get("modality"),
+    infoUrl: formData.get("infoUrl"),
+    registrationUrl: formData.get("registrationUrl")
+  });
+
+  if (!parsed.success) {
+    return { message: "Datos de evento invalidos.", ok: false };
+  }
+
+  const startsAt = new Date(parsed.data.startsAt);
+
+  if (Number.isNaN(startsAt.getTime()) || startsAt.getTime() <= Date.now()) {
+    return { message: "El evento debe programarse en una fecha futura.", ok: false };
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  let uploadedImage = null;
+
+  try {
+    uploadedImage = await uploadAnnouncementImage(supabaseAdmin, getOptionalFile(formData, "imageFile"), actor.id);
+  } catch (error) {
+    Sentry.captureException(error, { extra: { context: "patient_event_image_upload" } });
+    return { message: error instanceof Error ? error.message : "No fue posible subir la imagen.", ok: false };
+  }
+
+  const { error } = await supabaseAdmin.from("patient_events").insert({
+    title: parsed.data.title,
+    description: parsed.data.description,
+    event_type: parsed.data.eventType,
+    starts_at: startsAt.toISOString(),
+    modality: parsed.data.modality,
+    info_url: parsed.data.infoUrl ?? null,
+    registration_url: parsed.data.registrationUrl ?? null,
+    image_url: uploadedImage?.publicUrl ?? null,
+    image_storage_path: uploadedImage?.path ?? null,
+    created_by: actor.id
+  });
+
+  if (error) {
+    await removeAnnouncementImage(supabaseAdmin, uploadedImage?.path);
+    Sentry.captureException(error, { extra: { context: "patient_event_create" } });
+    return { message: "No fue posible crear el evento para pacientes.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "patient_event_create",
+    entityType: "patient_events",
+    result: "success",
+    context: "audit_patient_event_create_success"
+  });
+
+  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePath("/portal");
+
+  return { message: "Evento para pacientes creado.", ok: true };
+}
+
+export async function deleteAnnouncementAction(formData: FormData) {
+  const actor = await getActiveAdmin();
+
+  if (!actor) {
+    return;
+  }
+
+  const parsed = deleteAnnouncementSchema.safeParse({
+    id: formData.get("id"),
+    kind: formData.get("kind"),
+    audience: formData.get("audience") ?? "professional"
+  });
+
+  if (!parsed.success) {
+    return;
+  }
+
+  const tableByKind = {
+    professional: {
+      resource: "pro_resources",
+      banner: "pro_banners",
+      event: "pro_events"
+    },
+    patient: {
+      resource: "patient_resources",
+      banner: "patient_banners",
+      event: "patient_events"
+    }
+  } as const;
+  const table = tableByKind[parsed.data.audience][parsed.data.kind];
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: existing, error: loadError } = await supabaseAdmin
+    .from(table)
+    .select("id, image_storage_path")
+    .eq("id", parsed.data.id)
+    .maybeSingle();
+
+  if (loadError || !existing) {
+    Sentry.captureException(loadError ?? new Error("Announcement not found for deletion"), {
+      extra: { table, id: parsed.data.id }
+    });
+    return;
+  }
+
+  const { error } = await supabaseAdmin.from(table).delete().eq("id", parsed.data.id);
+
+  if (error) {
+    Sentry.captureException(error, { extra: { context: "announcement_delete", table } });
+    await safeWriteAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "announcement_delete",
+      entityType: table,
+      entityId: parsed.data.id,
+      result: "error",
+      context: "audit_announcement_delete_error"
+    });
+    return;
+  }
+
+  await removeAnnouncementImage(supabaseAdmin, existing.image_storage_path as string | null);
+  await safeWriteAuditLog({
+    userId: actor.id,
+    role: actor.role,
+    action: "announcement_delete",
+    entityType: table,
+    entityId: parsed.data.id,
+    result: "success",
+    context: "audit_announcement_delete_success"
+  });
+
+  revalidatePath(adminProPath(actor.role));
+  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePath("/professional");
+  revalidatePath("/professional/resources");
+  revalidatePath("/portal");
 }
 
 export async function dismissProBannerAction(formData: FormData) {

@@ -3,6 +3,11 @@ export type AdminMetric = {
   value: number;
 };
 
+export type AdminTextMetric = {
+  label: string;
+  value: string;
+};
+
 export type ProfessionalOperationalMetric = {
   professional_id: string;
   full_name: string;
@@ -15,6 +20,11 @@ export type AdminOperationalReport = {
   users: AdminMetric[];
   expedientes: AdminMetric[];
   appointments: AdminMetric[];
+  appointmentPeriods: AdminMetric[];
+  patientMetadata: AdminMetric[];
+  professionalMetadata: AdminMetric[];
+  platformMetadata: AdminMetric[];
+  metadataHighlights: AdminTextMetric[];
   professionals: ProfessionalOperationalMetric[];
 };
 

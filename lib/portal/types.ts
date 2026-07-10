@@ -103,4 +103,5 @@ export type PortalDashboard = {
   assessmentExpedientes: PortalAssessmentExpedienteOption[];
   assessmentRequests: PortalAssessmentRequest[];
   assessmentUploads: PortalAssessmentUpload[];
+  announcements: import("@/lib/pro/types").PatientAnnouncementsDashboard;
 };

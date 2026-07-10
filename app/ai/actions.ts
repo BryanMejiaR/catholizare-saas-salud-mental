@@ -7,6 +7,8 @@ import { getCurrentProfile } from "@/lib/auth/profile";
 import { safeWriteAuditLog } from "@/lib/audit/safe";
 import { generateClinicalDraft } from "@/lib/ai/openai";
 import type { ClinicalContextPackage } from "@/lib/ai/types";
+import { anonymizeLifeHistoryAnswers } from "@/lib/life-history/anonymize";
+import type { LifeHistoryAnswers } from "@/lib/life-history/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { ProcessTemplateStep, ProcesoTerapeutico } from "@/lib/procesos/types";
 
@@ -49,11 +51,81 @@ async function assertProcessOwner(processId: string, professionalId: string) {
   return data as ProcesoTerapeutico;
 }
 
-function buildStepContextPackage(
+async function buildStepContextPackage(
   process: ProcesoTerapeutico,
   step: ProcessTemplateStep
-): ClinicalContextPackage {
+): Promise<ClinicalContextPackage> {
+  const supabaseAdmin = createSupabaseAdminClient();
   const stepValues = process.step_data?.[step.id] ?? {};
+  const [{ data: lifeHistory }, { data: assessments }, { data: assessmentUploads }] =
+    await Promise.all([
+      supabaseAdmin
+        .from("patient_life_histories")
+        .select("status, answers, submitted_at")
+        .eq("expediente_id", process.expediente_id)
+        .in("status", ["enviada", "reabierta"])
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabaseAdmin
+        .from("psychological_assessments")
+        .select("id, assessment_type, status, applied_at, raw_scores, scaled_scores, percentiles, cutoff_points, interpretation")
+        .eq("expediente_id", process.expediente_id)
+        .in("status", ["analizada", "validada"])
+        .order("applied_at", { ascending: false })
+        .limit(6),
+      supabaseAdmin
+        .from("patient_assessment_uploads")
+        .select("id, assessment_code, status, extracted_results")
+        .eq("expediente_id", process.expediente_id)
+        .in("status", ["analizada", "vinculada"])
+        .order("created_at", { ascending: false })
+        .limit(6)
+    ]);
+  const lifeHistoryContext = lifeHistory
+    ? {
+        status: lifeHistory.status as string,
+        submitted_at: lifeHistory.submitted_at as string | null,
+        answers: anonymizeLifeHistoryAnswers((lifeHistory.answers ?? {}) as LifeHistoryAnswers)
+      }
+    : undefined;
+  const assessmentSummary = [
+    ...((assessments ?? []) as Array<{
+      id: string;
+      assessment_type: string;
+      status: string;
+      applied_at: string | null;
+      raw_scores: Record<string, unknown> | null;
+      scaled_scores: Record<string, unknown> | null;
+      percentiles: Record<string, unknown> | null;
+      cutoff_points: Record<string, unknown> | null;
+      interpretation: string | null;
+    }>).map((assessment) => ({
+      id: assessment.id,
+      type: assessment.assessment_type,
+      status: assessment.status,
+      applied_at: assessment.applied_at,
+      scores: {
+        raw_scores: assessment.raw_scores,
+        scaled_scores: assessment.scaled_scores,
+        percentiles: assessment.percentiles,
+        cutoff_points: assessment.cutoff_points
+      },
+      interpretation_available: Boolean(assessment.interpretation)
+    })),
+    ...((assessmentUploads ?? []) as Array<{
+      id: string;
+      assessment_code: string;
+      status: string;
+      extracted_results: Record<string, unknown> | null;
+    }>).map((upload) => ({
+      id: upload.id,
+      type: upload.assessment_code,
+      status: upload.status,
+      scores: upload.extracted_results,
+      interpretation_available: false
+    }))
+  ].slice(0, 8);
 
   return {
     task: "prellenado_paso",
@@ -79,7 +151,9 @@ function buildStepContextPackage(
         id: candidate.id,
         title: candidate.title,
         completed: process.step_data?.[candidate.id]?.completed === true
-      }))
+      })),
+    ...(lifeHistoryContext ? { life_history: lifeHistoryContext } : {}),
+    ...(assessmentSummary.length > 0 ? { assessment_summary: assessmentSummary } : {})
   };
 }
 
@@ -145,7 +219,7 @@ export async function requestStepAiDraftAction(
     return { message: "El paso del proceso no existe.", ok: false };
   }
 
-  const contextPackage = buildStepContextPackage(process, step);
+  const contextPackage = await buildStepContextPackage(process, step);
 
   let draft;
 

@@ -71,11 +71,22 @@ async function fetchPage(url: string) {
 
 function extractLinks(html: string, sourceUrl: string) {
   const matches = [...html.matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
-  const imageMatches = [...html.matchAll(/<img\s+[^>]*src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*>/gi)];
-  const images = imageMatches.map((match) => ({
-    src: absoluteUrl(match[1], sourceUrl),
-    alt: stripHtml(match[2])
-  }));
+  const imageMatches = [...html.matchAll(/<img\s+[^>]*>/gi)];
+  const images = imageMatches
+    .map((match) => {
+      const tag = match[0];
+      const src =
+        tag.match(/\s(?:data-src|data-lazy-src|src)=["']([^"']+)["']/i)?.[1] ??
+        tag.match(/\ssrcset=["']([^"']+)["']/i)?.[1]?.split(",")[0]?.trim().split(" ")[0] ??
+        "";
+      const alt = tag.match(/\salt=["']([^"']*)["']/i)?.[1] ?? "";
+
+      return {
+        src: src ? absoluteUrl(src, sourceUrl) : "",
+        alt: stripHtml(alt)
+      };
+    })
+    .filter((image) => image.src.startsWith("http"));
   const seen = new Set<string>();
 
   return matches
@@ -114,6 +125,7 @@ export async function getPublicProResources(): Promise<ProResource[]> {
     category: "Catholizare Pro",
     url: item.url,
     image_url: item.image_url,
+    image_storage_path: null,
     tags: ["catholizare-pro", "publico"],
     status: "activo",
     featured: index < 2,
@@ -144,6 +156,8 @@ export async function getPublicProEvents(): Promise<ProEvent[]> {
     modality: "Consultar en Catholizare Pro",
     info_url: item.url,
     registration_url: item.url,
+    image_url: item.image_url,
+    image_storage_path: null,
     status: "programado",
     created_by: null,
     created_at: new Date(0).toISOString(),

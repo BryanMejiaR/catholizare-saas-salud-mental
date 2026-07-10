@@ -38,6 +38,7 @@ export type ProResource = {
   category: string;
   url: string;
   image_url: string | null;
+  image_storage_path: string | null;
   tags: string[];
   status: ProContentStatus;
   featured: boolean;
@@ -58,6 +59,7 @@ export type ProBanner = {
   cta_label: string | null;
   cta_url: string | null;
   image_url: string | null;
+  image_storage_path: string | null;
   display_sections: string[];
   status: ProContentStatus;
   priority: number;
@@ -79,6 +81,8 @@ export type ProEvent = {
   modality: string;
   info_url: string | null;
   registration_url: string | null;
+  image_url: string | null;
+  image_storage_path: string | null;
   status: "programado" | "cancelado" | "finalizado";
   created_by: string | null;
   created_at: string;
@@ -89,4 +93,20 @@ export type ProfessionalProDashboard = {
   resources: ProResource[];
   banners: ProBanner[];
   events: ProEvent[];
+};
+
+export type PatientAnnouncementResource = Omit<ProResource, "resource_type"> & {
+  resource_type: string;
+};
+
+export type PatientAnnouncementBanner = Omit<ProBanner, "banner_type"> & {
+  banner_type: string;
+};
+
+export type PatientAnnouncementEvent = ProEvent;
+
+export type PatientAnnouncementsDashboard = {
+  resources: PatientAnnouncementResource[];
+  banners: PatientAnnouncementBanner[];
+  events: PatientAnnouncementEvent[];
 };

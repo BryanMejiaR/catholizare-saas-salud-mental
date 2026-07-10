@@ -21,7 +21,9 @@ export default async function SuperAdminProPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
               Catholizare
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Catholizare Pro</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-ink">
+              Centro de anuncios a profesionales
+            </h1>
           </div>
           <Link href="/super-admin" className="text-sm font-medium text-moss">
             Volver al panel

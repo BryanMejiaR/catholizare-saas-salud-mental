@@ -20,12 +20,42 @@ function MetricsSection({ title, metrics }: { title: string; metrics: AdminOpera
   );
 }
 
+function TextMetricsSection({
+  title,
+  metrics
+}: {
+  title: string;
+  metrics: AdminOperationalReport["metadataHighlights"];
+}) {
+  return (
+    <section className="rounded-lg border border-ink/10 bg-white p-5">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {metrics.map((metric, index) => (
+          <div key={`${metric.label}-${index}`} className="rounded-md border border-ink/10 p-4">
+            <p className="text-sm text-ink/60">{metric.label}</p>
+            <p className="mt-2 text-sm font-semibold text-ink">{metric.value}</p>
+          </div>
+        ))}
+        {metrics.length === 0 ? (
+          <p className="text-sm text-ink/65">Sin datos suficientes para mostrar.</p>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
 export function OperationalReport({ report }: OperationalReportProps) {
   return (
     <div className="space-y-6">
       <MetricsSection title="Usuarios" metrics={report.users} />
-      <MetricsSection title="Expedientes administrativos" metrics={report.expedientes} />
+      <MetricsSection title="Expedientes clínicos" metrics={report.expedientes} />
       <MetricsSection title="Agenda" metrics={report.appointments} />
+      <MetricsSection title="Dashboard de agenda" metrics={report.appointmentPeriods} />
+      <MetricsSection title="Metadata de pacientes" metrics={report.patientMetadata} />
+      <MetricsSection title="Metadata de profesionales" metrics={report.professionalMetadata} />
+      <MetricsSection title="Metadata operativa de plataforma" metrics={report.platformMetadata} />
+      <TextMetricsSection title="Motivos de consulta frecuentes" metrics={report.metadataHighlights} />
 
       <section className="overflow-hidden rounded-lg border border-ink/10 bg-white">
         <div className="p-5">

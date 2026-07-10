@@ -17,7 +17,7 @@ export default async function AdminPage() {
           Ver reportes operativos
         </Link>
         <Link className="inline-flex font-medium text-moss" href="/admin/pro">
-          Gestionar Catholizare Pro
+          Centro de anuncios a profesionales
         </Link>
         <Link className="inline-flex font-medium text-moss" href="/admin/help">
           Gestionar ayuda

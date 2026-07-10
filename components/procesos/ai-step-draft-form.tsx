@@ -21,7 +21,7 @@ export function AiStepDraftForm({ processId, stepId, disabled }: AiStepDraftForm
       <input type="hidden" name="stepId" value={stepId} />
 
       <div>
-        <h3 className="text-sm font-semibold text-ink">Borrador asistido por IA</h3>
+        <h3 className="text-sm font-semibold text-ink">Generar previo asistido por IA</h3>
         <p className="mt-1 text-xs text-ink/60">
           La sugerencia no se guarda automaticamente. Revisala y copia solo lo que decidas usar.
         </p>
@@ -46,7 +46,7 @@ export function AiStepDraftForm({ processId, stepId, disabled }: AiStepDraftForm
         </div>
       ) : null}
 
-      <SubmitButton disabled={disabled}>Generar borrador</SubmitButton>
+      <SubmitButton disabled={disabled}>Generar previo</SubmitButton>
     </form>
   );
 }

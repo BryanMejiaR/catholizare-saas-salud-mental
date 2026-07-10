@@ -3,6 +3,9 @@
 import { useActionState } from "react";
 
 import {
+  createPatientBannerAction,
+  createPatientEventAction,
+  createPatientResourceAction,
   createProBannerAction,
   createProEventAction,
   createProResourceAction
@@ -60,8 +63,26 @@ function Textarea({ name, label }: { name: string; label: string }) {
   );
 }
 
-export function CreateProResourceForm() {
-  const [state, formAction] = useActionState(createProResourceAction, {});
+function ImageField() {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium text-ink">Imagen opcional</span>
+      <input
+        name="imageFile"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 text-sm"
+      />
+      <span className="mt-1 block text-xs text-ink/55">JPG, PNG, WEBP o GIF. Maximo 5 MB.</span>
+    </label>
+  );
+}
+
+export function CreateProResourceForm({ patient = false }: { patient?: boolean }) {
+  const [state, formAction] = useActionState(
+    patient ? createPatientResourceAction : createProResourceAction,
+    {}
+  );
 
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
@@ -86,6 +107,7 @@ export function CreateProResourceForm() {
         <Field name="displaySections" label="Secciones" placeholder="resources,dashboard" />
         <Field name="sortOrder" label="Orden" type="number" />
       </div>
+      <ImageField />
       <label className="flex items-center gap-2 text-sm text-ink">
         <input name="featured" type="checkbox" />
         Destacado
@@ -102,8 +124,11 @@ export function CreateProResourceForm() {
   );
 }
 
-export function CreateProBannerForm() {
-  const [state, formAction] = useActionState(createProBannerAction, {});
+export function CreateProBannerForm({ patient = false }: { patient?: boolean }) {
+  const [state, formAction] = useActionState(
+    patient ? createPatientBannerAction : createProBannerAction,
+    {}
+  );
 
   return (
     <form action={formAction} className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
@@ -134,17 +159,21 @@ export function CreateProBannerForm() {
           ))}
         </select>
       </div>
+      <ImageField />
       <label className="flex items-center gap-2 text-sm text-ink">
         <input name="dismissible" type="checkbox" defaultChecked />
-        El profesional puede cerrarlo
+        {patient ? "El paciente puede cerrarlo" : "El profesional puede cerrarlo"}
       </label>
       <SubmitButton>Crear banner</SubmitButton>
     </form>
   );
 }
 
-export function CreateProEventForm() {
-  const [state, formAction] = useActionState(createProEventAction, {});
+export function CreateProEventForm({ patient = false }: { patient?: boolean }) {
+  const [state, formAction] = useActionState(
+    patient ? createPatientEventAction : createProEventAction,
+    {}
+  );
   const defaultStartsAt = toLocalDateTimeInputValue(new Date(Date.now() + 60 * 60 * 1000));
 
   return (
@@ -165,6 +194,7 @@ export function CreateProEventForm() {
         <Field name="infoUrl" label="URL de informacion" type="url" />
         <Field name="registrationUrl" label="URL de registro" type="url" />
       </div>
+      <ImageField />
       <SubmitButton>Crear evento</SubmitButton>
     </form>
   );

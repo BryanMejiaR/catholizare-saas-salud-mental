@@ -8,6 +8,7 @@ import {
   STANDARD_CONSENT_VERSION
 } from "@/lib/consent/standard-consent";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getPatientAnnouncementsDashboard } from "@/lib/pro/queries";
 import type {
   PatientPortalSummary,
   PortalAppointment,
@@ -198,14 +199,16 @@ export async function getPortalDashboard(profile: AuthProfile) {
     lifeHistory,
     assessmentRequests,
     assessmentUploads,
-    assessmentExpedientes
+    assessmentExpedientes,
+    announcements
   ] = await Promise.all([
     getPortalAppointmentRequests(profile.id),
     getPortalStandardConsents(activeExpedientes),
     getPortalLifeHistory(profile.id),
     getPortalAssessmentRequests(profile.id),
     getPortalAssessmentUploads(profile.id),
-    enrichAssessmentExpedientes(activeExpedientes)
+    enrichAssessmentExpedientes(activeExpedientes),
+    getPatientAnnouncementsDashboard(profile)
   ]);
 
   await safeWriteAuditLog({
@@ -234,7 +237,8 @@ export async function getPortalDashboard(profile: AuthProfile) {
     lifeHistory,
     assessmentExpedientes,
     assessmentRequests,
-    assessmentUploads
+    assessmentUploads,
+    announcements
   };
 }
 
