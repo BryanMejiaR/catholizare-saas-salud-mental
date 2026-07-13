@@ -28,8 +28,8 @@ export function AssessmentUploadForm({ requests, uploads }: AssessmentUploadForm
       <div>
         <h2 className="text-lg font-semibold text-ink">Pruebas psicologicas</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Sube el archivo o foto de la prueba respondida para que tu profesional capture e
-          interprete los resultados.
+          Sube el archivo de la prueba que el profesional te proporciono para que interprete los
+          datos.
         </p>
       </div>
 

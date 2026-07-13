@@ -41,7 +41,7 @@ const identificationSchema = z.object({
   expedienteId: z.string().uuid(),
   birthDate: optionalText,
   age: z.coerce.number().int().min(0).max(130).optional().or(z.literal("")),
-  sex: z.enum(["masculino", "femenino"]).optional().or(z.literal("")),
+  sex: z.enum(["masculino", "femenino", "prefiero_no_decir"]).optional().or(z.literal("")),
   phone: optionalText,
   residence: optionalText,
   emergencyContactName: optionalText,

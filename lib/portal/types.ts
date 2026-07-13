@@ -30,6 +30,33 @@ export type PortalAppointment = {
   };
 };
 
+export type PortalProcessHistory = {
+  id: string;
+  expediente_id: string;
+  model_type: string;
+  model_label: string;
+  status: "activo" | "cerrado";
+  started_at: string;
+  closed_at: string | null;
+  consultation_reason: string | null;
+  professional: {
+    full_name: string;
+    email: string;
+  };
+};
+
+export type PortalRecommendation = {
+  id: string;
+  session_date: string | null;
+  topic: string | null;
+  techniques: string | null;
+  homework: string | null;
+  professional: {
+    full_name: string;
+    email: string;
+  };
+};
+
 export type PortalAppointmentRequest = {
   id: string;
   appointment_id: string;
@@ -68,6 +95,25 @@ export type PortalStandardConsent = {
   };
 };
 
+export type PortalConsentStatus = {
+  expediente_id: string;
+  status: "pendiente" | "firmado_fisico" | "firmado_digital" | "excepcion_justificada";
+  title: string;
+  version: string;
+  signed_at: string | null;
+  professional: {
+    full_name: string;
+    email: string;
+  };
+};
+
+export type PortalCatholizareLink = {
+  title: string;
+  description: string;
+  href: string;
+  category: "recurso" | "evento" | "proceso" | "test" | "podcast";
+};
+
 export type PortalAssessmentExpedienteOption = {
   id: string;
   professional: {
@@ -99,7 +145,11 @@ export type PortalDashboard = {
   pastAppointments: PortalAppointment[];
   requests: PortalAppointmentRequest[];
   standardConsents: PortalStandardConsent[];
+  consentStatuses: PortalConsentStatus[];
   lifeHistory: PortalLifeHistory | null;
+  recommendations: PortalRecommendation[];
+  processHistory: PortalProcessHistory[];
+  catholizareLinks: PortalCatholizareLink[];
   assessmentExpedientes: PortalAssessmentExpedienteOption[];
   assessmentRequests: PortalAssessmentRequest[];
   assessmentUploads: PortalAssessmentUpload[];

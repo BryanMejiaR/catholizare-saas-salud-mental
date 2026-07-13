@@ -9,6 +9,7 @@ import {
 } from "@/lib/consent/standard-consent";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPatientAnnouncementsDashboard } from "@/lib/pro/queries";
+import { PROCESS_MODEL_LABEL, type ProcessModelType } from "@/lib/procesos/types";
 import type {
   PatientPortalSummary,
   PortalAppointment,
@@ -16,7 +17,11 @@ import type {
   PortalAssessmentExpedienteOption,
   PortalAssessmentRequest,
   PortalAssessmentUpload,
+  PortalCatholizareLink,
+  PortalConsentStatus,
   PortalLifeHistory,
+  PortalProcessHistory,
+  PortalRecommendation,
   PortalStandardConsent
 } from "@/lib/portal/types";
 
@@ -31,7 +36,61 @@ type AppointmentRow = {
   zoom_join_url: string | null;
 };
 
+type NotaTemplateValues = Record<string, Record<string, string | number | boolean | null>>;
+
 const ZOOM_JOIN_WINDOW_MS = 24 * 60 * 60 * 1000;
+const LIFE_HISTORY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+const CATHOLIZARE_LINKS: PortalCatholizareLink[] = [
+  {
+    title: "Herramientas para tu motivo de consulta",
+    description: "Explora respuestas del blog y recursos psicoespirituales de Catholizare.",
+    href: "https://catholizare.com/",
+    category: "recurso"
+  },
+  {
+    title: "Oratorio",
+    description: "Espacio de oracion y comunidad disponible desde Catholizare.",
+    href: "https://catholizare.com/",
+    category: "evento"
+  },
+  {
+    title: "Terapia individual",
+    description: "Busca un profesional para un proceso individual.",
+    href: "https://catholizare.com/psicologos-catolicos/consultoria-individual/",
+    category: "proceso"
+  },
+  {
+    title: "Terapia de pareja",
+    description: "Encuentra acompanamiento para pareja.",
+    href: "https://catholizare.com/psicologos-catolicos/consultoria-de-pareja/",
+    category: "proceso"
+  },
+  {
+    title: "Terapia familiar",
+    description: "Encuentra acompanamiento familiar.",
+    href: "https://catholizare.com/psicologos-catolicos/consultoria-familiar/",
+    category: "proceso"
+  },
+  {
+    title: "Para consagrados",
+    description: "Atencion psicologica para sacerdotes, consagrados o laicos.",
+    href: "https://catholizare.com/psicologos-catolicos/psicologos-catolicos-para-sacerdotes-consagrados-o-laicos/",
+    category: "proceso"
+  },
+  {
+    title: "Tests autoadministrables",
+    description: "Accede a tests y quizzes de orientacion desde Catholizare.",
+    href: "https://catholizare.com/",
+    category: "test"
+  },
+  {
+    title: "Podcast",
+    description: "Seccion reservada para contenidos de audio.",
+    href: "https://catholizare.com/",
+    category: "podcast"
+  }
+];
 
 async function getProfilesById(ids: string[]) {
   if (ids.length === 0) {
@@ -115,7 +174,7 @@ export async function getPortalDashboard(profile: AuthProfile) {
   const nowIso = new Date().toISOString();
   const { data: expedientes, error: expedientesError } = await supabaseAdmin
     .from("expedientes")
-    .select("id, professional_id")
+    .select("id, professional_id, initial_consultation_reason")
     .eq("patient_id", profile.id)
     .eq("status", "activo");
 
@@ -123,7 +182,11 @@ export async function getPortalDashboard(profile: AuthProfile) {
     throw new Error(`Unable to load patient portal expedientes: ${expedientesError.message}`);
   }
 
-  const activeExpedientes = (expedientes ?? []) as Array<{ id: string; professional_id: string }>;
+  const activeExpedientes = (expedientes ?? []) as Array<{
+    id: string;
+    professional_id: string;
+    initial_consultation_reason: string | null;
+  }>;
   const expedienteIds = activeExpedientes.map((row) => row.id);
   const summaryQuery =
     expedienteIds.length > 0
@@ -196,7 +259,10 @@ export async function getPortalDashboard(profile: AuthProfile) {
   const [
     requests,
     standardConsents,
+    consentStatuses,
     lifeHistory,
+    recommendations,
+    processHistory,
     assessmentRequests,
     assessmentUploads,
     assessmentExpedientes,
@@ -204,7 +270,10 @@ export async function getPortalDashboard(profile: AuthProfile) {
   ] = await Promise.all([
     getPortalAppointmentRequests(profile.id),
     getPortalStandardConsents(activeExpedientes),
+    getPortalConsentStatuses(activeExpedientes),
     getPortalLifeHistory(profile.id),
+    getPortalRecommendations(expedienteIds),
+    getPortalProcessHistory(activeExpedientes),
     getPortalAssessmentRequests(profile.id),
     getPortalAssessmentUploads(profile.id),
     enrichAssessmentExpedientes(activeExpedientes),
@@ -234,7 +303,11 @@ export async function getPortalDashboard(profile: AuthProfile) {
     pastAppointments,
     requests,
     standardConsents,
+    consentStatuses,
     lifeHistory,
+    recommendations,
+    processHistory,
+    catholizareLinks: CATHOLIZARE_LINKS,
     assessmentExpedientes,
     assessmentRequests,
     assessmentUploads,
@@ -300,6 +373,165 @@ async function getPortalStandardConsents(
     });
 }
 
+async function getPortalConsentStatuses(
+  expedientes: Array<{ id: string; professional_id: string }>
+): Promise<PortalConsentStatus[]> {
+  if (expedientes.length === 0) {
+    return [];
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const expedienteIds = expedientes.map((expediente) => expediente.id);
+  const { data, error } = await supabaseAdmin
+    .from("consentimientos")
+    .select(
+      "id, expediente_id, status, standard_document_title, standard_document_version, standard_signed_at, signed_at, created_at"
+    )
+    .in("expediente_id", expedienteIds)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Unable to load portal consent statuses: ${error.message}`);
+  }
+
+  const latestByExpediente = new Map<string, (typeof data)[number]>();
+
+  for (const row of data ?? []) {
+    if (!latestByExpediente.has(row.expediente_id as string)) {
+      latestByExpediente.set(row.expediente_id as string, row);
+    }
+  }
+
+  const professionals = await getProfilesById([
+    ...new Set(expedientes.map((expediente) => expediente.professional_id))
+  ]);
+  const professionalByExpediente = new Map(
+    expedientes.map((expediente) => [expediente.id, expediente.professional_id])
+  );
+
+  return [...latestByExpediente.values()].map((row) => {
+    const professionalId = professionalByExpediente.get(row.expediente_id as string) ?? "";
+
+    return {
+      expediente_id: row.expediente_id as string,
+      status: row.status as PortalConsentStatus["status"],
+      title: (row.standard_document_title as string | null) ?? STANDARD_CONSENT_TITLE,
+      version: (row.standard_document_version as string | null) ?? STANDARD_CONSENT_VERSION,
+      signed_at: (row.standard_signed_at as string | null) ?? (row.signed_at as string | null),
+      professional: professionals.get(professionalId) ?? {
+        full_name: "Profesional no disponible",
+        email: ""
+      }
+    };
+  });
+}
+
+function getNotaTemplateText(values: NotaTemplateValues | null, fieldId: string) {
+  for (const section of Object.values(values ?? {})) {
+    const value = section[fieldId];
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+async function getPortalRecommendations(expedienteIds: string[]): Promise<PortalRecommendation[]> {
+  if (expedienteIds.length === 0) {
+    return [];
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("notas_clinicas")
+    .select("id, professional_id, session_date, note_template_values")
+    .in("expediente_id", expedienteIds)
+    .eq("status", "confirmada")
+    .order("session_date", { ascending: false })
+    .limit(6);
+
+  if (error) {
+    throw new Error(`Unable to load portal recommendations: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as Array<{
+    id: string;
+    professional_id: string;
+    session_date: string | null;
+    note_template_values: NotaTemplateValues | null;
+  }>;
+  const professionals = await getProfilesById([...new Set(rows.map((row) => row.professional_id))]);
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      session_date: row.session_date,
+      topic: getNotaTemplateText(row.note_template_values, "follow_up_topic"),
+      techniques: getNotaTemplateText(row.note_template_values, "follow_up_techniques"),
+      homework:
+        getNotaTemplateText(row.note_template_values, "follow_up_homework") ??
+        getNotaTemplateText(row.note_template_values, "home_action_plan"),
+      professional: professionals.get(row.professional_id) ?? {
+        full_name: "Profesional no disponible",
+        email: ""
+      }
+    }))
+    .filter((row) => row.topic || row.techniques || row.homework);
+}
+
+async function getPortalProcessHistory(
+  expedientes: Array<{
+    id: string;
+    professional_id: string;
+    initial_consultation_reason: string | null;
+  }>
+): Promise<PortalProcessHistory[]> {
+  if (expedientes.length === 0) {
+    return [];
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const expedienteIds = expedientes.map((expediente) => expediente.id);
+  const { data, error } = await supabaseAdmin
+    .from("procesos_terapeuticos")
+    .select("id, expediente_id, professional_id, model_type, status, started_at, closed_at")
+    .in("expediente_id", expedienteIds)
+    .order("started_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Unable to load portal process history: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as Array<{
+    id: string;
+    expediente_id: string;
+    professional_id: string;
+    model_type: ProcessModelType;
+    status: "activo" | "cerrado";
+    started_at: string;
+    closed_at: string | null;
+  }>;
+  const professionals = await getProfilesById([...new Set(rows.map((row) => row.professional_id))]);
+  const expedienteById = new Map(expedientes.map((expediente) => [expediente.id, expediente]));
+
+  return rows.map((row) => ({
+    id: row.id,
+    expediente_id: row.expediente_id,
+    model_type: row.model_type,
+    model_label: PROCESS_MODEL_LABEL[row.model_type] ?? row.model_type,
+    status: row.status,
+    started_at: row.started_at,
+    closed_at: row.closed_at,
+    consultation_reason: expedienteById.get(row.expediente_id)?.initial_consultation_reason ?? null,
+    professional: professionals.get(row.professional_id) ?? {
+      full_name: "Profesional no disponible",
+      email: ""
+    }
+  }));
+}
+
 async function enrichSummary(
   summary: Omit<PatientPortalSummary, "professional"> | undefined
 ): Promise<PatientPortalSummary | null> {
@@ -357,6 +589,22 @@ async function getPortalLifeHistory(patientId: string): Promise<PortalLifeHistor
     .maybeSingle();
 
   if (error || !data) {
+    return null;
+  }
+
+  const isExpiredDraft =
+    data.status === "borrador" &&
+    !data.submitted_at &&
+    Date.now() - new Date(data.updated_at as string).getTime() > LIFE_HISTORY_DRAFT_TTL_MS;
+
+  if (isExpiredDraft) {
+    await supabaseAdmin
+      .from("patient_life_histories")
+      .delete()
+      .eq("id", data.id as string)
+      .eq("patient_id", patientId)
+      .eq("status", "borrador");
+
     return null;
   }
 

@@ -95,6 +95,7 @@ function FieldControl({
           <option value="">Seleccionar</option>
           <option value="masculino">Masculino</option>
           <option value="femenino">Femenino</option>
+          <option value="prefiero_no_decir">Prefiero no decir</option>
         </select>
       </label>
     );
@@ -139,7 +140,8 @@ export function LifeHistoryForm({ lifeHistory }: LifeHistoryFormProps) {
       <div>
         <h2 className="text-lg font-semibold text-ink">Historia de vida</h2>
         <p className="mt-1 text-sm text-ink/65">
-          Completa este cuestionario para tu profesional. Puedes guardar borrador antes de enviarlo.
+          Completa este cuestionario para tu profesional. Puedes guardar borrador antes de enviarlo;
+          si el borrador no se envia en 7 dias, se eliminara automaticamente.
         </p>
       </div>
 

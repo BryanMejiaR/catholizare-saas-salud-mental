@@ -75,6 +75,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
             <option value="">Seleccionar</option>
             <option value="masculino">Masculino</option>
             <option value="femenino">Femenino</option>
+            <option value="prefiero_no_decir">Prefiero no decir</option>
           </select>
         </label>
 

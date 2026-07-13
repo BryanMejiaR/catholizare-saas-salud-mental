@@ -144,7 +144,8 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
     { data: noteTemplates, error: noteTemplatesError },
     { data: notes, error: notesError },
     { data: googleConnections, error: googleConnectionsError },
-    { data: zoomConnections, error: zoomConnectionsError }
+    { data: zoomConnections, error: zoomConnectionsError },
+    { data: appointmentRequests, error: appointmentRequestsError }
   ] = await Promise.all([
     supabaseAdmin
       .from("profiles")
@@ -159,7 +160,8 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
     supabaseAdmin.from("plantillas_nota_clinica").select("id, professional_id, model_type, name"),
     supabaseAdmin.from("notas_clinicas").select("id, professional_id, note_template_id, note_template_version"),
     supabaseAdmin.from("google_calendar_connections").select("id, professional_id, connection_status"),
-    supabaseAdmin.from("zoom_connections").select("id, professional_id, connection_status")
+    supabaseAdmin.from("zoom_connections").select("id, professional_id, connection_status"),
+    supabaseAdmin.from("patient_appointment_requests").select("id, request_type, status, professional_id")
   ]);
 
   if (
@@ -170,7 +172,8 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
     noteTemplatesError ||
     notesError ||
     googleConnectionsError ||
-    zoomConnectionsError
+    zoomConnectionsError ||
+    appointmentRequestsError
   ) {
     await safeWriteAuditLog({
       userId: profile.id,
@@ -198,6 +201,11 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
     professional_id: string;
     note_template_id: string | null;
     note_template_version: number | null;
+  }>;
+  const appointmentRequestRows = (appointmentRequests ?? []) as Array<{
+    request_type: string;
+    status: string;
+    professional_id: string;
   }>;
   const roleCounts = countBy(profileRows.map((row) => row.role));
   const activeProfessionals = profileRows.filter(
@@ -334,6 +342,14 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
       ...topMetrics(countBy(appointmentRows.map((row) => row.type)), 4).map((metric) => ({
         ...metric,
         label: `Tipo de cita: ${metric.label}`
+      })),
+      ...topMetrics(countBy(appointmentRequestRows.map((row) => row.request_type)), 4).map((metric) => ({
+        ...metric,
+        label: `Solicitud de cita: ${metric.label}`
+      })),
+      ...topMetrics(countBy(appointmentRequestRows.map((row) => row.status)), 4).map((metric) => ({
+        ...metric,
+        label: `Estado de solicitud: ${metric.label}`
       }))
     ],
     metadataHighlights: [

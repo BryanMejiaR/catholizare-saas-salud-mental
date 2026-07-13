@@ -40,6 +40,7 @@ type NotaAccess = {
   created_by_user_id: string | null;
   status: string;
   note_type: string;
+  note_template_values: NotaTemplateValues | null;
   note_template_snapshot: {
     sections: NotaTemplateSection[];
   } | null;
@@ -171,7 +172,7 @@ async function assertNotaOwner(noteId: string, professionalId: string) {
   const { data, error } = await supabaseAdmin
     .from("notas_clinicas")
     .select(
-      "id, expediente_id, patient_id, professional_id, created_by_user_id, status, note_type, note_template_snapshot"
+      "id, expediente_id, patient_id, professional_id, created_by_user_id, status, note_type, note_template_values, note_template_snapshot"
     )
     .eq("id", noteId)
     .eq("professional_id", professionalId)
@@ -182,6 +183,95 @@ async function assertNotaOwner(noteId: string, professionalId: string) {
   }
 
   return data as NotaAccess;
+}
+
+function appendOnlyTextValue(previous: string | number | boolean | null | undefined, next: string | number | boolean | null) {
+  if (previous === null || previous === undefined || previous === "") {
+    return next;
+  }
+
+  if (next === null || next === "") {
+    return previous;
+  }
+
+  if (typeof previous !== "string" || typeof next !== "string") {
+    return next;
+  }
+
+  const previousText = previous.trim();
+  const nextText = next.trim();
+
+  if (!previousText) {
+    return nextText || null;
+  }
+
+  if (!nextText || previousText.includes(nextText)) {
+    return previousText;
+  }
+
+  if (nextText.includes(previousText)) {
+    return nextText;
+  }
+
+  return `${previousText}\n\nAgregado ${new Date().toLocaleString("es-MX")}:\n${nextText}`;
+}
+
+function mergeNotaDraftValuesAppendOnly(
+  previousValues: NotaTemplateValues | null,
+  nextValues: NotaTemplateValues
+) {
+  const merged: NotaTemplateValues = {};
+
+  for (const [sectionId, sectionValues] of Object.entries(nextValues)) {
+    merged[sectionId] = {};
+    const previousSection = previousValues?.[sectionId] ?? {};
+
+    for (const [fieldId, nextValue] of Object.entries(sectionValues)) {
+      merged[sectionId][fieldId] = appendOnlyTextValue(previousSection[fieldId], nextValue);
+    }
+  }
+
+  for (const [sectionId, previousSection] of Object.entries(previousValues ?? {})) {
+    merged[sectionId] = merged[sectionId] ?? {};
+
+    for (const [fieldId, previousValue] of Object.entries(previousSection)) {
+      if (merged[sectionId][fieldId] === undefined) {
+        merged[sectionId][fieldId] = previousValue;
+      }
+    }
+  }
+
+  return merged;
+}
+
+async function writeDraftRevisionSnapshot(input: {
+  note: NotaAccess;
+  actorId: string;
+  previousValues: NotaTemplateValues | null;
+  nextValues: NotaTemplateValues;
+  event: "draft_update" | "confirm";
+}) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { error } = await supabaseAdmin.from("nota_clinica_draft_revisions").insert({
+    note_id: input.note.id,
+    expediente_id: input.note.expediente_id,
+    patient_id: input.note.patient_id,
+    professional_id: input.note.professional_id,
+    edited_by_user_id: input.actorId,
+    revision_event: input.event,
+    previous_values: input.previousValues ?? {},
+    next_values: input.nextValues
+  });
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        note_id: input.note.id,
+        expediente_id: input.note.expediente_id,
+        context: "nota_draft_revision_snapshot"
+      }
+    });
+  }
 }
 
 function parseScores(formData: FormData) {
@@ -715,12 +805,17 @@ export async function updateDraftNotaClinicaAction(
     return { message: normalizedValues.message, ok: false };
   }
 
+  const mergedValues = mergeNotaDraftValuesAppendOnly(
+    note.note_template_values,
+    normalizedValues.values
+  );
+
   const supabaseAdmin = createSupabaseAdminClient();
   const { error } = await supabaseAdmin
     .from("notas_clinicas")
     .update({
-      note_template_values: normalizedValues.values,
-      ...noteBodyPayload(normalizedValues.values, parseScores(formData))
+      note_template_values: mergedValues,
+      ...noteBodyPayload(mergedValues, parseScores(formData))
     })
     .eq("id", note.id)
     .eq("professional_id", actor.id)
@@ -747,6 +842,14 @@ export async function updateDraftNotaClinicaAction(
 
     return { message: "No fue posible guardar el borrador.", ok: false };
   }
+
+  await writeDraftRevisionSnapshot({
+    note,
+    actorId: actor.id,
+    previousValues: note.note_template_values,
+    nextValues: mergedValues,
+    event: "draft_update"
+  });
 
   await safeWriteAuditLog({
     userId: actor.id,
@@ -855,13 +958,18 @@ export async function updateAndConfirmNotaClinicaAction(
     return { message: normalizedValues.message, ok: false };
   }
 
+  const mergedValues = mergeNotaDraftValuesAppendOnly(
+    note.note_template_values,
+    normalizedValues.values
+  );
+
   const now = new Date().toISOString();
   const supabaseAdmin = createSupabaseAdminClient();
   const { error } = await supabaseAdmin
     .from("notas_clinicas")
     .update({
-      note_template_values: normalizedValues.values,
-      ...noteBodyPayload(normalizedValues.values, parseScores(formData)),
+      note_template_values: mergedValues,
+      ...noteBodyPayload(mergedValues, parseScores(formData)),
       status: "confirmada",
       confirmed_at: now,
       confirmed_by_user_id: actor.id
@@ -891,6 +999,14 @@ export async function updateAndConfirmNotaClinicaAction(
 
     return { message: "No fue posible guardar y confirmar la nota.", ok: false };
   }
+
+  await writeDraftRevisionSnapshot({
+    note,
+    actorId: actor.id,
+    previousValues: note.note_template_values,
+    nextValues: mergedValues,
+    event: "confirm"
+  });
 
   await safeWriteAuditLog({
     userId: actor.id,
