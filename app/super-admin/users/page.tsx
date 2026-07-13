@@ -17,7 +17,7 @@ export default async function SuperAdminUsersPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
               Catholizare
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Administradores</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-ink">Usuarios</h1>
           </div>
           <Link href="/super-admin" className="text-sm font-medium text-moss">
             Volver al panel
@@ -26,11 +26,10 @@ export default async function SuperAdminUsersPage() {
 
         <CreateUserForm allowedRoles={["administrador", "super_administrador"]} />
         <UsersTable
-          users={users.filter(
-            (user) => user.role === "administrador" || user.role === "super_administrador"
-          )}
+          users={users}
           showStatusActions
           currentUserId={profile.id}
+          professionalProfileBasePath="/super-admin/users/professionals"
         />
       </div>
     </main>

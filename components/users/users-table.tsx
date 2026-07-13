@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AccountActionForms } from "@/components/users/account-action-forms";
 import { StatusForm } from "@/components/users/status-form";
 import type { UserManagementProfile } from "@/lib/users/types";
 
@@ -8,13 +9,15 @@ type UsersTableProps = {
   showStatusActions?: boolean;
   currentUserId?: string;
   expedienteLinksByUserId?: Record<string, string>;
+  professionalProfileBasePath?: string;
 };
 
 export function UsersTable({
   users,
   showStatusActions = false,
   currentUserId,
-  expedienteLinksByUserId
+  expedienteLinksByUserId,
+  professionalProfileBasePath
 }: UsersTableProps) {
   const showExpedienteLinks = Boolean(expedienteLinksByUserId);
 
@@ -28,7 +31,8 @@ export function UsersTable({
             <th className="px-4 py-3 font-semibold">Rol</th>
             <th className="px-4 py-3 font-semibold">Estado</th>
             {showExpedienteLinks ? <th className="px-4 py-3 font-semibold">Expediente</th> : null}
-            {showStatusActions ? <th className="px-4 py-3 font-semibold">Accion</th> : null}
+            {professionalProfileBasePath ? <th className="px-4 py-3 font-semibold">Perfil</th> : null}
+            {showStatusActions ? <th className="px-4 py-3 font-semibold">Acciones</th> : null}
           </tr>
         </thead>
         <tbody className="divide-y divide-ink/10">
@@ -52,12 +56,32 @@ export function UsersTable({
                   )}
                 </td>
               ) : null}
-              {showStatusActions ? (
+              {professionalProfileBasePath ? (
                 <td className="px-4 py-3">
+                  {user.role === "profesional" ? (
+                    <Link
+                      href={`${professionalProfileBasePath}/${user.id}`}
+                      className="inline-flex h-9 items-center justify-center rounded-md border border-moss px-3 text-xs font-semibold text-moss transition hover:bg-moss hover:text-white"
+                    >
+                      Ver perfil
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-ink/50">No aplica</span>
+                  )}
+                </td>
+              ) : null}
+              {showStatusActions ? (
+                <td className="space-y-3 px-4 py-3">
                   {user.id === currentUserId ? (
                     <span className="text-sm text-ink/55">Cuenta actual</span>
                   ) : (
-                    <StatusForm userId={user.id} currentStatus={user.account_status} />
+                    <>
+                      <StatusForm userId={user.id} currentStatus={user.account_status} />
+                      <AccountActionForms
+                        userId={user.id}
+                        isPendingActivation={user.account_status === "pendiente_activacion"}
+                      />
+                    </>
                   )}
                 </td>
               ) : null}
@@ -68,7 +92,12 @@ export function UsersTable({
             <tr>
               <td
                 className="px-4 py-6 text-center text-ink/60"
-                colSpan={4 + (showExpedienteLinks ? 1 : 0) + (showStatusActions ? 1 : 0)}
+                colSpan={
+                  4 +
+                  (showExpedienteLinks ? 1 : 0) +
+                  (professionalProfileBasePath ? 1 : 0) +
+                  (showStatusActions ? 1 : 0)
+                }
               >
                 No hay usuarios para mostrar.
               </td>

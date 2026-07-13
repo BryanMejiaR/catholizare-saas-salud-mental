@@ -13,22 +13,33 @@ type StatusFormProps = {
 
 export function StatusForm({ userId, currentStatus }: StatusFormProps) {
   const [state, formAction] = useActionState(setUserStatusAction, {});
-  const nextStatus = currentStatus === "inactivo" ? "activo" : "inactivo";
-
-  if (currentStatus === "pendiente_activacion" || currentStatus === "bloqueado") {
-    return <span className="text-sm text-ink/55">{currentStatus}</span>;
-  }
+  const actions =
+    currentStatus === "activo"
+      ? [
+          { status: "inactivo", label: "Desactivar" },
+          { status: "bloqueado", label: "Pausar" }
+        ]
+      : currentStatus === "pendiente_activacion"
+        ? []
+        : [{ status: "activo", label: "Reactivar" }];
 
   return (
     <form action={formAction} className="space-y-2">
       <input type="hidden" name="userId" value={userId} />
-      <input type="hidden" name="accountStatus" value={nextStatus} />
-      <button
-        type="submit"
-        className="rounded-md border border-ink/15 px-3 py-1.5 text-sm font-medium text-ink transition hover:border-moss hover:text-moss"
-      >
-        {nextStatus === "activo" ? "Reactivar" : "Desactivar"}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        {actions.map((action) => (
+          <button
+            key={action.status}
+            name="accountStatus"
+            value={action.status}
+            type="submit"
+            className="rounded-md border border-ink/15 px-3 py-1.5 text-sm font-medium text-ink transition hover:border-moss hover:text-moss"
+          >
+            {action.label}
+          </button>
+        ))}
+        {actions.length === 0 ? <span className="text-sm text-ink/55">Pendiente</span> : null}
+      </div>
       <ActionMessage message={state.message} ok={state.ok} />
     </form>
   );

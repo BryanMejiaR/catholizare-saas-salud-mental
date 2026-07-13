@@ -29,6 +29,7 @@ export default async function AdminUsersPage() {
           users={users.filter((user) => user.role !== "super_administrador")}
           showStatusActions
           currentUserId={profile.id}
+          professionalProfileBasePath="/admin/users/professionals"
         />
       </div>
     </main>

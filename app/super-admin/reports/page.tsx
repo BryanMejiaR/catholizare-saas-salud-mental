@@ -26,7 +26,7 @@ export default async function SuperAdminReportsPage() {
           </Link>
         </div>
 
-        <OperationalReport report={report} />
+        <OperationalReport report={report} showAdvancedMetadata />
       </div>
     </main>
   );

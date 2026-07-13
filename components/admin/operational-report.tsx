@@ -2,6 +2,7 @@ import type { AdminOperationalReport } from "@/lib/admin/types";
 
 type OperationalReportProps = {
   report: AdminOperationalReport;
+  showAdvancedMetadata?: boolean;
 };
 
 function MetricsSection({ title, metrics }: { title: string; metrics: AdminOperationalReport["users"] }) {
@@ -45,17 +46,21 @@ function TextMetricsSection({
   );
 }
 
-export function OperationalReport({ report }: OperationalReportProps) {
+export function OperationalReport({ report, showAdvancedMetadata = false }: OperationalReportProps) {
   return (
     <div className="space-y-6">
       <MetricsSection title="Usuarios" metrics={report.users} />
       <MetricsSection title="Expedientes clínicos" metrics={report.expedientes} />
       <MetricsSection title="Agenda" metrics={report.appointments} />
-      <MetricsSection title="Dashboard de agenda" metrics={report.appointmentPeriods} />
-      <MetricsSection title="Metadata de pacientes" metrics={report.patientMetadata} />
-      <MetricsSection title="Metadata de profesionales" metrics={report.professionalMetadata} />
-      <MetricsSection title="Metadata operativa de plataforma" metrics={report.platformMetadata} />
-      <TextMetricsSection title="Motivos de consulta frecuentes" metrics={report.metadataHighlights} />
+      {showAdvancedMetadata ? (
+        <>
+          <MetricsSection title="Dashboard de agenda" metrics={report.appointmentPeriods} />
+          <MetricsSection title="Metadata de pacientes" metrics={report.patientMetadata} />
+          <MetricsSection title="Metadata de profesionales" metrics={report.professionalMetadata} />
+          <MetricsSection title="Metadata operativa de plataforma" metrics={report.platformMetadata} />
+          <TextMetricsSection title="Motivos de consulta frecuentes" metrics={report.metadataHighlights} />
+        </>
+      ) : null}
 
       <section className="overflow-hidden rounded-lg border border-ink/10 bg-white">
         <div className="p-5">

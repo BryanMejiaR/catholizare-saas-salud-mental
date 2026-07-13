@@ -13,7 +13,7 @@ export type UserManagementProfile = {
   updated_at: string;
 };
 
-export const MANAGEABLE_ACCOUNT_STATUSES = ["activo", "inactivo"] as const;
+export const MANAGEABLE_ACCOUNT_STATUSES = ["activo", "inactivo", "bloqueado"] as const;
 
 export type ManageableAccountStatus = (typeof MANAGEABLE_ACCOUNT_STATUSES)[number];
 
@@ -27,7 +27,7 @@ export function canCreateRole(actorRole: UserRole, targetRole: UserRole) {
   }
 
   if (actorRole === "super_administrador") {
-    return targetRole === "administrador" || targetRole === "super_administrador";
+    return true;
   }
 
   return false;
