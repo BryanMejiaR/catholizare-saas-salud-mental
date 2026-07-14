@@ -106,8 +106,39 @@ function adminProPath(role: AdminProRole) {
   return role === "super_administrador" ? "/super-admin/pro" : "/admin/pro";
 }
 
-function adminPatientAnnouncementsPath() {
-  return "/super-admin/patient-announcements";
+function revalidatePatientAnnouncementsAdminPaths() {
+  revalidatePath("/admin/patient-announcements");
+  revalidatePath("/super-admin/patient-announcements");
+}
+
+function formatValidationError(error: z.ZodError, entity: string) {
+  const labels: Record<string, string> = {
+    title: "titulo",
+    description: "descripcion",
+    body: "cuerpo",
+    resourceType: "tipo",
+    bannerType: "tipo",
+    category: "categoria",
+    url: "URL",
+    imageUrl: "URL de imagen",
+    tags: "etiquetas",
+    status: "estado",
+    displaySections: "secciones",
+    sortOrder: "orden",
+    ctaLabel: "texto del boton",
+    ctaUrl: "URL del boton",
+    priority: "prioridad",
+    eventType: "tipo de evento",
+    startsAt: "fecha y hora",
+    modality: "modalidad",
+    infoUrl: "URL de informacion",
+    registrationUrl: "URL de registro"
+  };
+  const issue = error.issues[0];
+  const field = String(issue?.path[0] ?? "campo");
+  const label = labels[field] ?? field;
+
+  return `Datos de ${entity} invalidos: revisa ${label}. ${issue?.message ?? ""}`.trim();
 }
 
 function getOptionalFile(formData: FormData, name: string) {
@@ -190,7 +221,7 @@ export async function createProResourceAction(
   });
 
   if (!parsed.success) {
-    return { message: "Datos de recurso invalidos.", ok: false };
+    return { message: formatValidationError(parsed.error, "recurso"), ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -254,8 +285,8 @@ export async function createPatientResourceAction(
 ): Promise<ProActionState> {
   const actor = await getActiveAdmin();
 
-  if (!actor || actor.role !== "super_administrador") {
-    return { message: "Solo super admin puede administrar anuncios a pacientes.", ok: false };
+  if (!actor) {
+    return { message: "No tienes permisos administrativos activos.", ok: false };
   }
 
   const parsed = resourceSchema.safeParse({
@@ -273,7 +304,7 @@ export async function createPatientResourceAction(
   });
 
   if (!parsed.success) {
-    return { message: "Datos de recurso invalidos.", ok: false };
+    return { message: formatValidationError(parsed.error, "recurso"), ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -317,7 +348,7 @@ export async function createPatientResourceAction(
     context: "audit_patient_resource_create_success"
   });
 
-  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePatientAnnouncementsAdminPaths();
   revalidatePath("/portal");
 
   return { message: "Recurso para pacientes creado.", ok: true };
@@ -346,7 +377,7 @@ export async function createProBannerAction(
   });
 
   if (!parsed.success) {
-    return { message: "Datos de banner invalidos.", ok: false };
+    return { message: formatValidationError(parsed.error, "banner"), ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -409,8 +440,8 @@ export async function createPatientBannerAction(
 ): Promise<ProActionState> {
   const actor = await getActiveAdmin();
 
-  if (!actor || actor.role !== "super_administrador") {
-    return { message: "Solo super admin puede administrar anuncios a pacientes.", ok: false };
+  if (!actor) {
+    return { message: "No tienes permisos administrativos activos.", ok: false };
   }
 
   const parsed = bannerSchema.safeParse({
@@ -426,7 +457,7 @@ export async function createPatientBannerAction(
   });
 
   if (!parsed.success) {
-    return { message: "Datos de banner invalidos.", ok: false };
+    return { message: formatValidationError(parsed.error, "banner"), ok: false };
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
@@ -469,7 +500,7 @@ export async function createPatientBannerAction(
     context: "audit_patient_banner_create_success"
   });
 
-  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePatientAnnouncementsAdminPaths();
   revalidatePath("/portal");
 
   return { message: "Banner para pacientes creado.", ok: true };
@@ -496,7 +527,7 @@ export async function createProEventAction(
   });
 
   if (!parsed.success) {
-    return { message: "Datos de evento invalidos.", ok: false };
+    return { message: formatValidationError(parsed.error, "evento"), ok: false };
   }
 
   const startsAt = new Date(parsed.data.startsAt);
@@ -567,8 +598,8 @@ export async function createPatientEventAction(
 ): Promise<ProActionState> {
   const actor = await getActiveAdmin();
 
-  if (!actor || actor.role !== "super_administrador") {
-    return { message: "Solo super admin puede administrar anuncios a pacientes.", ok: false };
+  if (!actor) {
+    return { message: "No tienes permisos administrativos activos.", ok: false };
   }
 
   const parsed = eventSchema.safeParse({
@@ -582,7 +613,7 @@ export async function createPatientEventAction(
   });
 
   if (!parsed.success) {
-    return { message: "Datos de evento invalidos.", ok: false };
+    return { message: formatValidationError(parsed.error, "evento"), ok: false };
   }
 
   const startsAt = new Date(parsed.data.startsAt);
@@ -629,7 +660,7 @@ export async function createPatientEventAction(
     context: "audit_patient_event_create_success"
   });
 
-  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePatientAnnouncementsAdminPaths();
   revalidatePath("/portal");
 
   return { message: "Evento para pacientes creado.", ok: true };
@@ -707,7 +738,7 @@ export async function deleteAnnouncementAction(formData: FormData) {
   });
 
   revalidatePath(adminProPath(actor.role));
-  revalidatePath(adminPatientAnnouncementsPath());
+  revalidatePatientAnnouncementsAdminPaths();
   revalidatePath("/professional");
   revalidatePath("/professional/resources");
   revalidatePath("/portal");

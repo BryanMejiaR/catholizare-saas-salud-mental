@@ -13,6 +13,7 @@ import {
   getNotasForExpediente
 } from "@/lib/notas/queries";
 import { getProcesoForExpediente } from "@/lib/procesos/queries";
+import { PROCESS_MODEL_LABEL } from "@/lib/procesos/types";
 import { AssessmentsSection } from "@/components/evaluaciones/assessments-section";
 import { ArchiveExpedienteForm } from "@/components/expedientes/archive-expediente-form";
 import { ConsentimientoForm } from "@/components/expedientes/consentimiento-form";
@@ -172,6 +173,9 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
               {proceso ? (
                 <div className="rounded-lg border border-ink/10 bg-white p-5">
                   <p className="text-sm text-ink/65">Estado: {proceso.status}</p>
+                  <p className="mt-1 text-sm text-ink/65">
+                    Modelo terapeutico: {PROCESS_MODEL_LABEL[proceso.model_type]}
+                  </p>
                   <Link
                     href={`/professional/procesos/${proceso.id}`}
                     className="mt-3 inline-flex text-sm font-medium text-moss"

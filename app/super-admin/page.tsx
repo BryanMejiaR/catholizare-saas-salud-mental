@@ -1,12 +1,9 @@
 import Link from "next/link";
 
-import { SystemHealthPanel } from "@/components/admin/system-health-panel";
-import { getSystemHealthChecks } from "@/lib/admin/system-health";
 import { requireRole } from "@/lib/auth/profile";
 
 export default async function SuperAdminPage() {
   const profile = await requireRole(["super_administrador"]);
-  const healthChecks = await getSystemHealthChecks();
 
   return (
     <main className="min-h-screen bg-linen px-6 py-8">
@@ -34,8 +31,10 @@ export default async function SuperAdminPage() {
         <Link className="inline-flex font-medium text-moss" href="/super-admin/exports">
           Revisar exportaciones
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/super-admin/system-health">
+          System Health
+        </Link>
       </div>
-      <SystemHealthPanel checks={healthChecks} />
     </main>
   );
 }

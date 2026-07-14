@@ -35,6 +35,25 @@ function absoluteUrl(value: string, sourceUrl: string) {
   }
 }
 
+function firstSrcFromSet(value: string | undefined) {
+  return value?.split(",")[0]?.trim().split(" ")[0] ?? "";
+}
+
+function imageFromTag(tag: string, sourceUrl: string) {
+  const src =
+    tag.match(/\s(?:data-src|data-lazy-src|src)=["']([^"']+)["']/i)?.[1] ??
+    firstSrcFromSet(
+      tag.match(/\s(?:data-srcset|data-lazy-srcset|srcset)=["']([^"']+)["']/i)?.[1]
+    );
+  const alt = tag.match(/\salt=["']([^"']*)["']/i)?.[1] ?? "";
+  const absolute = src ? absoluteUrl(src, sourceUrl) : "";
+
+  return {
+    src: absolute.startsWith("http") && !absolute.startsWith("data:") ? absolute : "",
+    alt: stripHtml(alt)
+  };
+}
+
 function isAllowedTitle(title: string, url: string) {
   const text = `${title} ${url}`.toLowerCase();
 
@@ -73,19 +92,7 @@ function extractLinks(html: string, sourceUrl: string) {
   const matches = [...html.matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
   const imageMatches = [...html.matchAll(/<img\s+[^>]*>/gi)];
   const images = imageMatches
-    .map((match) => {
-      const tag = match[0];
-      const src =
-        tag.match(/\s(?:data-src|data-lazy-src|src)=["']([^"']+)["']/i)?.[1] ??
-        tag.match(/\ssrcset=["']([^"']+)["']/i)?.[1]?.split(",")[0]?.trim().split(" ")[0] ??
-        "";
-      const alt = tag.match(/\salt=["']([^"']*)["']/i)?.[1] ?? "";
-
-      return {
-        src: src ? absoluteUrl(src, sourceUrl) : "",
-        alt: stripHtml(alt)
-      };
-    })
+    .map((match) => imageFromTag(match[0], sourceUrl))
     .filter((image) => image.src.startsWith("http"));
   const seen = new Set<string>();
 
@@ -93,7 +100,13 @@ function extractLinks(html: string, sourceUrl: string) {
     .map((match, index) => {
       const url = absoluteUrl(match[1], sourceUrl);
       const title = stripHtml(match[2]);
-      const image = images.find((item) => title.includes(item.alt) || item.alt.includes(title)) ?? images[index % Math.max(images.length, 1)];
+      const inlineImageTag = match[2].match(/<img\s+[^>]*>/i)?.[0];
+      const inlineImage = inlineImageTag ? imageFromTag(inlineImageTag, sourceUrl) : null;
+      const image =
+        (inlineImage?.src ? inlineImage : null) ??
+        images.find((item) => title.includes(item.alt) || item.alt.includes(title)) ??
+        images[index % Math.max(images.length, 1)] ??
+        images[0];
 
       return {
         title,

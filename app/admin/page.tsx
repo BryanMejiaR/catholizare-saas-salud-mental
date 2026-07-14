@@ -19,6 +19,9 @@ export default async function AdminPage() {
         <Link className="inline-flex font-medium text-moss" href="/admin/pro">
           Centro de anuncios a profesionales
         </Link>
+        <Link className="inline-flex font-medium text-moss" href="/admin/patient-announcements">
+          Centro de anuncios a pacientes
+        </Link>
         <Link className="inline-flex font-medium text-moss" href="/admin/help">
           Gestionar ayuda
         </Link>

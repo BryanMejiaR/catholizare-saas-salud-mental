@@ -5,6 +5,7 @@ import { AppointmentsTable } from "@/components/agenda/appointments-table";
 import { AppointmentStatsPanel } from "@/components/agenda/appointment-stats";
 import { GoogleCalendarPanel } from "@/components/agenda/google-calendar-panel";
 import { PatientAppointmentFilter } from "@/components/agenda/patient-appointment-filter";
+import { WeeklyAgenda } from "@/components/agenda/weekly-agenda";
 import { requireRole } from "@/lib/auth/profile";
 import {
   getAgendaPatientOptions,
@@ -25,6 +26,7 @@ export default async function ProfessionalAgendaPage({ searchParams }: Professio
   const profile = await requireRole(["profesional"]);
   const params = await searchParams;
   const selectedPatientId = firstParam(params.patientId);
+  const view = firstParam(params.view) === "create" ? "create" : "calendar";
   const [appointments, patients, stats, googleConnection] = await Promise.all([
     getAppointmentsForProfessional(profile, selectedPatientId),
     getAgendaPatientOptions(profile),
@@ -51,9 +53,32 @@ export default async function ProfessionalAgendaPage({ searchParams }: Professio
           </Link>
         </div>
 
-        <div id="agregar-cita">
-          <CreateAppointmentForm patients={patients} />
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/professional/agenda?view=calendar"
+            className={`rounded-md px-4 py-2 text-sm font-semibold ${
+              view === "calendar" ? "bg-moss text-white" : "border border-moss text-moss"
+            }`}
+          >
+            Agenda
+          </Link>
+          <Link
+            href="/professional/agenda?view=create#agregar-cita"
+            className={`rounded-md px-4 py-2 text-sm font-semibold ${
+              view === "create" ? "bg-moss text-white" : "border border-moss text-moss"
+            }`}
+          >
+            Agregar citas
+          </Link>
         </div>
+
+        {view === "create" ? (
+          <div id="agregar-cita">
+            <CreateAppointmentForm patients={patients} />
+          </div>
+        ) : (
+          <WeeklyAgenda appointments={appointments} />
+        )}
         <GoogleCalendarPanel connection={googleConnection} />
 
         <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">

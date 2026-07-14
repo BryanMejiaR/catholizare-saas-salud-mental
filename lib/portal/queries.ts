@@ -45,31 +45,31 @@ const CATHOLIZARE_LINKS: PortalCatholizareLink[] = [
   {
     title: "Herramientas para tu motivo de consulta",
     description: "Explora respuestas del blog y recursos psicoespirituales de Catholizare.",
-    href: "https://catholizare.com/",
+    href: "https://catholizare.com/ciencia-y-fe-para-la-vida-real/",
     category: "recurso"
   },
   {
     title: "Oratorio",
     description: "Espacio de oracion y comunidad disponible desde Catholizare.",
-    href: "https://catholizare.com/",
+    href: "https://catholizare.com/oratorio/",
     category: "evento"
   },
   {
     title: "Terapia individual",
     description: "Busca un profesional para un proceso individual.",
-    href: "https://catholizare.com/psicologos-catolicos/consultoria-individual/",
+    href: "https://catholizare.com/psicologos-catolicos/terapia-individual/",
     category: "proceso"
   },
   {
     title: "Terapia de pareja",
     description: "Encuentra acompanamiento para pareja.",
-    href: "https://catholizare.com/psicologos-catolicos/consultoria-de-pareja/",
+    href: "https://catholizare.com/psicologos-catolicos/terapia-de-pareja/",
     category: "proceso"
   },
   {
     title: "Terapia familiar",
     description: "Encuentra acompanamiento familiar.",
-    href: "https://catholizare.com/psicologos-catolicos/consultoria-familiar/",
+    href: "https://catholizare.com/psicologos-catolicos/terapia-familiar/",
     category: "proceso"
   },
   {
@@ -81,13 +81,13 @@ const CATHOLIZARE_LINKS: PortalCatholizareLink[] = [
   {
     title: "Tests autoadministrables",
     description: "Accede a tests y quizzes de orientacion desde Catholizare.",
-    href: "https://catholizare.com/",
+    href: "https://catholizare.com/test-autoadministrables/",
     category: "test"
   },
   {
     title: "Podcast",
     description: "Seccion reservada para contenidos de audio.",
-    href: "https://catholizare.com/",
+    href: "https://catholizare.com/podcast/",
     category: "podcast"
   }
 ];
