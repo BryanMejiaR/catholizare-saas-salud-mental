@@ -385,7 +385,7 @@ async function getPortalConsentStatuses(
   const { data, error } = await supabaseAdmin
     .from("consentimientos")
     .select(
-      "id, expediente_id, status, standard_document_title, standard_document_version, standard_signed_at, signed_at, created_at"
+      "id, expediente_id, status, standard_document_title, standard_document_version, signed_at, created_at"
     )
     .in("expediente_id", expedienteIds)
     .order("created_at", { ascending: false });
@@ -417,7 +417,7 @@ async function getPortalConsentStatuses(
       status: row.status as PortalConsentStatus["status"],
       title: (row.standard_document_title as string | null) ?? STANDARD_CONSENT_TITLE,
       version: (row.standard_document_version as string | null) ?? STANDARD_CONSENT_VERSION,
-      signed_at: (row.standard_signed_at as string | null) ?? (row.signed_at as string | null),
+      signed_at: row.signed_at as string | null,
       professional: professionals.get(professionalId) ?? {
         full_name: "Profesional no disponible",
         email: ""
