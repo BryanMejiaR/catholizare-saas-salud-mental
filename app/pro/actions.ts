@@ -20,12 +20,10 @@ type ProActionState = {
 };
 type AdminProRole = "administrador" | "super_administrador";
 
-const optionalUrl = z
-  .string()
-  .trim()
-  .url()
-  .optional()
-  .or(z.literal("").transform(() => undefined));
+const optionalUrl = z.preprocess(
+  (value) => (value === null || value === "" ? undefined : value),
+  z.string().trim().url("Debe ser una URL valida que inicie con http:// o https://").optional()
+);
 
 const resourceSchema = z.object({
   title: z.string().trim().min(3).max(160),
@@ -120,7 +118,7 @@ function formatValidationError(error: z.ZodError, entity: string) {
     bannerType: "tipo",
     category: "categoria",
     url: "URL",
-    imageUrl: "URL de imagen",
+    imageUrl: "imagen opcional",
     tags: "etiquetas",
     status: "estado",
     displaySections: "secciones",
