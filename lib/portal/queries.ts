@@ -81,13 +81,13 @@ const CATHOLIZARE_LINKS: PortalCatholizareLink[] = [
   {
     title: "Tests autoadministrables",
     description: "Accede a tests y quizzes de orientacion desde Catholizare.",
-    href: "https://catholizare.com/test-autoadministrables/",
+    href: "https://catholizare.com/category/test/",
     category: "test"
   },
   {
     title: "Podcast",
     description: "Seccion reservada para contenidos de audio.",
-    href: "https://catholizare.com/podcast/",
+    href: "https://catholizare.com/category/formatos/podcast/",
     category: "podcast"
   }
 ];
