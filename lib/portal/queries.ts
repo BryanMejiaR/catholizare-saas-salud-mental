@@ -142,10 +142,10 @@ function mapPortalAppointment(
   const endsAt = startsAt + row.duration_minutes * 60 * 1000;
   const isFuture = startsAt > now;
   const isPast = endsAt < now;
+  const hasZoomLink = row.type === "videollamada" && Boolean(row.zoom_join_url);
   const canJoinZoom =
     row.status === "programada" &&
-    row.type === "videollamada" &&
-    Boolean(row.zoom_join_url) &&
+    hasZoomLink &&
     startsAt - now <= ZOOM_JOIN_WINDOW_MS &&
     endsAt > now;
   const hasReview = reviewedAppointmentIds.has(row.id);
@@ -158,6 +158,7 @@ function mapPortalAppointment(
     type: row.type,
     status: row.status,
     cancellation_reason: row.cancellation_reason,
+    has_zoom_link: hasZoomLink,
     can_join_zoom: canJoinZoom,
     can_request_change: row.status === "programada" && isFuture,
     can_review: isPast && !hasReview,

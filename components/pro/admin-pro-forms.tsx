@@ -12,7 +12,13 @@ import {
 } from "@/app/pro/actions";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { ActionMessage } from "@/components/users/action-message";
-import { PRO_BANNER_TYPES, PRO_CONTENT_STATUSES, PRO_RESOURCE_TYPES } from "@/lib/pro/types";
+import {
+  PRO_BANNER_TYPE_LABEL,
+  PRO_BANNER_TYPES,
+  PRO_CONTENT_STATUSES,
+  PRO_RESOURCE_TYPE_LABEL,
+  PRO_RESOURCE_TYPES
+} from "@/lib/pro/types";
 
 function toLocalDateTimeInputValue(date: Date) {
   const year = date.getFullYear();
@@ -96,7 +102,7 @@ export function CreateProResourceForm({ patient = false }: { patient?: boolean }
           <select name="resourceType" className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2">
             {PRO_RESOURCE_TYPES.map((type) => (
               <option key={type} value={type}>
-                {type}
+                {PRO_RESOURCE_TYPE_LABEL[type] ?? type}
               </option>
             ))}
           </select>
@@ -142,7 +148,7 @@ export function CreateProBannerForm({ patient = false }: { patient?: boolean }) 
           <select name="bannerType" className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2">
             {PRO_BANNER_TYPES.map((type) => (
               <option key={type} value={type}>
-                {type}
+                {PRO_BANNER_TYPE_LABEL[type] ?? type}
               </option>
             ))}
           </select>

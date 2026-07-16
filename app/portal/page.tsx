@@ -11,6 +11,7 @@ import { PortalPatientDashboard } from "@/components/portal/portal-patient-dashb
 import { PortalRecommendationsPanel } from "@/components/portal/portal-recommendations-panel";
 import { PortalConsentStatusPanel } from "@/components/portal/portal-consent-status-panel";
 import { PortalProcessResourcesPanel } from "@/components/portal/portal-process-resources-panel";
+import { PortalAppointmentsTabs } from "@/components/portal/portal-appointments-tabs";
 
 export default async function PortalPage() {
   const profile = await requireRole(["paciente"]);
@@ -70,20 +71,24 @@ export default async function PortalPage() {
               id: "citas",
               label: "Citas y videollamada",
               content: (
-                <div className="space-y-6">
-                  <PortalAppointments
-                    title="Proximas citas"
-                    appointments={dashboard.upcomingAppointments}
-                    emptyMessage="No tienes citas programadas."
-                    showRequests
-                  />
-                  <PortalAppointments
-                    title="Historial basico de citas"
-                    appointments={dashboard.pastAppointments}
-                    emptyMessage="Aun no hay citas pasadas para mostrar."
-                    showReviews
-                  />
-                </div>
+                <PortalAppointmentsTabs
+                  upcomingContent={
+                    <PortalAppointments
+                      title="Proximas citas"
+                      appointments={dashboard.upcomingAppointments}
+                      emptyMessage="No tienes citas programadas."
+                      showRequests
+                    />
+                  }
+                  historyContent={
+                    <PortalAppointments
+                      title="Historial"
+                      appointments={dashboard.pastAppointments}
+                      emptyMessage="Aun no hay citas pasadas para mostrar."
+                      showReviews
+                    />
+                  }
+                />
               )
             },
             {

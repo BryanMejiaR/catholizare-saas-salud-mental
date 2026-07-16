@@ -39,6 +39,11 @@ export function PortalAppointments({
                   {appointment.professional.full_name}
                 </p>
                 <p className="mt-1 text-xs text-ink/55">Estado: {appointment.status}</p>
+                {appointment.has_zoom_link && !appointment.can_join_zoom ? (
+                  <p className="mt-2 text-xs font-medium text-ink/60">
+                    Videollamada por Zoom disponible 24 horas antes de la cita.
+                  </p>
+                ) : null}
               </div>
 
               {appointment.can_join_zoom ? (
@@ -48,7 +53,7 @@ export function PortalAppointments({
                     type="submit"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink"
                   >
-                    Unirse
+                    Iniciar videollamada por Zoom
                   </button>
                 </form>
               ) : null}

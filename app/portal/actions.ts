@@ -771,7 +771,11 @@ export async function requestStandardConsentCodeAction(
       }
     });
 
-    return { message: "No fue posible enviar el codigo por correo.", ok: false };
+    return {
+      message:
+        "No fue posible enviar el codigo por correo. Revisa la configuracion de correo de la plataforma.",
+      ok: false
+    };
   }
 
   await safeWriteAuditLog({

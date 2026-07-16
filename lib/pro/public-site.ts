@@ -134,7 +134,7 @@ export async function getPublicProResources(): Promise<ProResource[]> {
     id: `public-resource-${index}-${item.url}`,
     title: item.title,
     description: "Recurso publico recomendado desde Catholizare Pro.",
-    resource_type: "pagina_profesionales",
+    resource_type: "articulo",
     category: "Catholizare Pro",
     url: item.url,
     image_url: item.image_url,

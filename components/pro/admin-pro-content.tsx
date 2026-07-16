@@ -1,4 +1,5 @@
 import { deleteAnnouncementAction } from "@/app/pro/actions";
+import { PRO_BANNER_TYPE_LABEL, PRO_RESOURCE_TYPE_LABEL } from "@/lib/pro/types";
 import type {
   PatientAnnouncementBanner,
   PatientAnnouncementEvent,
@@ -55,7 +56,8 @@ export function AdminProContent({
               <div>
                 <p className="font-medium text-ink">{resource.title}</p>
                 <p className="mt-1 text-xs text-ink/55">
-                  {resource.category} - {resource.status} - {resource.resource_type}
+                  {resource.category} - {resource.status} -{" "}
+                  {PRO_RESOURCE_TYPE_LABEL[resource.resource_type] ?? resource.resource_type}
                 </p>
               </div>
               <DeleteButton id={resource.id} kind="resource" audience={audience} />
@@ -73,7 +75,8 @@ export function AdminProContent({
               <div>
                 <p className="font-medium text-ink">{banner.title}</p>
                 <p className="mt-1 text-xs text-ink/55">
-                  {banner.banner_type} - {banner.status} - prioridad {banner.priority}
+                  {PRO_BANNER_TYPE_LABEL[banner.banner_type] ?? banner.banner_type} -{" "}
+                  {banner.status} - prioridad {banner.priority}
                 </p>
               </div>
               <DeleteButton id={banner.id} kind="banner" audience={audience} />

@@ -20,6 +20,7 @@ export type PortalAppointment = {
   type: "presencial" | "videollamada";
   status: "programada" | "completada" | "cancelada";
   cancellation_reason: string | null;
+  has_zoom_link: boolean;
   can_join_zoom: boolean;
   can_request_change: boolean;
   can_review: boolean;

@@ -1,27 +1,16 @@
 export const PRO_RESOURCE_TYPES = [
-  "enlace_externo",
   "articulo",
-  "ficha",
   "guia",
   "video",
   "descargable",
-  "pagina_profesionales",
-  "pagina_mentoria",
-  "formulario_externo",
-  "evento_relacionado"
+  "formulario"
 ] as const;
 
 export const PRO_BANNER_TYPES = [
-  "recurso_destacado",
-  "evento_proximo",
-  "mentoria_personalizada",
-  "revision_casos",
-  "contagio_fe",
-  "reunion_clinica",
-  "formacion",
-  "anuncio_institucional",
-  "actualizacion_plataforma",
-  "buena_practica"
+  "recurso",
+  "evento",
+  "informativo",
+  "cambios"
 ] as const;
 
 export const PRO_CONTENT_STATUSES = ["activo", "inactivo"] as const;
@@ -29,6 +18,37 @@ export const PRO_CONTENT_STATUSES = ["activo", "inactivo"] as const;
 export type ProResourceType = (typeof PRO_RESOURCE_TYPES)[number];
 export type ProBannerType = (typeof PRO_BANNER_TYPES)[number];
 export type ProContentStatus = (typeof PRO_CONTENT_STATUSES)[number];
+
+export const PRO_RESOURCE_TYPE_LABEL: Record<string, string> = {
+  articulo: "Articulo",
+  guia: "Guia",
+  video: "Video",
+  descargable: "Descargable",
+  formulario: "Formulario",
+  formulario_externo: "Formulario",
+  enlace_externo: "Enlace externo",
+  ficha: "Ficha",
+  pagina_profesionales: "Pagina de profesionales",
+  pagina_mentoria: "Pagina de mentoria",
+  evento_relacionado: "Evento relacionado"
+};
+
+export const PRO_BANNER_TYPE_LABEL: Record<string, string> = {
+  recurso: "Recurso",
+  evento: "Evento",
+  informativo: "Informativo",
+  cambios: "Cambios",
+  recurso_destacado: "Recurso",
+  evento_proximo: "Evento",
+  anuncio_institucional: "Informativo",
+  actualizacion_plataforma: "Cambios",
+  mentoria_personalizada: "Mentoria personalizada",
+  revision_casos: "Revision de casos",
+  contagio_fe: "Contagio de Fe",
+  reunion_clinica: "Reunion clinica",
+  formacion: "Formacion",
+  buena_practica: "Buena practica"
+};
 
 export type ProResource = {
   id: string;
