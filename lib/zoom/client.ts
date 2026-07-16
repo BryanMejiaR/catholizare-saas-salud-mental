@@ -9,7 +9,7 @@ const ZOOM_TOKEN_URL = "https://zoom.us/oauth/token";
 const ZOOM_REVOKE_URL = "https://zoom.us/oauth/revoke";
 const ZOOM_DEFAULT_API_URL = "https://api.zoom.us";
 const ZOOM_FETCH_TIMEOUT_MS = 20_000;
-const ZOOM_SCOPES = ["meeting:write", "meeting:read", "user:read"].join(" ");
+const ZOOM_SCOPES = ["meeting:write:meeting", "meeting:read:meeting", "user:read:user"].join(" ");
 
 type ZoomConfig = {
   clientId: string;
