@@ -221,6 +221,18 @@ function renderLegalAcceptanceEmail(input: {
   };
 }
 
+function consentCodeEmailFailureMessage(emailResult: { code?: string; status?: number }) {
+  if (emailResult.code === "missing_config") {
+    return "El correo transaccional de la plataforma no esta configurado. Contacta a soporte.";
+  }
+
+  if (emailResult.code === "resend_rejected") {
+    return "El proveedor de correo rechazo el envio del codigo. Contacta a soporte.";
+  }
+
+  return "No fue posible conectar con el proveedor de correo. Intenta de nuevo en unos minutos.";
+}
+
 function safeFileName(fileName: string) {
   return fileName
     .normalize("NFKD")
@@ -762,18 +774,29 @@ export async function requestStandardConsentCodeAction(
   });
 
   if (!emailResult.ok) {
+    await supabaseAdmin
+      .from("consentimientos")
+      .update({
+        signature_code_hash: null,
+        signature_code_expires_at: null,
+        signature_code_attempts: 0
+      })
+      .eq("id", pending.consentimiento.id)
+      .eq("status", "pendiente");
+
     Sentry.captureMessage("standard_consent_code_email_failed", {
       level: "warning",
       extra: {
         consentimiento_id: pending.consentimiento.id,
         patient_id: patient.id,
+        error_code: emailResult.code,
+        response_status: emailResult.status,
         error: emailResult.error
       }
     });
 
     return {
-      message:
-        "No fue posible enviar el codigo por correo. Revisa la configuracion de correo de la plataforma.",
+      message: consentCodeEmailFailureMessage(emailResult),
       ok: false
     };
   }

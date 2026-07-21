@@ -30,18 +30,6 @@ export async function getProfessionalProfileSummary(
   actor: AuthProfile,
   professionalId: string
 ): Promise<ProfessionalProfileSummary | null> {
-  const supabaseAdmin = createSupabaseAdminClient();
-  const { data: professional, error: professionalError } = await supabaseAdmin
-    .from("profiles")
-    .select("id, role, full_name, email, account_status")
-    .eq("id", professionalId)
-    .eq("role", "profesional")
-    .maybeSingle();
-
-  if (professionalError || !professional) {
-    return null;
-  }
-
   if (!canManageProfile(actor.role, "profesional")) {
     await safeWriteAuditLog({
       userId: actor.id,
@@ -52,6 +40,18 @@ export async function getProfessionalProfileSummary(
       result: "denied",
       context: "audit_professional_profile_read_denied"
     });
+    return null;
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: professional, error: professionalError } = await supabaseAdmin
+    .from("profiles")
+    .select("id, role, full_name, email, account_status")
+    .eq("id", professionalId)
+    .eq("role", "profesional")
+    .maybeSingle();
+
+  if (professionalError || !professional) {
     return null;
   }
 

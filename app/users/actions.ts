@@ -544,6 +544,30 @@ export async function resendActivationEmailAction(
   });
 
   if (!emailResult.ok) {
+    Sentry.captureMessage("activation_email_resend_failed", {
+      level: "warning",
+      extra: {
+        target_user_id: target.id,
+        target_role: target.role,
+        error_code: emailResult.code,
+        response_status: emailResult.status,
+        error: emailResult.error
+      }
+    });
+    await writeAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "user_activation_email_resend",
+      entityType: "profiles",
+      entityId: target.id,
+      result: "error",
+      metadata: {
+        target_role: target.role,
+        failure_step: "send_email",
+        error_code: emailResult.code,
+        response_status: emailResult.status ?? null
+      }
+    });
     return { message: emailResult.error, ok: false };
   }
 
@@ -596,6 +620,18 @@ export async function sendPasswordChangeEmailAction(
     Sentry.captureException(error ?? new Error("Recovery link did not return action_link"), {
       extra: { target_user_id: target.id }
     });
+    await writeAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "user_password_change_email",
+      entityType: "profiles",
+      entityId: target.id,
+      result: "error",
+      metadata: {
+        target_role: target.role,
+        failure_step: "generate_link"
+      }
+    });
     return { message: "No fue posible generar el enlace de cambio de contraseña.", ok: false };
   }
 
@@ -608,6 +644,30 @@ export async function sendPasswordChangeEmailAction(
   });
 
   if (!emailResult.ok) {
+    Sentry.captureMessage("password_change_email_failed", {
+      level: "warning",
+      extra: {
+        target_user_id: target.id,
+        target_role: target.role,
+        error_code: emailResult.code,
+        response_status: emailResult.status,
+        error: emailResult.error
+      }
+    });
+    await writeAuditLog({
+      userId: actor.id,
+      role: actor.role,
+      action: "user_password_change_email",
+      entityType: "profiles",
+      entityId: target.id,
+      result: "error",
+      metadata: {
+        target_role: target.role,
+        failure_step: "send_email",
+        error_code: emailResult.code,
+        response_status: emailResult.status ?? null
+      }
+    });
     return { message: emailResult.error, ok: false };
   }
 
@@ -650,6 +710,13 @@ export async function deletePendingActivationUserAction(
     return { message: "Solo se pueden eliminar usuarios pendientes de activación.", ok: false };
   }
 
+  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(target.id, false);
+
+  if (authError) {
+    Sentry.captureException(authError, { extra: { target_user_id: target.id } });
+    return { message: "No fue posible eliminar el usuario pendiente en Auth.", ok: false };
+  }
+
   const { error: profileError } = await supabaseAdmin
     .from("profiles")
     .delete()
@@ -659,13 +726,6 @@ export async function deletePendingActivationUserAction(
   if (profileError) {
     Sentry.captureException(profileError, { extra: { target_user_id: target.id } });
     return { message: "No fue posible eliminar el perfil pendiente.", ok: false };
-  }
-
-  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(target.id, false);
-
-  if (authError) {
-    Sentry.captureException(authError, { extra: { target_user_id: target.id } });
-    return { message: "El perfil se eliminó, pero no fue posible eliminar Auth.", ok: false };
   }
 
   await writeAuditLog({

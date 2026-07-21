@@ -36,9 +36,23 @@ Esta integracion se configura en Supabase Dashboard, no en Railway ni en variabl
 ## Seguridad
 
 - No guardar API keys de Resend en el repositorio.
-- No poner la API key SMTP de Resend en `.env.local` salvo que se implemente envio directo desde la app en el futuro.
+- Para correos de autenticacion, Supabase usa su SMTP configurado en Dashboard.
+- Para correos transaccionales propios de la app, como codigos de consentimiento informado y copias legales, Railway y `.env.local` deben tener `RESEND_API_KEY` y `RESEND_FROM_EMAIL`.
+- La API key de `RESEND_API_KEY` debe ser una API key de Resend para HTTP API, no la contrasena SMTP configurada dentro de Supabase.
 - Usar un correo remitente del dominio verificado para reducir rechazos o spam.
 - Mantener los links de Supabase Auth apuntando a `/auth/callback`; no apuntar directo a `/auth/update-password`.
+
+## Variables de entorno de la app
+
+Estas variables se configuran en Railway y, para pruebas locales, en `.env.local`:
+
+```env
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=Catholizare <no-reply@tudominio-verificado.com>
+CATHOLIZARE_LEGAL_EMAIL=catholizare@gmail.com
+```
+
+Si `RESEND_API_KEY` o `RESEND_FROM_EMAIL` faltan, la app no podra enviar el codigo de 4 digitos para firmar consentimiento informado aunque las invitaciones de Supabase Auth si funcionen.
 
 ## Prueba minima
 

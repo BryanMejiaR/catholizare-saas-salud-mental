@@ -8,6 +8,7 @@ import type { NotaClinicaSummary } from "@/lib/notas/types";
 
 const APPOINTMENT_SELECT =
   "id, professional_id, patient_id, process_id, tcc_process_id, tcc_session_plan_item_id, scheduled_at, duration_minutes, type, status, zoom_meeting_id, zoom_join_url, zoom_start_url, google_calendar_event_id, cancellation_reason, created_by_user_id, created_at, updated_at, cancelled_at, cancelled_by_user_id";
+const BUSINESS_TIME_ZONE = "America/Mexico_City";
 
 async function getPatientsById(patientIds: string[]) {
   if (patientIds.length === 0) {
@@ -36,10 +37,15 @@ async function getPatientsById(patientIds: string[]) {
 }
 
 function localDateKey(value: string) {
-  const date = new Date(value);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date(value));
+  const year = parts.find((part) => part.type === "year")?.value ?? "0000";
+  const month = parts.find((part) => part.type === "month")?.value ?? "01";
+  const day = parts.find((part) => part.type === "day")?.value ?? "01";
 
   return `${year}-${month}-${day}`;
 }

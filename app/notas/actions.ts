@@ -205,7 +205,7 @@ function appendOnlyTextValue(previous: string | number | boolean | null | undefi
     return nextText || null;
   }
 
-  if (!nextText || previousText.includes(nextText)) {
+  if (!nextText || nextText === previousText) {
     return previousText;
   }
 

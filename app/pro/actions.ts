@@ -153,6 +153,30 @@ function safeFileName(name: string) {
     .slice(0, 120);
 }
 
+function hasAllowedImageSignature(bytes: Buffer, contentType: string) {
+  if (contentType === "image/jpeg") {
+    return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  }
+
+  if (contentType === "image/png") {
+    return bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  }
+
+  if (contentType === "image/webp") {
+    return (
+      bytes.subarray(0, 4).toString("ascii") === "RIFF" &&
+      bytes.subarray(8, 12).toString("ascii") === "WEBP"
+    );
+  }
+
+  if (contentType === "image/gif") {
+    const signature = bytes.subarray(0, 6).toString("ascii");
+    return signature === "GIF87a" || signature === "GIF89a";
+  }
+
+  return false;
+}
+
 async function uploadAnnouncementImage(
   supabaseAdmin: ReturnType<typeof createSupabaseAdminClient>,
   file: File | null,
@@ -166,10 +190,16 @@ async function uploadAnnouncementImage(
     throw new Error("La imagen debe ser JPG, PNG, WEBP o GIF y pesar maximo 5 MB.");
   }
 
+  const bytes = Buffer.from(await file.arrayBuffer());
+
+  if (!hasAllowedImageSignature(bytes, file.type)) {
+    throw new Error("El contenido del archivo no coincide con una imagen permitida.");
+  }
+
   const path = `${actorId}/${randomUUID()}-${safeFileName(file.name)}`;
   const { error } = await supabaseAdmin.storage
     .from("announcement-assets")
-    .upload(path, Buffer.from(await file.arrayBuffer()), {
+    .upload(path, bytes, {
       contentType: file.type,
       upsert: false
     });
