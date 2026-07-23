@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 type PortalSection = {
   id: string;
   label: string;
+  statusText?: string;
   content: ReactNode;
 };
 
@@ -35,7 +36,17 @@ export function PortalSectionShell({ sections }: PortalSectionShellProps) {
                   : "text-ink/70 hover:bg-linen hover:text-ink"
               ].join(" ")}
             >
-              {section.label}
+              <span>{section.label}</span>
+              {section.statusText ? (
+                <span
+                  className={[
+                    "mt-1 block text-xs font-normal",
+                    section.id === selected.id ? "text-white/80" : "text-ink/45"
+                  ].join(" ")}
+                >
+                  {section.statusText}
+                </span>
+              ) : null}
             </button>
           ))}
         </nav>

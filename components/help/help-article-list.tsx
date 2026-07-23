@@ -9,7 +9,7 @@ const defaultGuides = [
     title: "Crear paciente y abrir expediente",
     category: "pacientes",
     summary: "Usa Gestionar pacientes para crear el perfil y luego abre el expediente clinico.",
-    body: "Completa solo datos necesarios, registra consentimiento informado y evita duplicar pacientes."
+    body: "Crea el expediente, registra el consentimiento informado y despues inicia el proceso terapeutico para documentar el plan de trabajo."
   },
   {
     title: "Registrar notas clinicas",

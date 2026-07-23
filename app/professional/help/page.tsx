@@ -12,8 +12,9 @@ const faqItems = [
     answer: "No. Usa soporte solo para dudas operativas y describe el problema sin datos clinicos."
   },
   {
-    question: "El Centro de Ayuda es GPT clinico?",
-    answer: "No. HELP-018 es soporte operativo. GPT-007 sigue separado para borradores clinicos controlados."
+    question: "Que informacion ayuda a resolver un ticket?",
+    answer:
+      "Incluye el modulo, los pasos para reproducir el problema, el mensaje de error y capturas sin datos clinicos."
   },
   {
     question: "Donde pido apoyo clinico o supervision?",

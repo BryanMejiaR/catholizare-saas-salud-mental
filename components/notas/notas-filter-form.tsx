@@ -1,4 +1,5 @@
 import { NOTA_CLINICA_TYPES, type NotaClinicaFilters } from "@/lib/notas/types";
+import { SearchablePersonSelect } from "@/components/forms/searchable-person-select";
 import type { UserManagementProfile } from "@/lib/users/types";
 
 type NotasFilterFormProps = {
@@ -19,21 +20,18 @@ export function NotasFilterForm({ filters, patients, view = "drafts" }: NotasFil
     <form className="grid gap-4 rounded-lg border border-ink/10 bg-white p-5 md:grid-cols-3">
       <input type="hidden" name="view" value={view} />
 
-      <label className="block">
-        <span className="text-sm font-medium text-ink">Paciente</span>
-        <select
-          name="patientId"
-          defaultValue={filters.patientId ?? ""}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-        >
-          <option value="">Todos</option>
-          {patients.map((patient) => (
-            <option key={patient.id} value={patient.id}>
-              {patient.full_name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SearchablePersonSelect
+        name="patientId"
+        label="Paciente"
+        options={patients.map((patient) => ({
+          id: patient.id,
+          label: patient.full_name,
+          detail: patient.email
+        }))}
+        defaultValue={filters.patientId ?? ""}
+        placeholder="Buscar paciente por nombre..."
+        emptyHint="Deja el campo vacio para ver todos."
+      />
 
       <label className="block">
         <span className="text-sm font-medium text-ink">Tipo</span>

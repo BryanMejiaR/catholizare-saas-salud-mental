@@ -107,7 +107,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
           </div>
         </section>
 
-        <section id="dashboard" className="scroll-mt-6">
+        <section id="dashboard" className="scroll-mt-24">
           <ExpedienteClinicalInsights notes={noteMetrics} process={proceso} />
         </section>
 
@@ -119,7 +119,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
         ) : null}
 
         <div className="grid gap-6 lg:grid-cols-[16rem_1fr] lg:items-start">
-          <aside className="rounded-lg border border-ink/10 bg-white p-4 lg:sticky lg:top-6">
+          <aside className="rounded-lg border border-ink/10 bg-white p-4 lg:sticky lg:top-20">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">
               Indice del expediente
             </p>
@@ -137,15 +137,15 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
           </aside>
 
           <div className="space-y-8">
-            <section id="identificacion" className="scroll-mt-6">
+            <section id="identificacion" className="scroll-mt-24">
               <IdentificationForm expediente={expediente} disabled={!isActive} />
             </section>
 
-            <section id="consentimiento" className="scroll-mt-6">
+            <section id="consentimiento" className="scroll-mt-24">
               <ConsentimientoForm expediente={expediente} disabled={!isActive} />
             </section>
 
-            <section id="historia-vida" className="scroll-mt-6">
+            <section id="historia-vida" className="scroll-mt-24">
               <LifeHistoryAccessPanel
                 expedienteId={expediente.id}
                 lifeHistory={expediente.life_history}
@@ -153,7 +153,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
               />
             </section>
 
-            <section id="evaluaciones" className="scroll-mt-6">
+            <section id="evaluaciones" className="scroll-mt-24">
               <AssessmentsSection
                 expedienteId={expediente.id}
                 assessments={assessments}
@@ -163,7 +163,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
               />
             </section>
 
-            <section id="proceso" className="scroll-mt-6 space-y-4">
+            <section id="proceso" className="scroll-mt-24 space-y-4">
               <div>
                 <h2 className="text-lg font-semibold text-ink">Proceso terapeutico</h2>
                 <p className="mt-1 text-sm text-ink/65">
@@ -188,7 +188,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
               )}
             </section>
 
-            <section id="notas" className="scroll-mt-6 space-y-4">
+            <section id="notas" className="scroll-mt-24 space-y-4">
               <div>
                 <h2 className="text-lg font-semibold text-ink">Notas clinicas</h2>
                 <p className="mt-1 text-sm text-ink/65">
@@ -212,7 +212,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
               <NotasTable notas={notas} />
             </section>
 
-            <section id="archivar" className="scroll-mt-6">
+            <section id="archivar" className="scroll-mt-24">
               <ArchiveExpedienteForm expedienteId={expediente.id} disabled={isArchived} />
             </section>
           </div>

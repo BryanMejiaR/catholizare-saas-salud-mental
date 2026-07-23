@@ -54,13 +54,17 @@ export function LifeHistoryAccessPanel({
         <form action={formAction}>
           <input type="hidden" name="expedienteId" value={expedienteId} />
           <input type="hidden" name="mode" value="activate" />
-          <SubmitButton disabled={disabled || !canActivate}>Activar para paciente</SubmitButton>
+          <SubmitButton disabled={disabled || !canActivate}>
+            Abrir historia de vida para paciente por primera vez
+          </SubmitButton>
         </form>
 
         <form action={formAction}>
           <input type="hidden" name="expedienteId" value={expedienteId} />
           <input type="hidden" name="mode" value="reopen" />
-          <SubmitButton disabled={disabled || !canReopen}>Reabrir edicion</SubmitButton>
+          <SubmitButton disabled={disabled || !canReopen}>
+            Reabrir edicion para que el paciente pueda editarla
+          </SubmitButton>
         </form>
       </div>
 

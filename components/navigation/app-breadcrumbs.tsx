@@ -41,7 +41,7 @@ export function AppBreadcrumbs({ homeHref }: AppBreadcrumbsProps) {
   }));
 
   return (
-    <header className="border-b border-ink/10 bg-white px-6 py-3">
+    <header className="sticky top-0 z-40 border-b border-ink/10 bg-white/95 px-6 py-3 shadow-sm backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
         <Link href={homeHref} className="text-sm font-semibold text-ink">
           Catholizare OS

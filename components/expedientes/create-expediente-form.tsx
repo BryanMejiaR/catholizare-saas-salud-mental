@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { createExpedienteAction } from "@/app/expedientes/actions";
+import { SearchablePersonSelect } from "@/components/forms/searchable-person-select";
 import { ActionMessage } from "@/components/users/action-message";
 import { SubmitButton } from "@/components/auth/submit-button";
 import type { UserManagementProfile } from "@/lib/users/types";
@@ -25,21 +26,18 @@ export function CreateExpedienteForm({ patients }: CreateExpedienteFormProps) {
 
       <ActionMessage message={state.message} ok={state.ok} />
 
-      <label className="block">
-        <span className="text-sm font-medium text-ink">Paciente</span>
-        <select
-          name="patientId"
-          required
-          className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
-        >
-          <option value="">Seleccionar paciente</option>
-          {patients.map((patient) => (
-            <option key={patient.id} value={patient.id}>
-              {patient.full_name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SearchablePersonSelect
+        name="patientId"
+        label="Paciente"
+        options={patients.map((patient) => ({
+          id: patient.id,
+          label: patient.full_name,
+          detail: patient.email
+        }))}
+        placeholder="Buscar paciente por nombre..."
+        emptyHint="Selecciona un paciente de la lista."
+        required
+      />
 
       <label className="block">
         <span className="text-sm font-medium text-ink">Motivo de consulta inicial</span>

@@ -12,6 +12,23 @@ import { PortalRecommendationsPanel } from "@/components/portal/portal-recommend
 import { PortalConsentStatusPanel } from "@/components/portal/portal-consent-status-panel";
 import { PortalProcessResourcesPanel } from "@/components/portal/portal-process-resources-panel";
 import { PortalAppointmentsTabs } from "@/components/portal/portal-appointments-tabs";
+import { PortalMembershipPanel } from "@/components/portal/portal-membership-panel";
+
+function lifeHistoryStatusText(status?: string | null) {
+  if (status === "enviada") {
+    return "Ya enviaste tu historia de vida";
+  }
+
+  if (status === "reabierta") {
+    return "Reabierta para editar";
+  }
+
+  if (status === "borrador") {
+    return "Disponible para completar";
+  }
+
+  return "Aun no activada por tu profesional";
+}
 
 export default async function PortalPage() {
   const profile = await requireRole(["paciente"]);
@@ -55,6 +72,7 @@ export default async function PortalPage() {
             {
               id: "historia",
               label: "Historia de vida",
+              statusText: lifeHistoryStatusText(dashboard.lifeHistory?.status),
               content: <LifeHistoryForm lifeHistory={dashboard.lifeHistory} />
             },
             {
@@ -129,6 +147,11 @@ export default async function PortalPage() {
               id: "resumen",
               label: "Resumen compartido",
               content: <PortalSummary summary={dashboard.summary} />
+            },
+            {
+              id: "membresia",
+              label: "Membresia",
+              content: <PortalMembershipPanel />
             }
           ]}
         />

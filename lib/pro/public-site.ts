@@ -11,6 +11,7 @@ const RESOURCE_PAGES = [
   `${PRO_BASE_URL}/reuniones-de-integracion/`
 ];
 const ACTIVITY_PAGES = [
+  `${PRO_BASE_URL}/discusion-de-casos/`,
   `${PRO_BASE_URL}/reuniones-clinicas/`,
   `${PRO_BASE_URL}/rondas-clinicas/`,
   `${PRO_BASE_URL}/reuniones-de-integracion/`
