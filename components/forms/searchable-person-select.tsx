@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 export type SearchablePersonOption = {
   id: string;
@@ -42,14 +42,22 @@ export function SearchablePersonSelect({
     return selected ? optionText(selected) : "";
   }, [defaultValue, options]);
   const [query, setQuery] = useState(initialText);
-  const selected = options.find((option) => optionText(option) === query || option.label === query);
+  const selected = options.find((option) => optionText(option) === query);
   const value = selected?.id ?? "";
   const showInvalidHint = query.trim().length > 0 && !selected;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.setCustomValidity(
+      showInvalidHint ? "Selecciona una coincidencia exacta de la lista." : ""
+    );
+  }, [showInvalidHint]);
 
   return (
     <label className={className}>
       <span className="text-sm font-medium text-ink">{label}</span>
       <input
+        ref={inputRef}
         list={listId}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
