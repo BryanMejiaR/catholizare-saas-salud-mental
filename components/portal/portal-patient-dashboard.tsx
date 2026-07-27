@@ -14,6 +14,13 @@ function daysSince(value: string) {
   return Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / (24 * 60 * 60 * 1000)));
 }
 
+function formatAppointmentDate(value: string) {
+  return new Date(value).toLocaleString("es-MX", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
 export function PortalPatientDashboard({
   processHistory,
   upcomingAppointments,
@@ -21,6 +28,7 @@ export function PortalPatientDashboard({
 }: PortalPatientDashboardProps) {
   const activeProcess = processHistory.find((process) => process.status === "activo");
   const therapists = new Set(processHistory.map((process) => process.professional.full_name));
+  const nextAppointment = upcomingAppointments[0];
   const signedConsentCount = consentStatuses.filter((consent) =>
     ["firmado_fisico", "firmado_digital", "excepcion_justificada"].includes(consent.status)
   ).length;
@@ -46,6 +54,58 @@ export function PortalPatientDashboard({
         <div className="rounded-md border border-ink/10 bg-linen p-4">
           <p className="text-xs text-ink/55">Consentimientos firmados</p>
           <p className="mt-2 text-2xl font-semibold text-ink">{signedConsentCount}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-4">
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Agendar sesion</p>
+          <p className="mt-1 text-xs text-ink/60">Prototipo pendiente de activar.</p>
+          <button
+            type="button"
+            disabled
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-ink/10 px-3 text-xs font-semibold text-ink/45"
+          >
+            Proximamente
+          </button>
+        </div>
+
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Proxima sesion</p>
+          <p className="mt-1 text-xs text-ink/60">
+            {nextAppointment ? formatAppointmentDate(nextAppointment.scheduled_at) : "Sin citas programadas"}
+          </p>
+          <button
+            type="button"
+            data-portal-section-target="citas"
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
+          >
+            Ver citas
+          </button>
+        </div>
+
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Atencion al cliente</p>
+          <p className="mt-1 text-xs text-ink/60">Acceso rapido a ayuda operativa.</p>
+          <button
+            type="button"
+            data-portal-section-target="soporte"
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
+          >
+            Ir a soporte
+          </button>
+        </div>
+
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Recursos</p>
+          <p className="mt-1 text-xs text-ink/60">Lecturas segun tus temas de interes.</p>
+          <button
+            type="button"
+            data-portal-section-target="recursos"
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
+          >
+            Ver recursos
+          </button>
         </div>
       </div>
     </section>

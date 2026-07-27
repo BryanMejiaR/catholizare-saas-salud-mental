@@ -7,7 +7,6 @@ type PortalProcessResourcesPanelProps = {
 
 export function PortalProcessResourcesPanel({ processes, links }: PortalProcessResourcesPanelProps) {
   const processLinks = links.filter((link) => link.category === "proceso");
-  const resourceLinks = links.filter((link) => ["recurso", "evento", "test", "podcast"].includes(link.category));
 
   return (
     <div className="space-y-6">
@@ -43,24 +42,6 @@ export function PortalProcessResourcesPanel({ processes, links }: PortalProcessR
         <h2 className="text-lg font-semibold text-ink">Iniciar un nuevo proceso</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {processLinks.map((link) => (
-            <a
-              key={link.title}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-md border border-ink/10 p-4 transition hover:border-moss"
-            >
-              <p className="text-sm font-semibold text-ink">{link.title}</p>
-              <p className="mt-1 text-xs text-ink/60">{link.description}</p>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-ink/10 bg-white p-5">
-        <h2 className="text-lg font-semibold text-ink">Recursos, eventos y tests</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {resourceLinks.map((link) => (
             <a
               key={link.title}
               href={link.href}

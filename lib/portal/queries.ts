@@ -24,6 +24,11 @@ import type {
   PortalRecommendation,
   PortalStandardConsent
 } from "@/lib/portal/types";
+import {
+  getPortalBlogRecommendations,
+  PORTAL_RESOURCE_TOPICS,
+  type PortalResourceTopic
+} from "@/lib/portal/resource-recommendations";
 
 type AppointmentRow = {
   id: string;
@@ -263,6 +268,7 @@ export async function getPortalDashboard(profile: AuthProfile) {
     consentStatuses,
     lifeHistory,
     recommendations,
+    resourcePreferences,
     processHistory,
     assessmentRequests,
     assessmentUploads,
@@ -274,6 +280,7 @@ export async function getPortalDashboard(profile: AuthProfile) {
     getPortalConsentStatuses(activeExpedientes),
     getPortalLifeHistory(profile.id),
     getPortalRecommendations(expedienteIds),
+    getPortalResourcePreferences(profile.id),
     getPortalProcessHistory(activeExpedientes),
     getPortalAssessmentRequests(profile.id),
     getPortalAssessmentUploads(profile.id),
@@ -307,12 +314,36 @@ export async function getPortalDashboard(profile: AuthProfile) {
     consentStatuses,
     lifeHistory,
     recommendations,
+    resourcePreferences,
     processHistory,
     catholizareLinks: CATHOLIZARE_LINKS,
     assessmentExpedientes,
     assessmentRequests,
     assessmentUploads,
     announcements
+  };
+}
+
+async function getPortalResourcePreferences(patientId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("patient_resource_preferences")
+    .select("selected_topics")
+    .eq("patient_id", patientId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to load portal resource preferences: ${error.message}`);
+  }
+
+  const allowedTopics = new Set<string>(PORTAL_RESOURCE_TOPICS);
+  const selectedTopics = ((data?.selected_topics ?? []) as string[]).filter(
+    (topic): topic is PortalResourceTopic => allowedTopics.has(topic)
+  );
+
+  return {
+    selected_topics: selectedTopics,
+    recommendations: getPortalBlogRecommendations(selectedTopics)
   };
 }
 

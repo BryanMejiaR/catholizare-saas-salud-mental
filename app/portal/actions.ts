@@ -23,6 +23,7 @@ import { sendEmail } from "@/lib/email/resend";
 import { getServerEnv } from "@/lib/env";
 import { LIFE_HISTORY_SECTIONS, type LifeHistoryAnswers } from "@/lib/life-history/schema";
 import { APPOINTMENT_REQUEST_TYPES } from "@/lib/portal/types";
+import { PORTAL_RESOURCE_TOPICS } from "@/lib/portal/resource-recommendations";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type PortalActionState = {
@@ -57,6 +58,10 @@ const assessmentUploadSchema = z.object({
 
 const standardConsentCodeSchema = z.object({
   consentimientoId: z.string().uuid()
+});
+
+const resourcePreferencesSchema = z.object({
+  topics: z.array(z.enum(PORTAL_RESOURCE_TOPICS)).max(12)
 });
 
 const acceptStandardConsentSchema = z.object({
@@ -518,6 +523,70 @@ export async function saveLifeHistoryAction(
         : "Borrador guardado.",
     ok: true
   };
+}
+
+export async function savePatientResourcePreferencesAction(
+  _previousState: PortalActionState,
+  formData: FormData
+): Promise<PortalActionState> {
+  const patient = await getActivePatient();
+
+  if (!patient) {
+    return { message: "No tienes una sesion de Paciente activa.", ok: false };
+  }
+
+  const parsed = resourcePreferencesSchema.safeParse({
+    topics: formData.getAll("topics")
+  });
+
+  if (!parsed.success) {
+    return { message: "Selecciona temas de interes validos.", ok: false };
+  }
+
+  const selectedTopics = Array.from(new Set(parsed.data.topics));
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { error } = await supabaseAdmin.from("patient_resource_preferences").upsert({
+    patient_id: patient.id,
+    selected_topics: selectedTopics
+  });
+
+  if (error) {
+    Sentry.captureException(error, {
+      extra: {
+        context: "portal_resource_preferences_save",
+        patient_id: patient.id
+      }
+    });
+
+    await safeWriteAuditLog({
+      userId: patient.id,
+      role: patient.role,
+      action: "portal_resource_preferences_update",
+      entityType: "patient_resource_preferences",
+      entityId: patient.id,
+      result: "error",
+      context: "audit_portal_resource_preferences_update_error"
+    });
+
+    return { message: "No fue posible guardar tus temas de interes.", ok: false };
+  }
+
+  await safeWriteAuditLog({
+    userId: patient.id,
+    role: patient.role,
+    action: "portal_resource_preferences_update",
+    entityType: "patient_resource_preferences",
+    entityId: patient.id,
+    result: "success",
+    metadata: {
+      topic_count: selectedTopics.length
+    },
+    context: "audit_portal_resource_preferences_update_success"
+  });
+
+  revalidatePath("/portal");
+
+  return { message: "Temas de interes actualizados.", ok: true };
 }
 
 export async function uploadAssessmentDocumentAction(

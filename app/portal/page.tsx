@@ -13,6 +13,8 @@ import { PortalConsentStatusPanel } from "@/components/portal/portal-consent-sta
 import { PortalProcessResourcesPanel } from "@/components/portal/portal-process-resources-panel";
 import { PortalAppointmentsTabs } from "@/components/portal/portal-appointments-tabs";
 import { PortalMembershipPanel } from "@/components/portal/portal-membership-panel";
+import { PortalCustomerSupportPanel } from "@/components/portal/portal-customer-support-panel";
+import { PortalResourceRecommendationsPanel } from "@/components/portal/portal-resource-recommendations-panel";
 
 function lifeHistoryStatusText(status?: string | null) {
   if (status === "enviada") {
@@ -111,13 +113,28 @@ export default async function PortalPage() {
             },
             {
               id: "procesos",
-              label: "Procesos y recursos",
+              label: "Procesos",
               content: (
                 <PortalProcessResourcesPanel
                   processes={dashboard.processHistory}
                   links={dashboard.catholizareLinks}
                 />
               )
+            },
+            {
+              id: "recursos",
+              label: "Recursos y recomendaciones",
+              content: (
+                <PortalResourceRecommendationsPanel
+                  selectedTopics={dashboard.resourcePreferences.selected_topics}
+                  recommendations={dashboard.resourcePreferences.recommendations}
+                />
+              )
+            },
+            {
+              id: "soporte",
+              label: "Atencion al cliente",
+              content: <PortalCustomerSupportPanel />
             },
             {
               id: "solicitudes",

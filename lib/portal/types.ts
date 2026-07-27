@@ -115,6 +115,11 @@ export type PortalCatholizareLink = {
   category: "recurso" | "evento" | "proceso" | "test" | "podcast";
 };
 
+export type PortalResourcePreferences = {
+  selected_topics: import("@/lib/portal/resource-recommendations").PortalResourceTopic[];
+  recommendations: import("@/lib/portal/resource-recommendations").PortalBlogRecommendation[];
+};
+
 export type PortalAssessmentExpedienteOption = {
   id: string;
   professional: {
@@ -149,6 +154,7 @@ export type PortalDashboard = {
   consentStatuses: PortalConsentStatus[];
   lifeHistory: PortalLifeHistory | null;
   recommendations: PortalRecommendation[];
+  resourcePreferences: PortalResourcePreferences;
   processHistory: PortalProcessHistory[];
   catholizareLinks: PortalCatholizareLink[];
   assessmentExpedientes: PortalAssessmentExpedienteOption[];

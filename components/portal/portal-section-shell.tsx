@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 
 type PortalSection = {
   id: string;
@@ -16,9 +16,19 @@ type PortalSectionShellProps = {
 export function PortalSectionShell({ sections }: PortalSectionShellProps) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id ?? "");
   const selected = sections.find((section) => section.id === activeSection) ?? sections[0];
+  const sectionIds = new Set(sections.map((section) => section.id));
+
+  function handleSectionTargetClick(event: MouseEvent<HTMLDivElement>) {
+    const target = (event.target as Element | null)?.closest("[data-portal-section-target]");
+    const sectionId = target?.getAttribute("data-portal-section-target");
+
+    if (sectionId && sectionIds.has(sectionId)) {
+      setActiveSection(sectionId);
+    }
+  }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+    <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]" onClick={handleSectionTargetClick}>
       <aside className="h-fit rounded-lg border border-ink/10 bg-white p-3 lg:sticky lg:top-6">
         <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ink/50">
           Menu del portal
