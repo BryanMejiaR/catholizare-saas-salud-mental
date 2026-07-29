@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
@@ -9,6 +10,7 @@ import {
   INVITE_ACTIVATION_COOKIE_NAME,
   verifyInviteActivationToken
 } from "@/lib/auth/invite-activation-token";
+import { ACTIVE_SESSION_TOKEN_COOKIE, SESSION_MAX_AGE_SECONDS } from "@/lib/auth/session-policy";
 import { ROLE_HOME_PATH, type AuthProfile } from "@/lib/auth/types";
 import { updateAuthUserAccessMetadata } from "@/lib/auth/admin-metadata";
 import { PASSWORD_POLICY_MESSAGE, isValidPassword } from "@/lib/auth/password";
@@ -22,6 +24,22 @@ type AuthActionState = {
 };
 
 const GENERIC_LOGIN_ERROR = "No fue posible iniciar sesión con esas credenciales.";
+
+function hashActiveSessionToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+async function setActiveSessionCookie(token: string) {
+  const cookieStore = await cookies();
+
+  cookieStore.set(ACTIVE_SESSION_TOKEN_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: SESSION_MAX_AGE_SECONDS
+  });
+}
 
 function formValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -147,13 +165,16 @@ export async function loginAction(
   }
 
   const supabaseAdmin = createSupabaseAdminClient();
+  const activeSessionToken = randomBytes(32).toString("base64url");
   await supabaseAdmin
     .from("profiles")
     .update({
       account_status: "activo",
       failed_attempts: 0,
       locked_until: null,
-      last_login_at: now.toISOString()
+      last_login_at: now.toISOString(),
+      active_session_token_hash: hashActiveSessionToken(activeSessionToken),
+      active_session_started_at: now.toISOString()
     })
     .eq("id", authProfile.id);
 
@@ -163,6 +184,8 @@ export async function loginAction(
     email,
     result: "success"
   });
+
+  await setActiveSessionCookie(activeSessionToken);
 
   redirect(ROLE_HOME_PATH[authProfile.role]);
 }
@@ -318,12 +341,15 @@ export async function updatePasswordAction(
     .eq("id", user.id)
     .single();
 
+  const activeSessionToken = randomBytes(32).toString("base64url");
   await supabaseAdmin
     .from("profiles")
     .update({
       account_status: "activo",
       failed_attempts: 0,
-      locked_until: null
+      locked_until: null,
+      active_session_token_hash: hashActiveSessionToken(activeSessionToken),
+      active_session_started_at: new Date().toISOString()
     })
     .eq("id", user.id);
 
@@ -340,6 +366,8 @@ export async function updatePasswordAction(
     email: user.email,
     result: "success"
   });
+
+  await setActiveSessionCookie(activeSessionToken);
 
   const role = (profile?.role ?? "profesional") as keyof typeof ROLE_HOME_PATH;
   redirect(ROLE_HOME_PATH[role]);

@@ -12,7 +12,6 @@ import { PortalRecommendationsPanel } from "@/components/portal/portal-recommend
 import { PortalConsentStatusPanel } from "@/components/portal/portal-consent-status-panel";
 import { PortalProcessResourcesPanel } from "@/components/portal/portal-process-resources-panel";
 import { PortalAppointmentsTabs } from "@/components/portal/portal-appointments-tabs";
-import { PortalMembershipPanel } from "@/components/portal/portal-membership-panel";
 import { PortalCustomerSupportPanel } from "@/components/portal/portal-customer-support-panel";
 import { PortalResourceRecommendationsPanel } from "@/components/portal/portal-resource-recommendations-panel";
 
@@ -52,6 +51,7 @@ export default async function PortalPage() {
               content: (
                 <div className="space-y-6">
                   <PortalPatientDashboard
+                    patientFullName={profile.full_name}
                     processHistory={dashboard.processHistory}
                     upcomingAppointments={dashboard.upcomingAppointments}
                     consentStatuses={dashboard.consentStatuses}
@@ -162,13 +162,8 @@ export default async function PortalPage() {
             },
             {
               id: "resumen",
-              label: "Resumen compartido",
+              label: "Recursos compartidos",
               content: <PortalSummary summary={dashboard.summary} />
-            },
-            {
-              id: "membresia",
-              label: "Membresia",
-              content: <PortalMembershipPanel />
             }
           ]}
         />

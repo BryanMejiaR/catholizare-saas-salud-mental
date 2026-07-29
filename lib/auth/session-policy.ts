@@ -2,6 +2,7 @@ import { type NextResponse, type NextRequest } from "next/server";
 
 export const SESSION_STARTED_AT_COOKIE = "catholizare_session_started_at";
 export const SESSION_LAST_ACTIVITY_AT_COOKIE = "catholizare_session_last_activity_at";
+export const ACTIVE_SESSION_TOKEN_COOKIE = "catholizare_active_session_token";
 
 export const SESSION_IDLE_TIMEOUT_MS = 20 * 60 * 1000;
 export const SESSION_MAX_AGE_MS = 5 * 60 * 60 * 1000;
@@ -42,4 +43,5 @@ export function clearSessionPolicyCookies(response: NextResponse) {
 
   response.cookies.set(SESSION_STARTED_AT_COOKIE, "", options);
   response.cookies.set(SESSION_LAST_ACTIVITY_AT_COOKIE, "", options);
+  response.cookies.set(ACTIVE_SESSION_TOKEN_COOKIE, "", options);
 }

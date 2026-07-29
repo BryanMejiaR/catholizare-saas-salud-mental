@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ProfessionalMembershipPanel } from "@/components/professional/professional-membership-panel";
 import { ProBannerList } from "@/components/pro/pro-banner-list";
 import { ProEventsList } from "@/components/pro/pro-events-list";
 import { requireRole } from "@/lib/auth/profile";
@@ -67,6 +68,7 @@ export default async function ProfessionalPage() {
 
         <ProBannerList banners={pro.banners} />
         <ProEventsList events={pro.events} />
+        <ProfessionalMembershipPanel />
       </div>
     </main>
   );

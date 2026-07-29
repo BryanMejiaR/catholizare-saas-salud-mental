@@ -5,6 +5,7 @@ import type {
 } from "@/lib/portal/types";
 
 type PortalPatientDashboardProps = {
+  patientFullName: string;
   processHistory: PortalProcessHistory[];
   upcomingAppointments: PortalAppointment[];
   consentStatuses: PortalConsentStatus[];
@@ -22,6 +23,7 @@ function formatAppointmentDate(value: string) {
 }
 
 export function PortalPatientDashboard({
+  patientFullName,
   processHistory,
   upcomingAppointments,
   consentStatuses
@@ -29,6 +31,10 @@ export function PortalPatientDashboard({
   const activeProcess = processHistory.find((process) => process.status === "activo");
   const therapists = new Set(processHistory.map((process) => process.professional.full_name));
   const nextAppointment = upcomingAppointments[0];
+  const whatsappText = encodeURIComponent(
+    `Hola mi nombre ${patientFullName}, me gustaria integrarme a un grupo de oracion`
+  );
+  const whatsappPrayerGroupUrl = `https://wa.me/525510223883?text=${whatsappText}`;
   const signedConsentCount = consentStatuses.filter((consent) =>
     ["firmado_fisico", "firmado_digital", "excepcion_justificada"].includes(consent.status)
   ).length;
@@ -57,7 +63,7 @@ export function PortalPatientDashboard({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-4">
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
         <div className="rounded-md border border-ink/10 p-4">
           <p className="text-sm font-semibold text-ink">Agendar sesion</p>
           <p className="mt-1 text-xs text-ink/60">Prototipo pendiente de activar.</p>
@@ -67,6 +73,18 @@ export function PortalPatientDashboard({
             className="mt-3 inline-flex h-9 items-center rounded-md bg-ink/10 px-3 text-xs font-semibold text-ink/45"
           >
             Proximamente
+          </button>
+        </div>
+
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Consigue un nuevo logro</p>
+          <p className="mt-1 text-xs text-ink/60">Encuentra un terapeuta para iniciar otro proceso.</p>
+          <button
+            type="button"
+            data-portal-section-target="procesos"
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
+          >
+            Encuentra un terapeuta
           </button>
         </div>
 
@@ -81,6 +99,36 @@ export function PortalPatientDashboard({
             className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
           >
             Ver citas
+          </button>
+        </div>
+
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Oracion en grupo</p>
+          <p className="mt-1 text-xs text-ink/60">
+            Si eres catolico y quieres integrarte, abre WhatsApp con un mensaje prellenado.
+          </p>
+          <a
+            href={whatsappPrayerGroupUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
+          >
+            Quiero hacer oracion en grupo
+          </a>
+        </div>
+
+        <div className="rounded-md border border-ink/10 p-4">
+          <p className="text-sm font-semibold text-ink">Evalua tus sesiones</p>
+          <p className="mt-1 text-xs text-ink/60">
+            No olvides evaluar tus sesiones. Es confidencial; el profesional no podra ver lo que
+            escribas.
+          </p>
+          <button
+            type="button"
+            data-portal-section-target="citas"
+            className="mt-3 inline-flex h-9 items-center rounded-md bg-moss px-3 text-xs font-semibold text-white"
+          >
+            Ir a evaluaciones
           </button>
         </div>
 

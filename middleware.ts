@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import {
   clearSessionPolicyCookies,
+  ACTIVE_SESSION_TOKEN_COOKIE,
   readSessionTimestampCookie,
   SESSION_IDLE_TIMEOUT_MS,
   SESSION_LAST_ACTIVITY_AT_COOKIE,
@@ -91,6 +92,25 @@ function buildPublicRedirectUrl(request: NextRequest, pathname: string) {
   return new URL(pathname, `${protocol}://${host}`);
 }
 
+async function sha256(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+
+  return Array.from(new Uint8Array(hash))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function hasValidActiveSession(request: NextRequest, activeSessionTokenHash: string | null) {
+  const token = request.cookies.get(ACTIVE_SESSION_TOKEN_COOKIE)?.value;
+
+  if (!token || !activeSessionTokenHash) {
+    return false;
+  }
+
+  return (await sha256(token)) === activeSessionTokenHash;
+}
+
 async function writeSessionExpiredAudit(
   supabase: Awaited<ReturnType<typeof createSupabaseMiddlewareClient>>["supabase"],
   request: NextRequest,
@@ -139,7 +159,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role, account_status")
+    .select("role, account_status, active_session_token_hash")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -148,6 +168,17 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!profile) {
+    await supabase.auth.signOut();
+    clearSessionPolicyCookies(response);
+
+    if (isPublicPath) {
+      return response;
+    }
+
+    return redirectWithSupabaseCookies(buildPublicRedirectUrl(request, "/auth/login"), response);
+  }
+
+  if (!(await hasValidActiveSession(request, profile.active_session_token_hash as string | null))) {
     await supabase.auth.signOut();
     clearSessionPolicyCookies(response);
 

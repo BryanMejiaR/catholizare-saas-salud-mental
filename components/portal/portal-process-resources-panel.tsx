@@ -5,6 +5,13 @@ type PortalProcessResourcesPanelProps = {
   links: PortalCatholizareLink[];
 };
 
+const processIconLabels: Record<string, string> = {
+  "Terapia individual": "TI",
+  "Terapia de pareja": "TP",
+  "Terapia familiar": "TF",
+  "Para consagrados": "PC"
+};
+
 export function PortalProcessResourcesPanel({ processes, links }: PortalProcessResourcesPanelProps) {
   const processLinks = links.filter((link) => link.category === "proceso");
 
@@ -49,8 +56,15 @@ export function PortalProcessResourcesPanel({ processes, links }: PortalProcessR
               rel="noreferrer"
               className="rounded-md border border-ink/10 p-4 transition hover:border-moss"
             >
-              <p className="text-sm font-semibold text-ink">{link.title}</p>
-              <p className="mt-1 text-xs text-ink/60">{link.description}</p>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-moss/10 text-xs font-bold text-moss">
+                  {processIconLabels[link.title] ?? "CT"}
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-ink">{link.title}</span>
+                  <span className="mt-1 block text-xs text-ink/60">{link.description}</span>
+                </span>
+              </div>
             </a>
           ))}
         </div>

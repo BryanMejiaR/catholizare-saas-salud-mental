@@ -31,6 +31,24 @@ export function AssessmentUploadForm({ requests, uploads }: AssessmentUploadForm
           Sube el archivo de la prueba que el profesional te proporciono para que interprete los
           datos.
         </p>
+        <p className="mt-2 text-sm leading-6 text-ink/65">
+          Esta seccion sirve para entregar pruebas psicologicas solicitadas por tu profesional. Aqui
+          veras el nombre de la prueba pendiente, podras subir un PDF o foto y despues revisar el
+          estado del envio.
+        </p>
+      </div>
+
+      <div className="mt-5 rounded-md border border-dashed border-ink/20 bg-linen p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">
+          Version de prueba / referencia
+        </p>
+        <div className="mt-3 rounded-md border border-ink/10 bg-white p-4">
+          <p className="text-sm font-semibold text-ink">Ejemplo: BDI - Inventario de depresion</p>
+          <p className="mt-1 text-xs text-ink/55">Solicitada: 29/07/2026</p>
+          <div className="mt-3 rounded-md border border-ink/15 px-3 py-2 text-sm text-ink/50">
+            Archivo o foto de la prueba respondida
+          </div>
+        </div>
       </div>
 
       <div className="mt-5 space-y-4">

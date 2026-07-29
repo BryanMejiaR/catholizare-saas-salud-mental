@@ -1,9 +1,15 @@
+import { createHash } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
 import { writeAuthAuditLog } from "@/lib/auth/audit";
-import { clearSessionPolicyCookies } from "@/lib/auth/session-policy";
+import { ACTIVE_SESSION_TOKEN_COOKIE, clearSessionPolicyCookies } from "@/lib/auth/session-policy";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+function hashActiveSessionToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
 
 function getForwardedHeaderValue(request: NextRequest, headerName: string) {
   return request.headers.get(headerName)?.split(",")[0]?.trim() || null;
@@ -32,6 +38,20 @@ export async function POST(request: NextRequest) {
   await supabase.auth.signOut();
 
   if (user) {
+    const activeSessionToken = request.cookies.get(ACTIVE_SESSION_TOKEN_COOKIE)?.value;
+
+    if (activeSessionToken) {
+      const supabaseAdmin = createSupabaseAdminClient();
+      await supabaseAdmin
+        .from("profiles")
+        .update({
+          active_session_token_hash: null,
+          active_session_started_at: null
+        })
+        .eq("id", user.id)
+        .eq("active_session_token_hash", hashActiveSessionToken(activeSessionToken));
+    }
+
     try {
       await writeAuthAuditLog({
         event: "logout",
