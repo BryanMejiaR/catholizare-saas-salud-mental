@@ -1,3 +1,7 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 import type { AdminOperationalReport } from "@/lib/admin/types";
 
 type OperationalReportProps = {
@@ -47,6 +51,19 @@ function TextMetricsSection({
 }
 
 export function OperationalReport({ report, showAdvancedMetadata = false }: OperationalReportProps) {
+  const [professionalQuery, setProfessionalQuery] = useState("");
+  const filteredProfessionals = useMemo(() => {
+    const query = professionalQuery.trim().toLowerCase();
+
+    if (!query) {
+      return report.professionals;
+    }
+
+    return report.professionals.filter((professional) =>
+      `${professional.full_name} ${professional.email}`.toLowerCase().includes(query)
+    );
+  }, [professionalQuery, report.professionals]);
+
   return (
     <div className="space-y-6">
       <MetricsSection title="Usuarios" metrics={report.users} />
@@ -65,6 +82,15 @@ export function OperationalReport({ report, showAdvancedMetadata = false }: Oper
       <section className="overflow-hidden rounded-lg border border-ink/10 bg-white">
         <div className="p-5">
           <h2 className="text-lg font-semibold text-ink">Actividad por profesional</h2>
+          <label className="mt-4 block max-w-md">
+            <span className="text-sm font-medium text-ink">Buscar profesional</span>
+            <input
+              value={professionalQuery}
+              onChange={(event) => setProfessionalQuery(event.target.value)}
+              placeholder="Buscar por nombre o correo..."
+              className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            />
+          </label>
         </div>
         <table className="w-full border-collapse text-left text-sm">
           <thead className="bg-ink/5 text-ink/70">
@@ -75,7 +101,7 @@ export function OperationalReport({ report, showAdvancedMetadata = false }: Oper
             </tr>
           </thead>
           <tbody className="divide-y divide-ink/10">
-            {report.professionals.map((professional) => (
+            {filteredProfessionals.map((professional) => (
               <tr key={professional.professional_id}>
                 <td className="px-4 py-3">
                   <p className="font-medium text-ink">{professional.full_name}</p>
@@ -87,7 +113,7 @@ export function OperationalReport({ report, showAdvancedMetadata = false }: Oper
                 <td className="px-4 py-3 text-ink/70">{professional.appointments_count}</td>
               </tr>
             ))}
-            {report.professionals.length === 0 ? (
+            {filteredProfessionals.length === 0 ? (
               <tr>
                 <td className="px-4 py-6 text-center text-ink/60" colSpan={3}>
                   No hay profesionales activos para mostrar.

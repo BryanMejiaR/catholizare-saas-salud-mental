@@ -207,7 +207,6 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
     status: string;
     professional_id: string;
   }>;
-  const roleCounts = countBy(profileRows.map((row) => row.role));
   const activeProfessionals = profileRows.filter(
     (row) => row.role === "profesional" && row.account_status === "activo"
   );
@@ -281,19 +280,15 @@ export async function getAdminOperationalReport(profile: AuthProfile) {
 
   return {
     users: [
-      ...mapCounts(roleCounts, {
-        paciente: "Pacientes",
-        profesional: "Profesionales",
-        administrador: "Administradores",
-        super_administrador: "Super administradores"
-      }),
       {
-        label: "Usuarios activos",
-        value: profileRows.filter((row) => row.account_status === "activo").length
+        label: "Profesionales activos",
+        value: activeProfessionals.length
       },
       {
-        label: "Usuarios inactivos o bloqueados",
-        value: profileRows.filter((row) => row.account_status !== "activo").length
+        label: "Profesionales inactivos o bloqueados",
+        value: profileRows.filter(
+          (row) => row.role === "profesional" && row.account_status !== "activo"
+        ).length
       }
     ],
     expedientes: mapCounts(countBy(expedienteRows.map((row) => row.status)), {

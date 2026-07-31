@@ -57,6 +57,35 @@ function Field({
   );
 }
 
+function SelectField({
+  name,
+  label,
+  defaultValue,
+  options
+}: {
+  name: string;
+  label: string;
+  defaultValue?: string;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium text-ink">{label}</span>
+      <select
+        name={name}
+        defaultValue={defaultValue ?? options[0]?.value}
+        className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function Textarea({ name, label }: { name: string; label: string }) {
   return (
     <label className="block">
@@ -82,6 +111,34 @@ function ImageField() {
       <span className="mt-1 block text-xs text-ink/55">JPG, PNG, WEBP o GIF. Maximo 5 MB.</span>
     </label>
   );
+}
+
+const PRO_SECTION_OPTIONS = [
+  { value: "dashboard", label: "Dashboard" },
+  { value: "resources", label: "Recursos" },
+  { value: "agenda", label: "Agenda" }
+];
+
+const PATIENT_SECTION_OPTIONS = [
+  { value: "portal", label: "Portal del paciente" },
+  { value: "dashboard", label: "Dashboard" },
+  { value: "resources", label: "Recursos" }
+];
+
+const ORDER_OPTIONS = Array.from({ length: 11 }, (_, index) => ({
+  value: String(index),
+  label: index === 0 ? "0 - Predeterminado" : String(index)
+}));
+
+const MODALITY_OPTIONS = [
+  { value: "online", label: "Online" },
+  { value: "presencial", label: "Presencial" },
+  { value: "hibrida", label: "Hibrida" },
+  { value: "por_confirmar", label: "Por confirmar" }
+];
+
+function displaySectionOptions(patient: boolean) {
+  return patient ? PATIENT_SECTION_OPTIONS : PRO_SECTION_OPTIONS;
 }
 
 export function CreateProResourceForm({ patient = false }: { patient?: boolean }) {
@@ -110,8 +167,13 @@ export function CreateProResourceForm({ patient = false }: { patient?: boolean }
         <Field name="category" label="Categoria" placeholder="Mentoria, Fichas clinicas..." />
         <Field name="url" label="URL" type="url" />
         <Field name="tags" label="Etiquetas separadas por coma" />
-        <Field name="displaySections" label="Secciones" placeholder="resources,dashboard" />
-        <Field name="sortOrder" label="Orden" type="number" />
+        <SelectField
+          name="displaySections"
+          label="Secciones"
+          defaultValue={patient ? "portal" : "resources"}
+          options={displaySectionOptions(patient)}
+        />
+        <SelectField name="sortOrder" label="Orden" options={ORDER_OPTIONS} />
       </div>
       <ImageField />
       <label className="flex items-center gap-2 text-sm text-ink">
@@ -153,10 +215,15 @@ export function CreateProBannerForm({ patient = false }: { patient?: boolean }) 
             ))}
           </select>
         </label>
-        <Field name="displaySections" label="Secciones" placeholder="dashboard,agenda" />
+        <SelectField
+          name="displaySections"
+          label="Secciones"
+          defaultValue={patient ? "portal" : "dashboard"}
+          options={displaySectionOptions(patient)}
+        />
         <Field name="ctaLabel" label="Texto del boton" />
         <Field name="ctaUrl" label="URL del boton" type="url" />
-        <Field name="priority" label="Prioridad" type="number" />
+        <SelectField name="priority" label="Prioridad" options={ORDER_OPTIONS} />
         <select name="status" className="mt-7 w-full rounded-md border border-ink/15 px-3 py-2">
           {PRO_CONTENT_STATUSES.map((status) => (
             <option key={status} value={status}>
@@ -196,7 +263,7 @@ export function CreateProEventForm({ patient = false }: { patient?: boolean }) {
           type="datetime-local"
           defaultValue={defaultStartsAt}
         />
-        <Field name="modality" label="Modalidad" placeholder="online" />
+        <SelectField name="modality" label="Modalidad" options={MODALITY_OPTIONS} />
         <Field name="infoUrl" label="URL de informacion" type="url" />
         <Field name="registrationUrl" label="URL de registro" type="url" />
       </div>
