@@ -1,6 +1,13 @@
-import { LogoutButton } from "@/components/auth/logout-button";
-import { AppBreadcrumbs } from "@/components/navigation/app-breadcrumbs";
+import { Montserrat } from "next/font/google";
+
+import { ProfessionalTopBar } from "@/components/professional/professional-top-bar";
 import { requireRole } from "@/lib/auth/profile";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap"
+});
 
 export default async function ProfessionalLayout({
   children
@@ -10,10 +17,9 @@ export default async function ProfessionalLayout({
   const profile = await requireRole(["profesional"]);
 
   return (
-    <>
-      <AppBreadcrumbs homeHref="/professional" />
-      <LogoutButton fullName={profile.full_name} />
+    <div className={`${montserrat.className} min-h-screen bg-blanco text-texto`}>
+      <ProfessionalTopBar fullName={profile.full_name} />
       {children}
-    </>
+    </div>
   );
 }

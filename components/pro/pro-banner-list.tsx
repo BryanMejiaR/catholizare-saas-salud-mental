@@ -11,22 +11,27 @@ export function ProBannerList({ banners }: ProBannerListProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6 px-1 sm:px-8">
       {banners.map((banner) => (
-        <section key={banner.id} className="rounded-lg border border-moss/20 bg-white p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+        <section
+          key={banner.id}
+          className="relative min-h-[92px] overflow-hidden rounded-[46px] bg-azulMedio px-6 py-5 text-blanco sm:min-h-[114px] sm:rounded-[58px] sm:px-8"
+        >
+          <div className="flex min-h-[52px] flex-wrap items-end justify-between gap-4 pr-8 sm:min-h-[72px]">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-moss">
-                Catholizare Pro
+              <p className="sr-only">Catholizare Pro</p>
+              <h2 className="max-w-fit rounded-full bg-blanco px-4 py-2 text-sm font-semibold text-texto sm:px-6">
+                {banner.title}
+              </h2>
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-blanco sm:text-base">
+                {banner.body}
               </p>
-              <h2 className="mt-2 text-lg font-semibold text-ink">{banner.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-ink/70">{banner.body}</p>
               {banner.cta_url ? (
                 <a
                   href={banner.cta_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-4 inline-flex font-medium text-moss"
+                  className="mt-4 inline-flex rounded-full bg-blanco px-4 py-2 text-sm font-semibold text-texto transition hover:bg-enfasis"
                 >
                   {banner.cta_label || "Ver mas"}
                 </a>
@@ -37,15 +42,19 @@ export function ProBannerList({ banners }: ProBannerListProps) {
               <img
                 src={banner.image_url}
                 alt=""
-                className="h-24 w-32 rounded-md object-cover"
+                className="h-16 w-24 rounded-full object-cover sm:h-20 sm:w-32"
                 loading="lazy"
               />
             ) : null}
             {banner.dismissible ? (
-              <form action={dismissProBannerAction}>
+              <form action={dismissProBannerAction} className="absolute right-5 top-3">
                 <input type="hidden" name="bannerId" value={banner.id} />
-                <button type="submit" className="text-xs font-medium text-ink/55 hover:text-ink">
-                  Cerrar
+                <button
+                  type="submit"
+                  className="h-4 w-8 rounded-full bg-rojoRompe text-[0px] transition hover:bg-clay"
+                  title="Cerrar anuncio"
+                >
+                  Cerrar anuncio
                 </button>
               </form>
             ) : null}

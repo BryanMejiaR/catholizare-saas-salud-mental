@@ -9,61 +9,41 @@ import { getProfessionalProDashboard } from "@/lib/pro/queries";
 export default async function ProfessionalPage() {
   const profile = await requireRole(["profesional"]);
   const pro = await getProfessionalProDashboard(profile, "dashboard");
+  const menuLinks = [
+    { label: "Pacientes", href: "/professional/patients" },
+    { label: "Expedientes", href: "/professional/expedientes" },
+    { label: "Notas clinicas", href: "/professional/notas" },
+    { label: "Plantilla de notas clinicas", href: "/professional/notas/template" },
+    { label: "Procesos terapeuticos", href: "/professional/procesos" },
+    { label: "Mi Agenda", href: "/professional/agenda" },
+    { label: "Integraciones", href: "/professional/integrations" },
+    { label: "Recursos", href: "/professional/resources" },
+    { label: "Centro de ayuda", href: "/professional/help" },
+    { label: "Solicitar exportacion", href: "/professional/export" }
+  ];
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div>
-          <h1 className="text-3xl font-semibold text-ink">Panel del profesional</h1>
-          <p className="mt-3 text-ink/70">Sesion activa para {profile.full_name}.</p>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <Link className="inline-flex font-medium text-moss" href="/professional/patients">
-              Gestionar pacientes
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/expedientes">
-              Gestionar expedientes
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/notas">
-              Consultar notas clinicas
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/notas/template">
-              Notas clinicas
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/procesos">
-              Gestionar procesos
-            </Link>
-            <div className="group relative inline-flex">
-              <Link className="inline-flex font-medium text-moss" href="/professional/agenda">
-                Gestionar agenda
+    <main className="min-h-[calc(100vh-60px)] bg-blanco px-3 pb-12 pt-8 sm:px-6 md:pt-10">
+      <div className="mx-auto max-w-7xl space-y-10">
+        <div className="rounded-none bg-grisMuyClaro px-4 py-5 sm:px-6">
+          <h1 className="text-[22px] font-bold leading-tight text-texto sm:text-[26px]">
+            Panel del profesional
+          </h1>
+          <p className="mt-3 text-xs font-medium text-grisTextos">
+            Sesion activa para {profile.full_name}.
+          </p>
+
+          <nav className="mt-6 grid grid-cols-2 justify-items-center gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
+            {menuLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="inline-flex min-h-[54px] w-full max-w-[218px] items-center justify-center rounded-full bg-enfasis px-5 py-2 text-center text-[15px] font-medium leading-tight tracking-[0.32em] text-texto transition hover:bg-azulMedio hover:text-blanco sm:text-[18px] lg:text-[22px]"
+              >
+                {item.label}
               </Link>
-              <div className="absolute left-0 top-full z-10 hidden min-w-44 rounded-md border border-ink/10 bg-white p-2 shadow-lg group-hover:block">
-                <Link
-                  className="block rounded px-3 py-2 text-sm text-ink hover:bg-linen"
-                  href="/professional/agenda?view=create#agregar-cita"
-                >
-                  Agregar citas
-                </Link>
-                <Link
-                  className="block rounded px-3 py-2 text-sm text-ink hover:bg-linen"
-                  href="/professional/agenda?view=calendar"
-                >
-                  Agenda
-                </Link>
-              </div>
-            </div>
-            <Link className="inline-flex font-medium text-moss" href="/professional/integrations">
-              Gestionar integraciones
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/resources">
-              Ver recursos
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/help">
-              Centro de ayuda
-            </Link>
-            <Link className="inline-flex font-medium text-moss" href="/professional/export">
-              Solicitar exportacion
-            </Link>
-          </div>
+            ))}
+          </nav>
         </div>
 
         <ProBannerList banners={pro.banners} />
