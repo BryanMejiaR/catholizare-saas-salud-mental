@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminHelpContent } from "@/components/help/admin-help-content";
 import {
   AdminHelpArticles,
@@ -14,22 +13,13 @@ export default async function AdminHelpPage() {
   const help = await getAdminHelpDashboard(profile);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
-              Administracion
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Centro de ayuda</h1>
-            <p className="mt-2 text-sm text-ink/65">
-              Gestion operativa de articulos y tickets sin acceso a contenido clinico.
-            </p>
-          </div>
-          <Link href="/admin" className="text-sm font-medium text-moss">
-            Volver al panel
-          </Link>
-        </div>
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10 xl:py-10">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <AdminPageHeader
+          eyebrow="Soporte operativo"
+          title="Centro de ayuda"
+          description="Administra articulos y solicitudes de soporte sin acceso a contenido clinico."
+        />
 
         <CreateHelpArticleForm />
         <AdminHelpContent articles={help.articles} tickets={help.tickets} />

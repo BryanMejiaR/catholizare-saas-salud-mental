@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProfessionalProfileSummaryCard } from "@/components/users/professional-profile-summary";
 import { requireRole } from "@/lib/auth/profile";
 import { getProfessionalProfileSummary } from "@/lib/users/professional-profile";
@@ -15,25 +16,27 @@ export default async function AdminProfessionalProfilePage({
   const summary = await getProfessionalProfileSummary(profile, id);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
-              Administracion
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Perfil profesional</h1>
-          </div>
-          <Link href="/admin/users" className="text-sm font-medium text-moss">
-            Volver a usuarios
-          </Link>
-        </div>
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10 xl:py-10">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <AdminPageHeader
+          eyebrow="Usuarios / Profesional"
+          title="Perfil profesional"
+          description="Resumen operativo del profesional y su actividad dentro de la plataforma."
+          action={
+            <Link
+              href="/admin/users"
+              className="inline-flex min-h-10 items-center border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 transition hover:border-sky-600 hover:text-sky-700"
+            >
+              Volver a usuarios
+            </Link>
+          }
+        />
 
         {summary ? (
           <ProfessionalProfileSummaryCard summary={summary} />
         ) : (
-          <section className="rounded-lg border border-ink/10 bg-white p-5">
-            <p className="text-sm text-ink/65">No fue posible cargar este perfil profesional.</p>
+          <section className="border border-slate-200 bg-white p-5">
+            <p className="text-sm text-slate-600">No fue posible cargar este perfil profesional.</p>
           </section>
         )}
       </div>

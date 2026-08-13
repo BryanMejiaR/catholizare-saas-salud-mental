@@ -1,5 +1,4 @@
-import { LogoutButton } from "@/components/auth/logout-button";
-import { AppBreadcrumbs } from "@/components/navigation/app-breadcrumbs";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { requireRole } from "@/lib/auth/profile";
 
 export default async function AdminLayout({
@@ -9,11 +8,5 @@ export default async function AdminLayout({
 }>) {
   const profile = await requireRole(["administrador"]);
 
-  return (
-    <>
-      <AppBreadcrumbs homeHref="/admin" />
-      <LogoutButton fullName={profile.full_name} />
-      {children}
-    </>
-  );
+  return <AdminShell fullName={profile.full_name}>{children}</AdminShell>;
 }
