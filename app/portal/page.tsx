@@ -36,20 +36,17 @@ export default async function PortalPage() {
   const dashboard = await getPortalDashboard(profile);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <div>
-          <h1 className="text-3xl font-semibold text-ink">Portal del paciente</h1>
-          <p className="mt-3 text-ink/70">Sesion activa para {profile.full_name}.</p>
-        </div>
-
+    <main className="min-h-[calc(100vh-72px)] px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-7xl">
         <PortalSectionShell
           sections={[
             {
               id: "dashboard",
-              label: "Dashboard",
+              label: "Inicio",
+              description: "Tus proximos pasos y accesos importantes en un solo lugar.",
+              group: "inicio",
               content: (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <PortalPatientDashboard
                     patientFullName={profile.full_name}
                     processHistory={dashboard.processHistory}
@@ -64,6 +61,8 @@ export default async function PortalPage() {
             {
               id: "consentimiento",
               label: "Consentimiento",
+              description: "Consulta el estado y firma los documentos enviados por tu profesional.",
+              group: "atencion",
               content: (
                 <div className="space-y-6">
                   <PortalConsentStatusPanel statuses={dashboard.consentStatuses} />
@@ -74,12 +73,16 @@ export default async function PortalPage() {
             {
               id: "historia",
               label: "Historia de vida",
+              description: "Completa la informacion solicitada por tu profesional para tu proceso.",
+              group: "atencion",
               statusText: lifeHistoryStatusText(dashboard.lifeHistory?.status),
               content: <LifeHistoryForm lifeHistory={dashboard.lifeHistory} />
             },
             {
               id: "pruebas",
               label: "Pruebas psicologicas",
+              description: "Sube las pruebas que tu profesional te haya solicitado.",
+              group: "atencion",
               content: (
                 <AssessmentUploadForm
                   requests={dashboard.assessmentRequests}
@@ -90,6 +93,8 @@ export default async function PortalPage() {
             {
               id: "citas",
               label: "Citas y videollamada",
+              description: "Revisa tus proximas sesiones, enlaces de acceso y citas anteriores.",
+              group: "atencion",
               content: (
                 <PortalAppointmentsTabs
                   upcomingContent={
@@ -114,6 +119,8 @@ export default async function PortalPage() {
             {
               id: "procesos",
               label: "Procesos",
+              description: "Consulta tus procesos terapeuticos y opciones para iniciar uno nuevo.",
+              group: "atencion",
               content: (
                 <PortalProcessResourcesPanel
                   processes={dashboard.processHistory}
@@ -123,7 +130,9 @@ export default async function PortalPage() {
             },
             {
               id: "recursos",
-              label: "Recursos y recomendaciones",
+              label: "Recursos para mi",
+              description: "Elige tus temas de interes y consulta lecturas recomendadas.",
+              group: "apoyo",
               content: (
                 <PortalResourceRecommendationsPanel
                   selectedTopics={dashboard.resourcePreferences.selected_topics}
@@ -134,11 +143,15 @@ export default async function PortalPage() {
             {
               id: "soporte",
               label: "Atencion al cliente",
+              description: "Encuentra ayuda para resolver dudas sobre tu cuenta o el portal.",
+              group: "apoyo",
               content: <PortalCustomerSupportPanel />
             },
             {
               id: "solicitudes",
               label: "Solicitudes",
+              description: "Da seguimiento a tus solicitudes de cancelacion o reprogramacion.",
+              group: "apoyo",
               content: (
                 <section className="rounded-lg border border-ink/10 bg-white p-5">
                   <h2 className="text-lg font-semibold text-ink">Solicitudes recientes</h2>
@@ -163,6 +176,8 @@ export default async function PortalPage() {
             {
               id: "resumen",
               label: "Recursos compartidos",
+              description: "Consulta la informacion que tu profesional publico para ti.",
+              group: "apoyo",
               content: <PortalSummary summary={dashboard.summary} />
             }
           ]}

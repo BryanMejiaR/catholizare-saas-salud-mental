@@ -1,5 +1,4 @@
-import { LogoutButton } from "@/components/auth/logout-button";
-import { AppBreadcrumbs } from "@/components/navigation/app-breadcrumbs";
+import { PortalHeader } from "@/components/portal/portal-header";
 import { requireRole } from "@/lib/auth/profile";
 
 export default async function PortalLayout({
@@ -10,10 +9,9 @@ export default async function PortalLayout({
   const profile = await requireRole(["paciente"]);
 
   return (
-    <>
-      <AppBreadcrumbs homeHref="/portal" />
-      <LogoutButton fullName={profile.full_name} />
+    <div className="min-h-screen bg-grisMuyClaro text-principal">
+      <PortalHeader fullName={profile.full_name} />
       {children}
-    </>
+    </div>
   );
 }
