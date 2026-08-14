@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { AuditLogsTable } from "@/components/admin/audit-logs-table";
+import { SuperAdminPageHeader } from "@/components/super-admin/super-admin-page-header";
 import { requireRole } from "@/lib/auth/profile";
 import { getRecentAuditLogs } from "@/lib/admin/queries";
 
@@ -9,23 +8,13 @@ export default async function SuperAdminAuditPage() {
   const logs = await getRecentAuditLogs(profile);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
-              Catholizare
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Auditoria</h1>
-            <p className="mt-2 text-sm text-ink/65">
-              Ultimos 100 eventos de auditoria. Los logs son de solo lectura.
-            </p>
-          </div>
-          <Link href="/super-admin" className="text-sm font-medium text-moss">
-            Volver al panel
-          </Link>
-        </div>
-
+    <main className="px-4 py-7 sm:px-7 sm:py-10 xl:px-12 xl:py-12">
+      <div className="mx-auto max-w-[1380px] space-y-8">
+        <SuperAdminPageHeader
+          index="04"
+          title="Auditoria"
+          description="Ultimos 100 eventos de auditoria. Los registros son de solo lectura."
+        />
         <AuditLogsTable logs={logs} />
       </div>
     </main>

@@ -1,11 +1,10 @@
-import Link from "next/link";
-
+import { AdminProContent } from "@/components/pro/admin-pro-content";
 import {
   CreateProBannerForm,
   CreateProEventForm,
   CreateProResourceForm
 } from "@/components/pro/admin-pro-forms";
-import { AdminProContent } from "@/components/pro/admin-pro-content";
+import { SuperAdminPageHeader } from "@/components/super-admin/super-admin-page-header";
 import { requireRole } from "@/lib/auth/profile";
 import { getAdminPatientAnnouncementsContent } from "@/lib/pro/queries";
 
@@ -14,31 +13,18 @@ export default async function SuperAdminPatientAnnouncementsPage() {
   const content = await getAdminPatientAnnouncementsContent(profile);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
-              Catholizare
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">
-              Centro de anuncios a pacientes
-            </h1>
-            <p className="mt-2 text-sm text-ink/65">
-              Contenido visible en el portal del paciente, separado del centro de profesionales.
-            </p>
-          </div>
-          <Link href="/super-admin" className="text-sm font-medium text-moss">
-            Volver al panel
-          </Link>
-        </div>
-
+    <main className="px-4 py-7 sm:px-7 sm:py-10 xl:px-12 xl:py-12">
+      <div className="mx-auto max-w-[1380px] space-y-8">
+        <SuperAdminPageHeader
+          index="08"
+          title="Anuncios a pacientes"
+          description="Gestiona el contenido del portal del paciente de forma independiente."
+        />
         <div className="grid gap-6 lg:grid-cols-3">
           <CreateProResourceForm patient />
           <CreateProBannerForm patient />
           <CreateProEventForm patient />
         </div>
-
         <AdminProContent
           resources={content.resources}
           banners={content.banners}

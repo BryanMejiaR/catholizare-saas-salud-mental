@@ -1,11 +1,10 @@
-import Link from "next/link";
-
 import { AdminHelpContent } from "@/components/help/admin-help-content";
 import {
   AdminHelpArticles,
   AdminSupportTickets,
   CreateHelpArticleForm
 } from "@/components/help/admin-help-forms";
+import { SuperAdminPageHeader } from "@/components/super-admin/super-admin-page-header";
 import { requireRole } from "@/lib/auth/profile";
 import { getAdminHelpDashboard } from "@/lib/help/queries";
 
@@ -14,23 +13,13 @@ export default async function SuperAdminHelpPage() {
   const help = await getAdminHelpDashboard(profile);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
-              Catholizare
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Centro de ayuda</h1>
-            <p className="mt-2 text-sm text-ink/65">
-              Supervision global de articulos y tickets de soporte operativo.
-            </p>
-          </div>
-          <Link href="/super-admin" className="text-sm font-medium text-moss">
-            Volver al panel
-          </Link>
-        </div>
-
+    <main className="px-4 py-7 sm:px-7 sm:py-10 xl:px-12 xl:py-12">
+      <div className="mx-auto max-w-[1380px] space-y-8">
+        <SuperAdminPageHeader
+          index="09"
+          title="Centro de ayuda"
+          description="Supervision global de articulos y solicitudes de soporte operativo."
+        />
         <CreateHelpArticleForm />
         <AdminHelpContent articles={help.articles} tickets={help.tickets} />
         <AdminHelpArticles articles={help.articles} />
