@@ -46,7 +46,7 @@ function AdminNavigation({ pathname, onNavigate }: { pathname: string; onNavigat
     <nav aria-label="Navegacion administrativa" className="space-y-7">
       {navigationGroups.map((group) => (
         <div key={group.label}>
-          <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+          <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-azulMedio">
             {group.label}
           </p>
           <div className="space-y-1">
@@ -65,12 +65,12 @@ function AdminNavigation({ pathname, onNavigate }: { pathname: string; onNavigat
                   className={[
                     "block border-l-4 px-3 py-2.5 transition",
                     isActive
-                      ? "border-cyan-400 bg-white/10 text-white"
-                      : "border-transparent text-slate-300 hover:bg-white/5 hover:text-white"
+                      ? "border-azulMedio bg-blanco text-principal shadow-sm"
+                      : "border-transparent text-principal/65 hover:bg-blanco hover:text-principal"
                   ].join(" ")}
                 >
                   <span className="block text-sm font-semibold">{link.label}</span>
-                  <span className={isActive ? "mt-0.5 block text-xs text-cyan-200" : "mt-0.5 block text-xs text-slate-500"}>
+                  <span className={isActive ? "mt-0.5 block text-xs text-azulMedio" : "mt-0.5 block text-xs text-grisTextos"}>
                     {link.hint}
                   </span>
                 </Link>
@@ -85,20 +85,20 @@ function AdminNavigation({ pathname, onNavigate }: { pathname: string; onNavigat
 
 function SessionBlock({ fullName }: { fullName: string }) {
   return (
-    <div className="border-t border-white/10 pt-4">
+    <div className="border-t border-principal/10 pt-4">
       <div className="flex items-center gap-3 px-2">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-cyan-400 text-xs font-bold text-slate-950">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-enfasis text-xs font-bold text-principal">
           {initialsForName(fullName)}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-sm font-semibold text-white">{fullName}</span>
-          <span className="block text-xs text-slate-400">Administrador</span>
+          <span className="block truncate text-sm font-semibold text-principal">{fullName}</span>
+          <span className="block text-xs text-grisTextos">Administrador</span>
         </span>
       </div>
       <form action="/api/auth/logout" method="post" className="mt-3">
         <button
           type="submit"
-          className="min-h-10 w-full border border-white/15 bg-transparent px-3 text-sm font-semibold text-slate-200 transition hover:border-rose-400 hover:text-rose-300"
+          className="min-h-10 w-full border border-principal/15 bg-blanco px-3 text-sm font-semibold text-principal transition hover:border-rojoRompe hover:text-rojoRompe"
         >
           Cerrar sesion
         </button>
@@ -113,14 +113,14 @@ export function AdminShell({ fullName, children }: AdminShellProps) {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
-      <aside className="sticky top-0 hidden h-screen flex-col bg-slate-950 px-4 py-5 lg:flex">
+      <aside className="sticky top-0 hidden h-screen flex-col border-r border-principal/10 bg-grisMuyClaro px-4 py-5 lg:flex">
         <Link href="/admin" className="flex items-center gap-3 px-2">
-          <span className="grid h-11 w-11 place-items-center rounded-lg bg-cyan-400 text-sm font-black text-slate-950">
+          <span className="grid h-11 w-11 place-items-center rounded-lg bg-enfasis text-sm font-black text-principal">
             CO
           </span>
           <span>
-            <span className="block text-base font-bold text-white">Catholizare OS</span>
-            <span className="block text-xs font-medium text-slate-400">Consola administrativa</span>
+            <span className="block text-base font-bold text-principal">Catholizare OS</span>
+            <span className="block text-xs font-medium text-grisTextos">Consola administrativa</span>
           </span>
         </Link>
 
@@ -146,7 +146,7 @@ export function AdminShell({ fullName, children }: AdminShellProps) {
             </button>
           </div>
           {mobileMenuOpen ? (
-            <div className="max-h-[calc(100vh-64px)] overflow-y-auto bg-slate-950 px-4 py-5">
+            <div className="max-h-[calc(100vh-64px)] overflow-y-auto border-t border-principal/10 bg-grisMuyClaro px-4 py-5 shadow-xl">
               <AdminNavigation pathname={pathname} onNavigate={() => setMobileMenuOpen(false)} />
               <div className="mt-7">
                 <SessionBlock fullName={fullName} />
