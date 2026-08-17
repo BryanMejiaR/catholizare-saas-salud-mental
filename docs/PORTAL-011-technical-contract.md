@@ -11,7 +11,7 @@ Implemented:
 - Upcoming appointments and basic appointment history.
 - Zoom participant link access inside a restricted time window.
 - Patient appointment change requests.
-- Patient experience reviews for past appointments.
+- Confidential patient experience reviews for past appointments.
 - Audit logs for portal dashboard read, appointment requests, reviews, and Zoom link access.
 
 Pending:
@@ -62,7 +62,8 @@ New tables:
 `patient_experience_reviews`:
 
 - Patients can read and create their own reviews.
-- Professionals can read reviews for their appointments.
+- Professionals cannot read patient reviews. Migration
+  `202607290002_confidential_patient_reviews.sql` removes that SELECT policy.
 - Client update and physical deletion are revoked.
 
 Database triggers enforce:
@@ -116,3 +117,4 @@ Audit actions:
 - Confirm the Zoom join button appears only inside the 24-hour window and never exposes host URL.
 - Submit a cancellation or reschedule request and confirm it does not modify the appointment.
 - Submit one review for a past appointment and confirm duplicate reviews are rejected.
+- Login as the appointment professional and confirm the individual review is not readable.

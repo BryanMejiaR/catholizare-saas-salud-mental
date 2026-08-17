@@ -101,6 +101,24 @@ async function sha256(value: string) {
     .join("");
 }
 
+function constantTimeEqual(left: string, right: string) {
+  const encoder = new TextEncoder();
+  const leftBytes = encoder.encode(left);
+  const rightBytes = encoder.encode(right);
+
+  if (leftBytes.byteLength !== rightBytes.byteLength) {
+    return false;
+  }
+
+  let difference = 0;
+
+  for (let index = 0; index < leftBytes.byteLength; index += 1) {
+    difference |= leftBytes[index] ^ rightBytes[index];
+  }
+
+  return difference === 0;
+}
+
 async function hasValidActiveSession(request: NextRequest, activeSessionTokenHash: string | null) {
   const token = request.cookies.get(ACTIVE_SESSION_TOKEN_COOKIE)?.value;
 
@@ -108,7 +126,7 @@ async function hasValidActiveSession(request: NextRequest, activeSessionTokenHas
     return false;
   }
 
-  return (await sha256(token)) === activeSessionTokenHash;
+  return constantTimeEqual(await sha256(token), activeSessionTokenHash);
 }
 
 async function writeSessionExpiredAudit(

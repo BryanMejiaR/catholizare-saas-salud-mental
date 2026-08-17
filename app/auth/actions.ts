@@ -1,16 +1,15 @@
 "use server";
 
-import { createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 
+import { issueActiveSession, setActiveSessionCookie } from "@/lib/auth/active-session";
 import {
   getExpiredInviteActivationCookieOptions,
   INVITE_ACTIVATION_COOKIE_NAME,
   verifyInviteActivationToken
 } from "@/lib/auth/invite-activation-token";
-import { ACTIVE_SESSION_TOKEN_COOKIE, SESSION_MAX_AGE_SECONDS } from "@/lib/auth/session-policy";
 import { ROLE_HOME_PATH, type AuthProfile } from "@/lib/auth/types";
 import { updateAuthUserAccessMetadata } from "@/lib/auth/admin-metadata";
 import { PASSWORD_POLICY_MESSAGE, isValidPassword } from "@/lib/auth/password";
@@ -24,22 +23,6 @@ type AuthActionState = {
 };
 
 const GENERIC_LOGIN_ERROR = "No fue posible iniciar sesión con esas credenciales.";
-
-function hashActiveSessionToken(token: string) {
-  return createHash("sha256").update(token).digest("hex");
-}
-
-async function setActiveSessionCookie(token: string) {
-  const cookieStore = await cookies();
-
-  cookieStore.set(ACTIVE_SESSION_TOKEN_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: SESSION_MAX_AGE_SECONDS
-  });
-}
 
 function formValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -164,19 +147,26 @@ export async function loginAction(
     };
   }
 
-  const supabaseAdmin = createSupabaseAdminClient();
-  const activeSessionToken = randomBytes(32).toString("base64url");
-  await supabaseAdmin
-    .from("profiles")
-    .update({
+  let activeSessionToken: string;
+
+  try {
+    const activeSession = await issueActiveSession(authProfile.id, {
       account_status: "activo",
       failed_attempts: 0,
       locked_until: null,
-      last_login_at: now.toISOString(),
-      active_session_token_hash: hashActiveSessionToken(activeSessionToken),
-      active_session_started_at: now.toISOString()
-    })
-    .eq("id", authProfile.id);
+      last_login_at: now.toISOString()
+    });
+    activeSessionToken = activeSession.token;
+  } catch (sessionError) {
+    Sentry.captureException(sessionError, {
+      extra: {
+        context: "password_login_issue_active_session",
+        userId: authProfile.id
+      }
+    });
+    await supabase.auth.signOut();
+    return { message: "No fue posible iniciar una sesion segura. Intenta nuevamente." };
+  }
 
   await writeAuthAuditLog({
     event: "login_success",
@@ -253,19 +243,48 @@ async function completePendingInviteActivation(
     return { message: "No fue posible actualizar la contraseña." };
   }
 
-  await supabaseAdmin
-    .from("profiles")
-    .update({
-      account_status: "activo",
-      failed_attempts: 0,
-      locked_until: null
-    })
-    .eq("id", userId);
-
   await updateAuthUserAccessMetadata(userId, {
     role: profile.role,
     accountStatus: "activo"
   });
+
+  const supabase = await createSupabaseServerClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: profile.email,
+    password
+  });
+
+  if (signInError) {
+    Sentry.captureException(signInError, {
+      extra: {
+        context: "invite_activation_sign_in",
+        userId
+      }
+    });
+    return {
+      message: "La contrasena fue actualizada, pero no fue posible iniciar sesion. Intenta ingresar nuevamente."
+    };
+  }
+
+  let activeSessionToken: string;
+
+  try {
+    const activeSession = await issueActiveSession(userId, {
+      account_status: "activo",
+      failed_attempts: 0,
+      locked_until: null
+    });
+    activeSessionToken = activeSession.token;
+  } catch (sessionError) {
+    Sentry.captureException(sessionError, {
+      extra: {
+        context: "invite_activation_issue_active_session",
+        userId
+      }
+    });
+    await supabase.auth.signOut();
+    return { message: "No fue posible iniciar una sesion segura. Ingresa desde la pantalla de acceso." };
+  }
 
   await writeAuthAuditLog({
     event: "password_changed",
@@ -283,6 +302,8 @@ async function completePendingInviteActivation(
     "",
     getExpiredInviteActivationCookieOptions()
   );
+
+  await setActiveSessionCookie(activeSessionToken);
 
   redirect(ROLE_HOME_PATH[profile.role as keyof typeof ROLE_HOME_PATH]);
 }
@@ -341,23 +362,48 @@ export async function updatePasswordAction(
     .eq("id", user.id)
     .single();
 
-  const activeSessionToken = randomBytes(32).toString("base64url");
-  await supabaseAdmin
-    .from("profiles")
-    .update({
-      account_status: "activo",
-      failed_attempts: 0,
-      locked_until: null,
-      active_session_token_hash: hashActiveSessionToken(activeSessionToken),
-      active_session_started_at: new Date().toISOString()
-    })
-    .eq("id", user.id);
-
   if (profile?.role) {
     await updateAuthUserAccessMetadata(user.id, {
       role: profile.role,
       accountStatus: "activo"
     });
+  }
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password
+  });
+
+  if (signInError) {
+    Sentry.captureException(signInError, {
+      extra: {
+        context: "password_update_refresh_session",
+        userId: user.id
+      }
+    });
+    return {
+      message: "La contrasena fue actualizada. Inicia sesion nuevamente con tu nueva contrasena."
+    };
+  }
+
+  let activeSessionToken: string;
+
+  try {
+    const activeSession = await issueActiveSession(user.id, {
+      account_status: "activo",
+      failed_attempts: 0,
+      locked_until: null
+    });
+    activeSessionToken = activeSession.token;
+  } catch (sessionError) {
+    Sentry.captureException(sessionError, {
+      extra: {
+        context: "password_update_issue_active_session",
+        userId: user.id
+      }
+    });
+    await supabase.auth.signOut();
+    return { message: "La contrasena fue actualizada. Inicia sesion nuevamente." };
   }
 
   await writeAuthAuditLog({

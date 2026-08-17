@@ -1,15 +1,11 @@
-import { createHash } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
+import { hashActiveSessionToken } from "@/lib/auth/active-session";
 import { writeAuthAuditLog } from "@/lib/auth/audit";
 import { ACTIVE_SESSION_TOKEN_COOKIE, clearSessionPolicyCookies } from "@/lib/auth/session-policy";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function hashActiveSessionToken(token: string) {
-  return createHash("sha256").update(token).digest("hex");
-}
 
 function getForwardedHeaderValue(request: NextRequest, headerName: string) {
   return request.headers.get(headerName)?.split(",")[0]?.trim() || null;

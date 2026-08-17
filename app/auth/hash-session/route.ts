@@ -4,6 +4,10 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { z } from "zod";
 
 import {
+  issueActiveSession,
+  setActiveSessionCookieOnResponse
+} from "@/lib/auth/active-session";
+import {
   createInviteActivationToken,
   getInviteActivationCookieOptions,
   INVITE_ACTIVATION_COOKIE_NAME
@@ -60,6 +64,20 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ message: "Invalid auth session." }, { status: 401 });
+  }
+
+  try {
+    const activeSession = await issueActiveSession(data.user.id);
+    setActiveSessionCookieOnResponse(response, activeSession.token);
+  } catch (sessionError) {
+    Sentry.captureException(sessionError, {
+      extra: {
+        context: "auth_hash_session_issue_active_session",
+        userId: data.user.id
+      }
+    });
+    await supabase.auth.signOut();
+    return NextResponse.json({ message: "Unable to establish a secure session." }, { status: 500 });
   }
 
   response.cookies.set(

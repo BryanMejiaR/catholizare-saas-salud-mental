@@ -147,3 +147,24 @@ El paciente no tiene acceso al expediente clínico completo ni a las notas del p
 - La función `current_organization_id()` no existe; las políticas RLS no usan aislamiento por organización.
 - El aislamiento de datos clínicos se hace por `professional_id` (cada Profesional solo ve sus propios expedientes).
 - Los reportes del Administrador son agregados de toda la plataforma.
+
+---
+
+## D-13 - Las evaluaciones de sesion del paciente son confidenciales para el profesional
+
+**Decision:** Las resenas y evaluaciones que el paciente registra sobre una sesion no son
+visibles para el profesional evaluado. El paciente puede consultar sus propias respuestas, pero
+el profesional no puede leerlas desde su cuenta ni mediante las politicas RLS.
+
+**Motivo:** La confidencialidad permite que el paciente responda con libertad y evita que el
+contenido de la evaluacion altere directamente la relacion terapeutica. La plataforma puede usar
+informacion agregada y minimizada para control de calidad, sin exponer el texto individual al
+profesional.
+
+**Implicaciones de diseno:**
+
+- La tabla `patient_experience_reviews` no tiene una politica SELECT para profesionales.
+- La interfaz profesional no muestra el contenido de resenas individuales.
+- Cualquier uso administrativo debe respetar minimo privilegio, trazabilidad y minimizacion.
+- Un cambio futuro que permita compartir una resena requiere consentimiento explicito del
+  paciente y una nueva decision de producto.
