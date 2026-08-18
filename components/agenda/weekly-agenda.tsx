@@ -46,7 +46,7 @@ export function WeeklyAgenda({ appointments }: WeeklyAgendaProps) {
           <h2 className="text-lg font-semibold text-ink">Agenda semanal</h2>
           <p className="mt-1 text-sm text-ink/60">Citas pendientes de la semana actual.</p>
         </div>
-        <Link href="/professional/agenda?view=create#agregar-cita" className="text-sm font-medium text-moss">
+        <Link href="/professional/agenda?view=create#agregar-cita" className="text-sm font-medium text-azulMedio">
           Agregar cita
         </Link>
       </div>
@@ -59,7 +59,7 @@ export function WeeklyAgenda({ appointments }: WeeklyAgendaProps) {
           );
 
           return (
-            <div key={key} className="min-h-40 rounded-md border border-ink/10 bg-linen p-3">
+            <div key={key} className="min-h-40 rounded-md border border-ink/10 bg-grisMuyClaro p-3">
               <p className="text-sm font-semibold text-ink">
                 {day.toLocaleDateString("es-MX", { weekday: "short", day: "2-digit" })}
               </p>
@@ -68,7 +68,7 @@ export function WeeklyAgenda({ appointments }: WeeklyAgendaProps) {
                   <Link
                     key={appointment.id}
                     href={`/professional/agenda/${appointment.id}`}
-                    className="block rounded-md bg-white p-2 text-xs text-ink shadow-sm transition hover:text-moss"
+                    className="block rounded-md bg-white p-2 text-xs text-ink shadow-sm transition hover:text-azulMedio"
                   >
                     <span className="font-semibold">{formatTime(appointment.scheduled_at)}</span>
                     <span className="mt-1 block">{appointment.patient.full_name}</span>

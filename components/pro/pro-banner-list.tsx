@@ -11,56 +11,59 @@ export function ProBannerList({ banners }: ProBannerListProps) {
   }
 
   return (
-    <div className="space-y-6 px-1 sm:px-8">
+    <section>
+      <div className="mb-4">
+        <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">Actualizaciones</p>
+        <h2 className="mt-1 text-xl font-bold text-principal">Anuncios para ti</h2>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
       {banners.map((banner) => (
-        <section
+        <article
           key={banner.id}
-          className="relative min-h-[92px] overflow-hidden rounded-[46px] bg-azulMedio px-6 py-5 text-blanco sm:min-h-[114px] sm:rounded-[58px] sm:px-8"
+          className="relative overflow-hidden rounded-lg border border-principal/10 bg-blanco shadow-sm"
         >
-          <div className="flex min-h-[52px] flex-wrap items-end justify-between gap-4 pr-8 sm:min-h-[72px]">
-            <div className="max-w-3xl">
-              <p className="sr-only">Catholizare Pro</p>
-              <h2 className="max-w-fit rounded-full bg-blanco px-4 py-2 text-sm font-semibold text-texto sm:px-6">
-                {banner.title}
-              </h2>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-blanco sm:text-base">
-                {banner.body}
-              </p>
+          {banner.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={banner.image_url}
+              alt=""
+              className="h-40 w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-2 bg-enfasis" />
+          )}
+          <div className="p-5 sm:p-6">
+            <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">Catholizare Pro</p>
+            <h3 className="mt-2 text-lg font-bold text-principal">{banner.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-principal/65">{banner.body}</p>
               {banner.cta_url ? (
                 <a
                   href={banner.cta_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-4 inline-flex rounded-full bg-blanco px-4 py-2 text-sm font-semibold text-texto transition hover:bg-enfasis"
+                  className="mt-4 inline-flex min-h-10 items-center rounded-md bg-azulMedio px-4 text-sm font-bold text-blanco transition hover:bg-secundario"
                 >
                   {banner.cta_label || "Ver mas"}
                 </a>
               ) : null}
-            </div>
-            {banner.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={banner.image_url}
-                alt=""
-                className="h-16 w-24 rounded-full object-cover sm:h-20 sm:w-32"
-                loading="lazy"
-              />
-            ) : null}
             {banner.dismissible ? (
-              <form action={dismissProBannerAction} className="absolute right-5 top-3">
+              <form action={dismissProBannerAction} className="absolute right-3 top-3">
                 <input type="hidden" name="bannerId" value={banner.id} />
                 <button
                   type="submit"
-                  className="h-4 w-8 rounded-full bg-rojoRompe text-[0px] transition hover:bg-clay"
+                  className="grid h-9 w-9 place-items-center rounded-md border border-principal/10 bg-blanco text-lg font-medium leading-none text-principal shadow-sm transition hover:border-rojoRompe hover:text-rojoRompe"
                   title="Cerrar anuncio"
+                  aria-label="Cerrar anuncio"
                 >
-                  Cerrar anuncio
+                  ×
                 </button>
               </form>
             ) : null}
           </div>
-        </section>
+        </article>
       ))}
-    </div>
+      </div>
+    </section>
   );
 }

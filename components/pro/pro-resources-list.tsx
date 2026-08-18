@@ -6,11 +6,12 @@ type ProResourcesListProps = {
 
 export function ProResourcesList({ resources }: ProResourcesListProps) {
   return (
-    <section className="rounded-lg border border-ink/10 bg-white p-5">
-      <h2 className="text-lg font-semibold text-ink">Recursos</h2>
+    <section>
+      <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">Biblioteca</p>
+      <h2 className="mt-1 text-xl font-bold text-principal">Recursos</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         {resources.map((resource) => (
-          <article key={resource.id} className="overflow-hidden rounded-md border border-ink/10">
+          <article key={resource.id} className="overflow-hidden rounded-lg border border-principal/10 bg-blanco transition hover:border-azulMedio">
             {resource.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -23,13 +24,13 @@ export function ProResourcesList({ resources }: ProResourcesListProps) {
             <div className="p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-moss">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-azulMedio">
                   {resource.category}
                 </p>
-                <h3 className="mt-2 font-semibold text-ink">{resource.title}</h3>
+                <h3 className="mt-2 font-bold text-principal">{resource.title}</h3>
               </div>
               {resource.featured ? (
-                <span className="rounded-full bg-moss/10 px-2 py-1 text-xs font-medium text-ink">
+                <span className="rounded-md bg-enfasis/20 px-2 py-1 text-xs font-semibold text-principal">
                   Destacado
                 </span>
               ) : null}
@@ -39,7 +40,7 @@ export function ProResourcesList({ resources }: ProResourcesListProps) {
               href={resource.url}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 inline-flex font-medium text-moss"
+              className="mt-4 inline-flex text-sm font-bold text-azulMedio"
             >
               Ver mas
             </a>

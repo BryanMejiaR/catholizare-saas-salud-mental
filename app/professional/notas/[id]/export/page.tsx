@@ -87,7 +87,7 @@ export default async function NotaClinicaExportPage({ params }: NotaClinicaExpor
     <main className="min-h-screen bg-white px-6 py-8 text-ink print:px-0 print:py-0">
       <div className="mx-auto max-w-4xl space-y-8 print:max-w-none">
         <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-          <Link href={`/professional/notas/${note.id}`} className="text-sm font-medium text-moss">
+          <Link href={`/professional/notas/${note.id}`} className="text-sm font-medium text-azulMedio">
             Volver a la nota
           </Link>
           <PrintButton />
@@ -95,7 +95,7 @@ export default async function NotaClinicaExportPage({ params }: NotaClinicaExpor
 
         <article className="space-y-6 rounded-lg border border-ink/10 bg-white p-8 print:border-0 print:p-0">
           <header className="border-b border-ink/15 pb-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Catholizare OS
             </p>
             <h1 className="mt-3 text-3xl font-semibold text-ink">Nota clinica</h1>

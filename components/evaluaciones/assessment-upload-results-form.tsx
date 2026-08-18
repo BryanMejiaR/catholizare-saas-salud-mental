@@ -56,7 +56,7 @@ export function AssessmentUploadResultsForm({
 
       <SubmitButton disabled={disabled}>Guardar resultados</SubmitButton>
       {state.message ? (
-        <p className={`text-sm ${state.ok ? "text-moss" : "text-clay"}`}>{state.message}</p>
+        <p className={`text-sm ${state.ok ? "text-azulMedio" : "text-rojoRompe"}`}>{state.message}</p>
       ) : null}
     </form>
   );

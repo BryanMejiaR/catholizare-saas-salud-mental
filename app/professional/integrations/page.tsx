@@ -51,20 +51,20 @@ export default async function ProfessionalIntegrationsPage({
   const zoomMessage = params?.zoom ? ZOOM_MESSAGES[params.zoom] : null;
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Panel del profesional
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Integraciones</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Integraciones</h1>
             <p className="mt-2 text-sm text-ink/65">
               Conecta servicios externos por cuenta profesional. Las citas siguen funcionando sin
               integraciones activas.
             </p>
           </div>
-          <Link href="/professional" className="text-sm font-medium text-moss">
+          <Link href="/professional" className="text-sm font-medium text-azulMedio">
             Volver al panel
           </Link>
         </div>
@@ -84,7 +84,7 @@ export default async function ProfessionalIntegrationsPage({
         <section className="rounded-lg border border-ink/10 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-ink">Google Calendar</h2>
+              <h2 className="text-lg font-bold text-principal">Google Calendar</h2>
               <p className="mt-1 text-sm text-ink/65">
                 Sincroniza las citas creadas o canceladas en Catholizare con el calendario principal
                 del profesional.
@@ -121,7 +121,7 @@ export default async function ProfessionalIntegrationsPage({
               <form action={disconnectGoogleCalendarAction}>
                 <button
                   type="submit"
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-clay px-4 text-sm font-semibold text-white transition hover:bg-ink"
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-rojoRompe px-4 text-sm font-semibold text-white transition hover:bg-ink"
                 >
                   Desconectar
                 </button>
@@ -130,7 +130,7 @@ export default async function ProfessionalIntegrationsPage({
               <a
                 href={isGcalConfigured ? "/api/integrations/google-calendar/start" : "#"}
                 aria-disabled={!isGcalConfigured}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink aria-disabled:pointer-events-none aria-disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink aria-disabled:pointer-events-none aria-disabled:opacity-60"
               >
                 Conectar Google Calendar
               </a>
@@ -141,7 +141,7 @@ export default async function ProfessionalIntegrationsPage({
         <section className="rounded-lg border border-ink/10 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-ink">Zoom</h2>
+              <h2 className="text-lg font-bold text-principal">Zoom</h2>
               <p className="mt-1 text-sm text-ink/65">
                 Genera enlaces de reunion para citas de videollamada bajo la cuenta Zoom del
                 profesional.
@@ -178,7 +178,7 @@ export default async function ProfessionalIntegrationsPage({
               <form action={disconnectZoomAction}>
                 <button
                   type="submit"
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-clay px-4 text-sm font-semibold text-white transition hover:bg-ink"
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-rojoRompe px-4 text-sm font-semibold text-white transition hover:bg-ink"
                 >
                   Desconectar
                 </button>
@@ -187,7 +187,7 @@ export default async function ProfessionalIntegrationsPage({
               <a
                 href={isZoomConnectionConfigured ? "/api/integrations/zoom/start" : "#"}
                 aria-disabled={!isZoomConnectionConfigured}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink aria-disabled:pointer-events-none aria-disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink aria-disabled:pointer-events-none aria-disabled:opacity-60"
               >
                 Conectar Zoom
               </a>

@@ -36,13 +36,13 @@ export function NotaDetailForm({ note }: NotaDetailFormProps) {
           className={`rounded-md px-3 py-2 text-sm font-semibold ${
             isDraft
               ? "border border-gold/30 bg-gold/10 text-ink"
-              : "border border-moss/20 bg-moss/10 text-ink"
+              : "border border-azulMedio/20 bg-azulMedio/10 text-ink"
           }`}
         >
           {statusLabel}
         </span>
       </div>
-      <p className="rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm font-semibold text-clay">
+      <p className="rounded-md border border-rojoRompe/30 bg-rojoRompe/10 px-3 py-2 text-sm font-semibold text-rojoRompe">
         Al guardar y confirmar la nota clinica ya no se podra modificar y en caso de requerirlo se
         debera anular y crear una nueva.
       </p>
@@ -58,7 +58,7 @@ export function NotaDetailForm({ note }: NotaDetailFormProps) {
             name="intent"
             value="confirm"
             disabled={!isDraft}
-            className="inline-flex h-11 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
           >
             Guardar y confirmar nota clinica
           </button>

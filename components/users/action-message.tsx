@@ -12,8 +12,8 @@ export function ActionMessage({ message, ok }: ActionMessageProps) {
     <p
       className={
         ok
-          ? "rounded-md border border-moss/20 bg-moss/10 px-3 py-2 text-sm text-ink"
-          : "rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm text-ink"
+          ? "rounded-md border-l-4 border-azulMedio bg-enfasis/10 px-4 py-3 text-sm text-principal"
+          : "rounded-md border-l-4 border-rojoRompe bg-rojoRompe/5 px-4 py-3 text-sm text-principal"
       }
     >
       {message}

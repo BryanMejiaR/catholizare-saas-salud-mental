@@ -22,7 +22,7 @@ export function GoogleCalendarPanel({ connection }: GoogleCalendarPanelProps) {
           href={connected ? "https://calendar.google.com/calendar/u/0/r" : "/professional/integrations"}
           target={connected ? "_blank" : undefined}
           rel={connected ? "noreferrer" : undefined}
-          className="rounded-md bg-moss px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-md bg-azulMedio px-4 py-2 text-sm font-semibold text-white"
         >
           {connected ? "Abrir Google Calendar" : "Conectar Google Calendar"}
         </a>

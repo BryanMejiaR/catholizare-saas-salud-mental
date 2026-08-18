@@ -9,7 +9,7 @@ export default function InactiveAccountPage() {
       <form action="/api/auth/logout" method="post">
         <button
           type="submit"
-          className="inline-flex h-11 w-full items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink"
+          className="inline-flex h-11 w-full items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink"
         >
           Cerrar sesión
         </button>

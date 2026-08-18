@@ -36,7 +36,7 @@ export function NotasTable({
   showPatient = false
 }: NotasTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>
@@ -70,7 +70,7 @@ export function NotasTable({
                 <span className="line-clamp-2">{nota.clinical_summary ?? "Sin resumen"}</span>
               </td>
               <td className="px-4 py-3">
-                <Link href={`/professional/notas/${nota.id}`} className="font-medium text-moss">
+                <Link href={`/professional/notas/${nota.id}`} className="font-medium text-azulMedio">
                   Abrir
                 </Link>
               </td>

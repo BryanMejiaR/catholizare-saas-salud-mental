@@ -26,14 +26,14 @@ export function AssessmentResultsDraftBox({ disabled = false }: AssessmentResult
         rows={6}
         disabled={disabled}
         placeholder="Pega resultados, tablas o puntajes aqui."
-        className="mt-4 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20 disabled:cursor-not-allowed disabled:bg-ink/5"
+        className="mt-4 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20 disabled:cursor-not-allowed disabled:bg-ink/5"
       />
 
       <button
         type="button"
         disabled={disabled || results.trim().length === 0}
         onClick={() => setShowPreview(true)}
-        className="mt-3 inline-flex h-10 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-3 inline-flex h-10 items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
       >
         Interpretar
       </button>

@@ -27,7 +27,7 @@ export function PortalAppointmentsTabs({
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
-              activeTab === tab.id ? "bg-moss text-white" : "text-ink hover:bg-ink/5"
+              activeTab === tab.id ? "bg-azulMedio text-white" : "text-ink hover:bg-ink/5"
             }`}
           >
             {tab.label}

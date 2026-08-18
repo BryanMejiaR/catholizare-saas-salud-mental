@@ -1,9 +1,9 @@
 import type { SystemHealthCheck } from "@/lib/admin/system-health";
 
 const statusClass: Record<SystemHealthCheck["status"], string> = {
-  ok: "border-moss/20 bg-moss/5 text-moss",
+  ok: "border-azulMedio/20 bg-azulMedio/5 text-azulMedio",
   warning: "border-gold/30 bg-gold/10 text-ink",
-  error: "border-clay/30 bg-clay/10 text-clay"
+  error: "border-rojoRompe/30 bg-rojoRompe/10 text-rojoRompe"
 };
 
 export function SystemHealthPanel({ checks }: { checks: SystemHealthCheck[] }) {

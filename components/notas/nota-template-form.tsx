@@ -7,7 +7,6 @@ import { SubmitButton } from "@/components/auth/submit-button";
 import { ActionMessage } from "@/components/users/action-message";
 import {
   NOTA_TEMPLATE_FIELD_TYPES,
-  NOTA_TEMPLATE_MODEL_LABEL,
   type NotaTemplateField,
   type NotaTemplateFieldType,
   type NotaTemplateModelType,
@@ -144,7 +143,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
         <input
           value={templateName}
           onChange={(event) => setTemplateName(event.target.value)}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -176,7 +175,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                     )
                   }
                   disabled={templateSections.length === 1}
-                  className="rounded-md border border-clay/30 px-3 py-1 text-xs font-medium text-clay disabled:opacity-50"
+                  className="rounded-md border border-rojoRompe/30 px-3 py-1 text-xs font-medium text-rojoRompe disabled:opacity-50"
                 >
                   Eliminar
                 </button>
@@ -193,7 +192,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                       title: event.target.value
                     })
                   }
-                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                 />
               </label>
               <label className="block">
@@ -201,7 +200,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                 <input
                   value={section.description ?? ""}
                   onChange={(event) => updateSection(sectionIndex, { description: event.target.value })}
-                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                 />
               </label>
             </div>
@@ -218,7 +217,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                           label: event.target.value
                         })
                       }
-                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                     />
                   </label>
 
@@ -231,7 +230,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                           type: event.target.value as NotaTemplateFieldType
                         })
                       }
-                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                     >
                       {NOTA_TEMPLATE_FIELD_TYPES.map((type) => (
                         <option key={type} value={type}>
@@ -283,7 +282,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                         })
                       }
                       disabled={section.fields.length === 1}
-                      className="rounded-md border border-clay/30 px-3 py-2 text-xs font-medium text-clay disabled:opacity-50"
+                      className="rounded-md border border-rojoRompe/30 px-3 py-2 text-xs font-medium text-rojoRompe disabled:opacity-50"
                     >
                       Eliminar
                     </button>
@@ -304,7 +303,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
                               .filter(Boolean)
                           })
                         }
-                        className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                        className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                       />
                     </label>
                   ) : null}
@@ -315,7 +314,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
             <button
               type="button"
               onClick={() => addField(sectionIndex)}
-              className="rounded-md border border-moss/30 px-3 py-2 text-sm font-medium text-moss"
+              className="rounded-md border border-azulMedio/30 px-3 py-2 text-sm font-medium text-azulMedio"
             >
               Agregar campo
             </button>
@@ -327,7 +326,7 @@ export function NotaTemplateForm({ modelType, name, sections, version }: NotaTem
         <button
           type="button"
           onClick={addSection}
-          className="inline-flex h-11 items-center justify-center rounded-md border border-moss/30 px-4 text-sm font-semibold text-moss"
+          className="inline-flex h-11 items-center justify-center rounded-md border border-azulMedio/30 px-4 text-sm font-semibold text-azulMedio"
         >
           Agregar seccion
         </button>

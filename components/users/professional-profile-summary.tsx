@@ -19,7 +19,7 @@ export function ProfessionalProfileSummaryCard({
       <section className="rounded-lg border border-ink/10 bg-white p-5">
         <h2 className="text-xl font-semibold text-ink">{summary.full_name}</h2>
         <p className="mt-1 text-sm text-ink/60">{summary.email}</p>
-        <p className="mt-2 text-sm font-medium text-moss">Estado: {summary.account_status}</p>
+        <p className="mt-2 text-sm font-medium text-azulMedio">Estado: {summary.account_status}</p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -41,7 +41,7 @@ export function PortalResourceRecommendationsPanel({
           {PORTAL_RESOURCE_TOPICS.map((topic) => (
             <label
               key={topic}
-              className="flex items-start gap-3 rounded-md border border-ink/10 bg-linen p-3 text-sm text-ink"
+              className="flex items-start gap-3 rounded-md border border-ink/10 bg-grisMuyClaro p-3 text-sm text-ink"
             >
               <input
                 name="topics"
@@ -67,11 +67,11 @@ export function PortalResourceRecommendationsPanel({
               href={recommendation.href}
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-ink/10 p-4 transition hover:border-moss"
+              className="rounded-md border border-ink/10 p-4 transition hover:border-azulMedio"
             >
               <p className="text-sm font-semibold text-ink">{recommendation.title}</p>
               <p className="mt-1 text-xs text-ink/60">{recommendation.description}</p>
-              <p className="mt-3 text-xs font-semibold text-moss">
+              <p className="mt-3 text-xs font-semibold text-azulMedio">
                 {PORTAL_RESOURCE_TOPIC_LABELS[recommendation.topic]}
               </p>
             </a>

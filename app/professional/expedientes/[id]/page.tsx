@@ -73,21 +73,21 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
     );
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Expediente clinico
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">
               {expediente.patient.full_name}
             </h1>
             <p className="mt-2 text-sm text-ink/65">
               Estado: {expediente.status} | Consentimiento: {expediente.consent_status}
             </p>
           </div>
-          <Link href="/professional/expedientes" className="text-sm font-medium text-moss">
+          <Link href="/professional/expedientes" className="text-sm font-medium text-azulMedio">
             Volver a expedientes
           </Link>
         </div>
@@ -112,7 +112,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
         </section>
 
         {!isActive ? (
-          <p className="rounded-md border border-clay/30 bg-clay/10 px-4 py-3 text-sm text-ink">
+          <p className="rounded-md border border-rojoRompe/30 bg-rojoRompe/10 px-4 py-3 text-sm text-ink">
             Este expediente no esta activo. La edicion clinica esta bloqueada para preservar la
             integridad del registro.
           </p>
@@ -128,7 +128,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
                 <a
                   key={href}
                   href={`#${href}`}
-                  className="block rounded-md px-3 py-2 text-sm font-medium text-ink/70 transition hover:bg-moss/10 hover:text-moss"
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-ink/70 transition hover:bg-azulMedio/10 hover:text-azulMedio"
                 >
                   {label}
                 </a>
@@ -165,7 +165,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
 
             <section id="proceso" className="scroll-mt-24 space-y-4">
               <div>
-                <h2 className="text-lg font-semibold text-ink">Proceso terapeutico</h2>
+                <h2 className="text-lg font-bold text-principal">Proceso terapeutico</h2>
                 <p className="mt-1 text-sm text-ink/65">
                   Enfoque terapeutico configurable por el Profesional.
                 </p>
@@ -178,7 +178,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
                   </p>
                   <Link
                     href={`/professional/procesos/${proceso.id}`}
-                    className="mt-3 inline-flex text-sm font-medium text-moss"
+                    className="mt-3 inline-flex text-sm font-medium text-azulMedio"
                   >
                     Abrir proceso
                   </Link>
@@ -190,7 +190,7 @@ export default async function ExpedienteDetailPage({ params }: ExpedienteDetailP
 
             <section id="notas" className="scroll-mt-24 space-y-4">
               <div>
-                <h2 className="text-lg font-semibold text-ink">Notas clinicas</h2>
+                <h2 className="text-lg font-bold text-principal">Notas clinicas</h2>
                 <p className="mt-1 text-sm text-ink/65">
                   Las notas de sesion se guardan como borrador y pueden editarse antes de confirmarse.
                 </p>

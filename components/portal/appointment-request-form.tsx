@@ -32,7 +32,7 @@ export function AppointmentRequestForm({ appointmentId }: AppointmentRequestForm
           <select
             name="requestType"
             required
-            className="w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             <option value="reprogramacion">Solicitar reprogramacion</option>
             <option value="cancelacion">Solicitar cancelacion</option>
@@ -43,7 +43,7 @@ export function AppointmentRequestForm({ appointmentId }: AppointmentRequestForm
             minLength={5}
             maxLength={1200}
             placeholder="Mensaje breve, sin incluir informacion clinica sensible."
-            className="min-h-20 w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="min-h-20 w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
           <SubmitButton>Enviar solicitud</SubmitButton>
           <ActionMessage message={state.message} ok={state.ok} />

@@ -8,7 +8,7 @@ type ExpedientesTableProps = {
 
 export function ExpedientesTable({ expedientes }: ExpedientesTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>
@@ -34,7 +34,7 @@ export function ExpedientesTable({ expedientes }: ExpedientesTableProps) {
               <td className="px-4 py-3">
                 <Link
                   href={`/professional/expedientes/${expediente.id}`}
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-moss px-3 text-xs font-semibold text-white transition hover:bg-ink"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-azulMedio px-3 text-xs font-semibold text-white transition hover:bg-ink"
                 >
                   Abrir expediente
                 </Link>

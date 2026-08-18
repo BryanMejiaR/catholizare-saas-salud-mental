@@ -56,7 +56,7 @@ export function CreateNotaForm({
             name="noteType"
             disabled={disabled}
             defaultValue="sesion"
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             {NOTA_CLINICA_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -72,7 +72,7 @@ export function CreateNotaForm({
             value={modelType}
             disabled={disabled}
             onChange={(event) => setModelType(event.target.value as NotaTemplateModelType)}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             {NOTA_TEMPLATE_MODEL_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -85,7 +85,7 @@ export function CreateNotaForm({
 
       <NotaFields sections={sections} disabled={disabled} />
 
-      <p className="rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm font-semibold text-clay">
+      <p className="rounded-md border border-rojoRompe/30 bg-rojoRompe/10 px-3 py-2 text-sm font-semibold text-rojoRompe">
         Al guardar y confirmar la nota clinica ya no se podra modificar y en caso de requerirlo se
         debera anular y crear una nueva.
       </p>
@@ -96,7 +96,7 @@ export function CreateNotaForm({
           name="intent"
           value="draft"
           disabled={disabled}
-          className="inline-flex h-11 items-center justify-center rounded-md border border-moss px-4 text-sm font-semibold text-moss transition hover:bg-moss hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center rounded-md border border-azulMedio px-4 text-sm font-semibold text-azulMedio transition hover:bg-azulMedio hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           Crear borrador
         </button>
@@ -105,7 +105,7 @@ export function CreateNotaForm({
           name="intent"
           value="confirm"
           disabled={disabled}
-          className="inline-flex h-11 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
         >
           Guardar y confirmar nota clinica
         </button>

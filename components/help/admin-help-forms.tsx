@@ -62,7 +62,7 @@ export function CreateHelpArticleForm() {
 
 export function AdminSupportTickets({ tickets }: { tickets: SupportTicket[] }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>
@@ -91,7 +91,7 @@ export function AdminSupportTickets({ tickets }: { tickets: SupportTicket[] }) {
 
 export function AdminHelpArticles({ articles }: { articles: HelpArticle[] }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>
@@ -140,7 +140,7 @@ function AdminHelpArticleRow({ article }: { article: HelpArticle }) {
               </option>
             ))}
           </select>
-          <button type="submit" className="rounded-md bg-moss px-3 py-1 text-xs font-semibold text-white">
+          <button type="submit" className="rounded-md bg-azulMedio px-3 py-1 text-xs font-semibold text-white">
             Guardar
           </button>
         </form>
@@ -171,7 +171,7 @@ function AdminSupportTicketRow({ ticket }: { ticket: SupportTicket }) {
               </option>
             ))}
           </select>
-          <button type="submit" className="rounded-md bg-moss px-3 py-1 text-xs font-semibold text-white">
+          <button type="submit" className="rounded-md bg-azulMedio px-3 py-1 text-xs font-semibold text-white">
             Guardar
           </button>
         </form>

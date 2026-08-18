@@ -177,7 +177,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                   type="button"
                   onClick={() => removeStep(stepIndex)}
                   disabled={templateSteps.length === 1}
-                  className="rounded-md border border-clay/30 px-3 py-1 text-xs font-medium text-clay disabled:opacity-50"
+                  className="rounded-md border border-rojoRompe/30 px-3 py-1 text-xs font-medium text-rojoRompe disabled:opacity-50"
                 >
                   Eliminar
                 </button>
@@ -194,7 +194,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                       title: event.target.value
                     })
                   }
-                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                 />
               </label>
               <label className="block">
@@ -202,7 +202,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                 <input
                   value={step.description ?? ""}
                   onChange={(event) => updateStep(stepIndex, { description: event.target.value })}
-                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                  className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                 />
               </label>
             </div>
@@ -219,7 +219,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                           label: event.target.value
                         })
                       }
-                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                     />
                   </label>
 
@@ -232,7 +232,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                           type: event.target.value as ProcessFieldType
                         })
                       }
-                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                      className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                     >
                       {PROCESS_FIELD_TYPES.map((type) => (
                         <option key={type} value={type}>
@@ -269,7 +269,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                       type="button"
                       onClick={() => removeField(stepIndex, fieldIndex)}
                       disabled={step.fields.length === 1}
-                      className="rounded-md border border-clay/30 px-3 py-2 text-xs font-medium text-clay disabled:opacity-50"
+                      className="rounded-md border border-rojoRompe/30 px-3 py-2 text-xs font-medium text-rojoRompe disabled:opacity-50"
                     >
                       Eliminar
                     </button>
@@ -290,7 +290,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
                               .filter(Boolean)
                           })
                         }
-                        className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                        className="mt-1 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
                       />
                     </label>
                   ) : null}
@@ -301,7 +301,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
             <button
               type="button"
               onClick={() => addField(stepIndex)}
-              className="rounded-md border border-moss/30 px-3 py-2 text-sm font-medium text-moss"
+              className="rounded-md border border-azulMedio/30 px-3 py-2 text-sm font-medium text-azulMedio"
             >
               Agregar campo
             </button>
@@ -313,7 +313,7 @@ export function TemplateForm({ modelType, steps, version }: TemplateFormProps) {
         <button
           type="button"
           onClick={addStep}
-          className="inline-flex h-11 items-center justify-center rounded-md border border-moss/30 px-4 text-sm font-semibold text-moss"
+          className="inline-flex h-11 items-center justify-center rounded-md border border-azulMedio/30 px-4 text-sm font-semibold text-azulMedio"
         >
           Agregar paso
         </button>

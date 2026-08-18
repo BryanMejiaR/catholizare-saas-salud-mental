@@ -35,7 +35,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
           disabled={disabled}
           rows={3}
           defaultValue={expediente.initial_consultation_reason ?? ""}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -47,7 +47,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
             type="date"
             disabled={disabled}
             defaultValue={identification.birthDate ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -60,7 +60,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
             max="130"
             disabled={disabled}
             defaultValue={identification.age ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -70,7 +70,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
             name="sex"
             disabled={disabled}
             defaultValue={identification.sex ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             <option value="">Seleccionar</option>
             <option value="masculino">Masculino</option>
@@ -93,7 +93,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
           name="residence"
           disabled={disabled}
           defaultValue={identification.residence ?? ""}
-          className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -104,7 +104,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
             name="emergencyContactName"
             disabled={disabled}
             defaultValue={identification.emergencyContactName ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -125,7 +125,7 @@ export function IdentificationForm({ expediente, disabled = false }: Identificat
             name="legalGuardianName"
             disabled={disabled}
             defaultValue={identification.legalGuardianName ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 

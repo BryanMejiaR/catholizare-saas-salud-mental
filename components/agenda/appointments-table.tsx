@@ -37,7 +37,7 @@ function CancelAppointmentForm({ appointment }: { appointment: AppointmentListIt
         minLength={5}
         maxLength={1000}
         placeholder="Motivo de cancelacion"
-        className="min-h-20 w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        className="min-h-20 w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
       />
       <SubmitButton>Cancelar</SubmitButton>
       <ActionMessage message={state.message} ok={state.ok} />
@@ -47,7 +47,7 @@ function CancelAppointmentForm({ appointment }: { appointment: AppointmentListIt
 
 export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>
@@ -69,7 +69,7 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                 <p className="mt-1 text-xs text-ink/60">{appointment.patient.email}</p>
               </td>
               <td className="px-4 py-3 text-ink/70">
-                <Link href={`/professional/agenda/${appointment.id}`} className="font-medium text-moss">
+                <Link href={`/professional/agenda/${appointment.id}`} className="font-medium text-azulMedio">
                   {formatAppointmentDate(appointment.scheduled_at)}
                 </Link>
               </td>
@@ -86,7 +86,7 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                 ) : null}
               </td>
               <td className="px-4 py-3 text-ink/70">
-                <Link href={`/professional/agenda/${appointment.id}`} className="font-medium text-moss">
+                <Link href={`/professional/agenda/${appointment.id}`} className="font-medium text-azulMedio">
                   {(appointment.related_notes_count ?? 0) > 0
                     ? `${appointment.related_notes_count} nota(s)`
                     : "Sin notas"}
@@ -96,7 +96,7 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                 {appointment.zoom_start_url ? (
                   <a
                     href={appointment.zoom_start_url}
-                    className="font-medium text-moss"
+                    className="font-medium text-azulMedio"
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -105,7 +105,7 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                 ) : appointment.zoom_join_url ? (
                   <a
                     href={appointment.zoom_join_url}
-                    className="font-medium text-moss"
+                    className="font-medium text-azulMedio"
                     target="_blank"
                     rel="noreferrer"
                   >

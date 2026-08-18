@@ -8,7 +8,7 @@ export function AuthMessage({ message }: AuthMessageProps) {
   }
 
   return (
-    <p className="rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm leading-5 text-ink">
+    <p className="rounded-md border-l-4 border-rojoRompe bg-rojoRompe/5 px-4 py-3 text-sm leading-5 text-principal">
       {message}
     </p>
   );

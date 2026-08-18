@@ -49,7 +49,7 @@ export function HelpArticleList({ articles }: HelpArticleListProps) {
     <div className="grid gap-4 md:grid-cols-2">
       {rows.map((article) => (
         <article key={article.id} className="rounded-lg border border-ink/10 bg-white p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-moss">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-azulMedio">
             {article.category}
           </p>
           <h3 className="mt-2 text-lg font-semibold text-ink">{article.title}</h3>

@@ -11,7 +11,7 @@ export function LogoutButton({ fullName }: LogoutButtonProps) {
     >
       <button
         type="submit"
-        className="rounded-md border border-ink/15 bg-white px-3 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-clay hover:text-clay"
+        className="rounded-md border border-ink/15 bg-white px-3 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-rojoRompe hover:text-rojoRompe"
         title={`Cerrar sesion de ${fullName}`}
       >
         Cerrar sesion

@@ -16,7 +16,7 @@ export function AnnulNotaForm({ note }: AnnulNotaFormProps) {
   const disabled = !["confirmada", "con_addendum", "exportada"].includes(note.status);
 
   return (
-    <form action={formAction} className="space-y-4 rounded-lg border border-clay/20 bg-white p-5">
+    <form action={formAction} className="space-y-4 rounded-lg border border-rojoRompe/20 bg-white p-5">
       <input type="hidden" name="noteId" value={note.id} />
       <div>
         <h2 className="text-lg font-semibold text-ink">Anulacion logica</h2>
@@ -33,7 +33,7 @@ export function AnnulNotaForm({ note }: AnnulNotaFormProps) {
           name="annulmentReason"
           rows={4}
           disabled={disabled}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 

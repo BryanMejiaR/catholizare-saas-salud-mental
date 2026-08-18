@@ -15,7 +15,7 @@ export function AssessmentAiDraftForm({ assessmentId, disabled = false }: Assess
   const [state, formAction] = useActionState(requestAssessmentAiDraftAction, {});
 
   return (
-    <form action={formAction} className="space-y-3 rounded-md border border-moss/20 bg-moss/5 p-4">
+    <form action={formAction} className="space-y-3 rounded-md border border-azulMedio/20 bg-azulMedio/5 p-4">
       <input type="hidden" name="assessmentId" value={assessmentId} />
 
       <div>
@@ -31,7 +31,7 @@ export function AssessmentAiDraftForm({ assessmentId, disabled = false }: Assess
           name="directives"
           rows={3}
           disabled={disabled}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 

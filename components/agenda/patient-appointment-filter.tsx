@@ -26,7 +26,7 @@ export function PatientAppointmentFilter({
       />
       <button
         type="submit"
-        className="mt-4 inline-flex h-10 items-center rounded-md bg-moss px-4 text-sm font-semibold text-white"
+        className="mt-4 inline-flex h-10 items-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white"
       >
         Filtrar
       </button>

@@ -29,7 +29,7 @@ export function PortalConsentStatusPanel({ statuses }: PortalConsentStatusPanelP
                   Version {status.version} - {status.professional.full_name}
                 </p>
               </div>
-              <span className="rounded-full bg-moss/10 px-3 py-1 text-xs font-semibold text-moss">
+              <span className="rounded-full bg-azulMedio/10 px-3 py-1 text-xs font-semibold text-azulMedio">
                 {statusLabel(status.status)}
               </span>
             </div>

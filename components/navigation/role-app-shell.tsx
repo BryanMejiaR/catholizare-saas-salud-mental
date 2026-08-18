@@ -137,7 +137,7 @@ export function RoleAppShell({
   }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-grisMuyClaro text-principal lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
+    <div className="catholizare-app min-h-screen bg-grisMuyClaro text-principal lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-principal/10 bg-blanco px-4 py-5 lg:flex">
         <Link href={homeHref} className="flex items-center gap-3 px-2">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-principal text-sm font-bold text-blanco">

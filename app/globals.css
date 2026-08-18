@@ -41,3 +41,46 @@ textarea {
   outline: 3px solid rgba(9, 102, 239, 0.3);
   outline-offset: 2px;
 }
+
+@layer components {
+  .catholizare-app main {
+    color: #001a55;
+  }
+
+  .catholizare-app main input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .catholizare-app main select,
+  .catholizare-app main textarea {
+    border-color: rgba(0, 26, 85, 0.16);
+    background-color: #ffffff;
+    color: #001a55;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  }
+
+  .catholizare-app main input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus,
+  .catholizare-app main select:focus,
+  .catholizare-app main textarea:focus {
+    border-color: #0966ef;
+    box-shadow: 0 0 0 3px rgba(9, 102, 239, 0.14);
+    outline: none;
+  }
+
+  .catholizare-app main input:disabled,
+  .catholizare-app main select:disabled,
+  .catholizare-app main textarea:disabled {
+    cursor: not-allowed;
+    background-color: #f4f9fd;
+    color: #8a8989;
+  }
+
+  .catholizare-app main table tbody tr {
+    transition: background-color 140ms ease;
+  }
+
+  .catholizare-app main table tbody tr:hover {
+    background-color: rgba(244, 249, 253, 0.9);
+  }
+
+  .catholizare-app main table th {
+    white-space: nowrap;
+  }
+}

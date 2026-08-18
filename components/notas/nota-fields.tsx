@@ -84,7 +84,7 @@ function FieldInput({
   disabled: boolean;
 }) {
   const baseClass =
-    "mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20";
+    "mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20";
   const currentValue =
     value ??
     (field.type === "date"
@@ -110,7 +110,7 @@ function FieldInput({
             </option>
           ))}
         </select>
-        <div className="rounded-md border border-ink/10 bg-linen p-3">
+        <div className="rounded-md border border-ink/10 bg-grisMuyClaro p-3">
           <div className="grid grid-cols-5 gap-1 text-center text-[11px] text-ink/60">
             {moodScaleOptions.map((option) => (
               <span key={option.value}>
@@ -119,7 +119,7 @@ function FieldInput({
               </span>
             ))}
           </div>
-          <div className="mt-3 h-2 rounded-full bg-gradient-to-r from-clay via-gold to-moss" />
+          <div className="mt-3 h-2 rounded-full bg-gradient-to-r from-rojoRompe via-gold to-azulMedio" />
         </div>
       </div>
     );
@@ -168,7 +168,7 @@ function FieldInput({
         name={name}
         disabled={disabled}
         defaultChecked={value === true || value === "true"}
-        className="mt-3 h-4 w-4 rounded border-ink/20 text-moss focus:ring-moss"
+        className="mt-3 h-4 w-4 rounded border-ink/20 text-azulMedio focus:ring-azulMedio"
       />
     );
   }
@@ -240,7 +240,7 @@ export function NotaFields({
               name={name}
               disabled={disabled}
               defaultValue={note?.[name] ?? ""}
-              className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+              className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
             />
           </label>
         ))}

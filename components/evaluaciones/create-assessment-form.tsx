@@ -66,7 +66,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
           <input
             name="assessmentName"
             disabled={disabled}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -77,7 +77,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
             type="date"
             disabled={disabled}
             defaultValue={defaultDate}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -87,7 +87,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
             name="assessmentType"
             disabled={disabled}
             defaultValue="inventario"
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             {PSYCHOLOGICAL_ASSESSMENT_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -103,7 +103,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
             name="inputMethod"
             disabled={disabled}
             defaultValue="manual"
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             {ASSESSMENT_INPUT_METHODS.map((method) => (
               <option key={method} value={method}>
@@ -120,7 +120,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
           name="assessmentPurpose"
           rows={3}
           disabled={disabled}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -130,7 +130,7 @@ export function CreateAssessmentForm({ expedienteId, disabled = false }: CreateA
           name="observations"
           rows={3}
           disabled={disabled}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 

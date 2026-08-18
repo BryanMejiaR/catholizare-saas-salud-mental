@@ -29,7 +29,7 @@ function ConsentItem({ consent }: { consent: PortalStandardConsent }) {
         </p>
       </div>
 
-      <div className="mt-4 max-h-80 space-y-4 overflow-y-auto rounded-md border border-ink/10 bg-linen p-4">
+      <div className="mt-4 max-h-80 space-y-4 overflow-y-auto rounded-md border border-ink/10 bg-grisMuyClaro p-4">
         {consent.document_text.map((section) => (
           <section key={section.title}>
             <h3 className="text-sm font-semibold text-ink">{section.title}</h3>
@@ -63,7 +63,7 @@ function ConsentItem({ consent }: { consent: PortalStandardConsent }) {
               pattern="[0-9]{4}"
               maxLength={4}
               required
-              className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+              className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
             />
           </label>
 
@@ -76,7 +76,7 @@ function ConsentItem({ consent }: { consent: PortalStandardConsent }) {
                 required
                 minLength={10}
                 maxLength={20}
-                className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 uppercase outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+                className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 uppercase outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
               />
             </label>
           </div>

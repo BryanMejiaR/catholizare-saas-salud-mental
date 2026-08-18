@@ -6,7 +6,7 @@ type AuditLogsTableProps = {
 
 export function AuditLogsTable({ logs }: AuditLogsTableProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>

@@ -21,13 +21,13 @@ export function ResetPasswordForm() {
           type="email"
           autoComplete="email"
           required
-          className="mt-2 h-11 w-full rounded-md border border-ink/15 px-3 text-ink outline-none transition focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-11 w-full rounded-md border border-ink/15 px-3 text-ink outline-none transition focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
       <SubmitButton>Enviar enlace</SubmitButton>
 
-      <Link href="/auth/login" className="block text-center text-sm font-medium text-moss">
+      <Link href="/auth/login" className="block text-center text-sm font-medium text-azulMedio">
         Volver al inicio de sesión
       </Link>
     </form>

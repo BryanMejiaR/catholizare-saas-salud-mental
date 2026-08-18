@@ -34,8 +34,8 @@ function ActionForm({
         type="submit"
         className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
           danger
-            ? "border-clay/30 text-clay hover:bg-clay hover:text-white"
-            : "border-ink/15 text-ink hover:border-moss hover:text-moss"
+            ? "border-rojoRompe/30 text-rojoRompe hover:bg-rojoRompe hover:text-white"
+            : "border-ink/15 text-ink hover:border-azulMedio hover:text-azulMedio"
         }`}
       >
         {label}

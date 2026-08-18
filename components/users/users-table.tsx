@@ -22,7 +22,7 @@ export function UsersTable({
   const showExpedienteLinks = Boolean(expedienteLinksByUserId);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-ink/5 text-ink/70">
           <tr>
@@ -47,7 +47,7 @@ export function UsersTable({
                   {expedienteLinksByUserId?.[user.id] ? (
                     <Link
                       href={expedienteLinksByUserId[user.id]}
-                      className="inline-flex h-9 items-center justify-center rounded-md bg-moss px-3 text-xs font-semibold text-white transition hover:bg-ink"
+                      className="inline-flex h-9 items-center justify-center rounded-md bg-azulMedio px-3 text-xs font-semibold text-white transition hover:bg-ink"
                     >
                       Abrir expediente
                     </Link>
@@ -61,7 +61,7 @@ export function UsersTable({
                   {user.role === "profesional" ? (
                     <Link
                       href={`${professionalProfileBasePath}/${user.id}`}
-                      className="inline-flex h-9 items-center justify-center rounded-md border border-moss px-3 text-xs font-semibold text-moss transition hover:bg-moss hover:text-white"
+                      className="inline-flex h-9 items-center justify-center rounded-md border border-azulMedio px-3 text-xs font-semibold text-azulMedio transition hover:bg-azulMedio hover:text-white"
                     >
                       Ver perfil
                     </Link>

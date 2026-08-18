@@ -71,23 +71,23 @@ export default async function ProfessionalNotasPage({
   ]);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Panel del profesional
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Notas clinicas</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Notas clinicas</h1>
             <p className="mt-2 text-sm text-ink/65">
               Consulta de notas propias por Paciente, tipo, estado, fecha y texto clinico.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/professional" className="text-sm font-medium text-moss">
+            <Link href="/professional" className="text-sm font-medium text-azulMedio">
               Volver al panel
             </Link>
-            <Link href="/professional/notas/template" className="text-sm font-medium text-moss">
+            <Link href="/professional/notas/template" className="text-sm font-medium text-azulMedio">
               Notas clinicas
             </Link>
           </div>
@@ -98,7 +98,7 @@ export default async function ProfessionalNotasPage({
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-ink">
+              <h2 className="text-lg font-bold text-principal">
                 {view === "drafts" ? "Borradores editables" : "Notas confirmadas no editables"}
               </h2>
               <p className="mt-1 text-sm text-ink/65">
@@ -111,7 +111,7 @@ export default async function ProfessionalNotasPage({
               <Link
                 href="/professional/notas?view=drafts"
                 className={`rounded px-3 py-2 text-sm font-medium ${
-                  view === "drafts" ? "bg-moss text-white" : "text-ink/65"
+                  view === "drafts" ? "bg-azulMedio text-white" : "text-ink/65"
                 }`}
               >
                 Borradores
@@ -119,7 +119,7 @@ export default async function ProfessionalNotasPage({
               <Link
                 href="/professional/notas?view=confirmed"
                 className={`rounded px-3 py-2 text-sm font-medium ${
-                  view === "confirmed" ? "bg-moss text-white" : "text-ink/65"
+                  view === "confirmed" ? "bg-azulMedio text-white" : "text-ink/65"
                 }`}
               >
                 Confirmadas

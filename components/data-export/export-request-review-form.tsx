@@ -38,7 +38,7 @@ export function ExportRequestReviewForm({
           name="decision"
           value="reject"
           disabled={disabled}
-          className="h-11 rounded-md border border-clay px-4 text-sm font-semibold text-clay disabled:opacity-60"
+          className="h-11 rounded-md border border-rojoRompe px-4 text-sm font-semibold text-rojoRompe disabled:opacity-60"
         >
           Rechazar
         </button>
@@ -47,13 +47,13 @@ export function ExportRequestReviewForm({
           name="decision"
           value="approve"
           disabled={disabled}
-          className="h-11 rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:opacity-60"
+          className="h-11 rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink disabled:opacity-60"
         >
           Aprobar
         </button>
       </div>
       {state.message ? (
-        <p className={`text-sm ${state.ok ? "text-moss" : "text-clay"}`}>{state.message}</p>
+        <p className={`text-sm ${state.ok ? "text-azulMedio" : "text-rojoRompe"}`}>{state.message}</p>
       ) : null}
       {state.link ? (
         <div className="rounded-md border border-gold/30 bg-gold/10 p-3 text-xs text-ink">

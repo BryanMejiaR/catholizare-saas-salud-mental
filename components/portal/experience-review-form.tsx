@@ -19,7 +19,7 @@ export function ExperienceReviewForm({ appointmentId }: ExperienceReviewFormProp
       <select
         name="score"
         required
-        className="w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        className="w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
       >
         <option value="">Evaluar experiencia</option>
         <option value="5">5 - Muy buena</option>
@@ -32,7 +32,7 @@ export function ExperienceReviewForm({ appointmentId }: ExperienceReviewFormProp
         name="comment"
         maxLength={1200}
         placeholder="Comentario opcional. Evita incluir informacion clinica sensible."
-        className="min-h-20 w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        className="min-h-20 w-full rounded-md border border-ink/15 px-3 py-2 text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
       />
       <SubmitButton>Enviar evaluacion</SubmitButton>
       <ActionMessage message={state.message} ok={state.ok} />

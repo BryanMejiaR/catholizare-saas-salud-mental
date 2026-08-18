@@ -32,7 +32,7 @@ function FieldInput({
 }) {
   const name = `field_${field.id}`;
   const baseClass =
-    "mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20";
+    "mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20";
   const currentValue =
     value ??
     (field.type === "date"
@@ -71,7 +71,7 @@ function FieldInput({
         name={name}
         disabled={disabled}
         defaultChecked={value === true || value === "true"}
-        className="mt-3 h-4 w-4 rounded border-ink/20 text-moss focus:ring-moss"
+        className="mt-3 h-4 w-4 rounded border-ink/20 text-azulMedio focus:ring-azulMedio"
       />
     );
   }
@@ -122,7 +122,7 @@ export function ProcessStepForm({ process, step }: ProcessStepFormProps) {
             rows={3}
             disabled={disabled}
             defaultValue={instructions}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 

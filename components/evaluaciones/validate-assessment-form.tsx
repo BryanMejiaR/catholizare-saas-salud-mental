@@ -45,7 +45,7 @@ export function ValidateAssessmentForm({
             rows={4}
             disabled={formDisabled}
             defaultValue={formatJson(assessment.raw_scores)}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -56,7 +56,7 @@ export function ValidateAssessmentForm({
             rows={4}
             disabled={formDisabled}
             defaultValue={formatJson(assessment.scaled_scores)}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -67,7 +67,7 @@ export function ValidateAssessmentForm({
             rows={4}
             disabled={formDisabled}
             defaultValue={formatJson(assessment.percentiles)}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -78,7 +78,7 @@ export function ValidateAssessmentForm({
             rows={4}
             disabled={formDisabled}
             defaultValue={formatJson(assessment.cutoff_points)}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 font-mono text-xs outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
       </div>
@@ -90,7 +90,7 @@ export function ValidateAssessmentForm({
           rows={5}
           disabled={formDisabled}
           defaultValue={assessment.interpretation ?? assessment.ai_draft_interpretation ?? ""}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -102,7 +102,7 @@ export function ValidateAssessmentForm({
             rows={4}
             disabled={formDisabled}
             defaultValue={assessment.limitations ?? ""}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -113,7 +113,7 @@ export function ValidateAssessmentForm({
             rows={4}
             disabled={formDisabled}
             defaultValue={assessment.implications ?? ""}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
       </div>
@@ -125,7 +125,7 @@ export function ValidateAssessmentForm({
           rows={3}
           disabled={formDisabled}
           defaultValue={assessment.comparison_notes ?? ""}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 

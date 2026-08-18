@@ -9,7 +9,7 @@ export default async function PortalLayout({
   const profile = await requireRole(["paciente"]);
 
   return (
-    <div className="min-h-screen bg-grisMuyClaro text-principal">
+    <div className="catholizare-app min-h-screen bg-grisMuyClaro text-principal">
       <PortalHeader fullName={profile.full_name} />
       {children}
     </div>

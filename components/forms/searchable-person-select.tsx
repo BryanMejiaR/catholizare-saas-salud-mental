@@ -64,7 +64,7 @@ export function SearchablePersonSelect({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
       />
       <input type="hidden" name={name} value={value} />
       <datalist id={listId}>

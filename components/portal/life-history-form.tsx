@@ -59,7 +59,7 @@ function FieldControl({
               name={field.otherFieldId}
               disabled={disabled}
               defaultValue={getTextAnswer(answers, field.otherFieldId)}
-              className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+              className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
             />
           </label>
         ) : null}
@@ -76,7 +76,7 @@ function FieldControl({
           rows={4}
           disabled={disabled}
           defaultValue={getTextAnswer(answers, field.id)}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
     );
@@ -90,7 +90,7 @@ function FieldControl({
           name={field.id}
           disabled={disabled}
           defaultValue={getTextAnswer(answers, field.id)}
-          className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         >
           <option value="">Seleccionar</option>
           <option value="masculino">Masculino</option>
@@ -120,7 +120,7 @@ function FieldControl({
         type={field.type}
         disabled={disabled}
         defaultValue={getTextAnswer(answers, field.id)}
-        className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+        className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
       />
     </label>
   );
@@ -146,7 +146,7 @@ export function LifeHistoryForm({ lifeHistory }: LifeHistoryFormProps) {
       </div>
 
       {disabled ? (
-        <p className="rounded-md border border-moss/20 bg-moss/10 px-3 py-2 text-sm text-ink">
+        <p className="rounded-md border border-azulMedio/20 bg-azulMedio/10 px-3 py-2 text-sm text-ink">
           Tu historia de vida ya fue enviada. Si necesitas corregirla, solicita a tu profesional que
           reactive la edicion.
         </p>
@@ -179,7 +179,7 @@ export function LifeHistoryForm({ lifeHistory }: LifeHistoryFormProps) {
             value="draft"
             type="submit"
             disabled={disabled}
-            className="inline-flex h-11 items-center justify-center rounded-md border border-moss px-4 text-sm font-semibold text-moss disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 items-center justify-center rounded-md border border-azulMedio px-4 text-sm font-semibold text-azulMedio disabled:cursor-not-allowed disabled:opacity-60"
           >
             Guardar borrador
           </button>

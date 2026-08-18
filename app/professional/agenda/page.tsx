@@ -35,20 +35,20 @@ export default async function ProfessionalAgendaPage({ searchParams }: Professio
   ]);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Panel del profesional
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Agenda de citas</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Agenda de citas</h1>
             <p className="mt-2 text-sm text-ink/65">
               Gestiona citas programadas, presenciales o por videollamada, para pacientes con
               expediente activo.
             </p>
           </div>
-          <Link href="/professional" className="text-sm font-medium text-moss">
+          <Link href="/professional" className="text-sm font-medium text-azulMedio">
             Volver al panel
           </Link>
         </div>
@@ -57,7 +57,7 @@ export default async function ProfessionalAgendaPage({ searchParams }: Professio
           <Link
             href="/professional/agenda?view=calendar"
             className={`rounded-md px-4 py-2 text-sm font-semibold ${
-              view === "calendar" ? "bg-moss text-white" : "border border-moss text-moss"
+              view === "calendar" ? "bg-azulMedio text-white" : "border border-azulMedio text-azulMedio"
             }`}
           >
             Agenda
@@ -65,7 +65,7 @@ export default async function ProfessionalAgendaPage({ searchParams }: Professio
           <Link
             href="/professional/agenda?view=create#agregar-cita"
             className={`rounded-md px-4 py-2 text-sm font-semibold ${
-              view === "create" ? "bg-moss text-white" : "border border-moss text-moss"
+              view === "create" ? "bg-azulMedio text-white" : "border border-azulMedio text-azulMedio"
             }`}
           >
             Agregar citas

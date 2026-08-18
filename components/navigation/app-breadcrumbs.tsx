@@ -53,7 +53,7 @@ export function AppBreadcrumbs({ homeHref }: AppBreadcrumbsProps) {
               {index === crumbs.length - 1 ? (
                 <span className="font-medium text-ink">{crumb.label}</span>
               ) : (
-                <Link href={crumb.href} className="hover:text-moss">
+                <Link href={crumb.href} className="hover:text-azulMedio">
                   {crumb.label}
                 </Link>
               )}

@@ -14,7 +14,7 @@ export function PortalCustomerSupportPanel() {
           href="https://catholizare.com/contacto/"
           target="_blank"
           rel="noreferrer"
-          className="rounded-md border border-ink/10 p-4 transition hover:border-moss"
+          className="rounded-md border border-ink/10 p-4 transition hover:border-azulMedio"
         >
           <p className="text-sm font-semibold text-ink">Contactar a Catholizare</p>
           <p className="mt-1 text-xs text-ink/60">Abre el canal de contacto publico.</p>
@@ -23,7 +23,7 @@ export function PortalCustomerSupportPanel() {
           href="https://catholizare.com/"
           target="_blank"
           rel="noreferrer"
-          className="rounded-md border border-ink/10 p-4 transition hover:border-moss"
+          className="rounded-md border border-ink/10 p-4 transition hover:border-azulMedio"
         >
           <p className="text-sm font-semibold text-ink">Centro Catholizare</p>
           <p className="mt-1 text-xs text-ink/60">Consulta informacion general de la plataforma.</p>

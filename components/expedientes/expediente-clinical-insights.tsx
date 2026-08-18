@@ -170,7 +170,7 @@ function MoodChart({ notes }: { notes: ExpedienteNotaMetric[] }) {
 
   if (points.length === 0) {
     return (
-      <p className="rounded-md border border-ink/10 bg-linen px-3 py-2 text-sm text-ink/60">
+      <p className="rounded-md border border-ink/10 bg-grisMuyClaro px-3 py-2 text-sm text-ink/60">
         Aun no hay valores de estado de animo registrados.
       </p>
     );
@@ -187,7 +187,7 @@ function MoodChart({ notes }: { notes: ExpedienteNotaMetric[] }) {
               <span className="text-ink/60">S{point.session}</span>
               <span className="relative h-3 rounded-full bg-ink/10">
                 <span className="absolute left-1/2 top-[-2px] h-5 w-px bg-ink/25" />
-                <span className="block h-3 rounded-full bg-moss" style={{ width }} />
+                <span className="block h-3 rounded-full bg-azulMedio" style={{ width }} />
               </span>
               <span className="text-right font-semibold text-ink">{point.value > 0 ? `+${point.value}` : point.value}</span>
             </div>
@@ -225,7 +225,7 @@ export function ExpedienteClinicalInsights({ notes, process }: ExpedienteClinica
         {techniques.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">
             {techniques.map((technique) => (
-              <span key={technique} className="rounded-full bg-moss/10 px-3 py-1 text-xs font-medium text-moss">
+              <span key={technique} className="rounded-full bg-azulMedio/10 px-3 py-1 text-xs font-medium text-azulMedio">
                 {technique}
               </span>
             ))}
@@ -262,10 +262,10 @@ export function ExpedienteClinicalInsights({ notes, process }: ExpedienteClinica
                   className={[
                     "rounded-md border p-3 text-xs",
                     isCurrent
-                      ? "border-moss bg-moss/10 text-ink"
+                      ? "border-azulMedio bg-azulMedio/10 text-ink"
                       : isComplete
-                        ? "border-moss/20 bg-moss/5 text-ink/70"
-                        : "border-ink/10 bg-linen text-ink/60"
+                        ? "border-azulMedio/20 bg-azulMedio/5 text-ink/70"
+                        : "border-ink/10 bg-grisMuyClaro text-ink/60"
                   ].join(" ")}
                 >
                   <p className="font-semibold text-ink">{stage.range}</p>

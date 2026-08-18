@@ -14,13 +14,13 @@ export function ArchiveExpedienteForm({ expedienteId, disabled }: ArchiveExpedie
   const [state, formAction] = useActionState(archiveExpedienteAction, {});
 
   return (
-    <form action={formAction} className="rounded-lg border border-clay/30 bg-white p-5">
+    <form action={formAction} className="rounded-lg border border-rojoRompe/30 bg-white p-5">
       <input type="hidden" name="expedienteId" value={expedienteId} />
       <h2 className="text-lg font-semibold text-ink">Archivar expediente</h2>
       <p className="mt-1 text-sm text-ink/65">
         El archivado es logico. El expediente se conserva por trazabilidad y retencion normativa.
       </p>
-      <p className="mt-3 rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-sm font-semibold text-clay">
+      <p className="mt-3 rounded-md border border-rojoRompe/30 bg-rojoRompe/10 px-3 py-2 text-sm font-semibold text-rojoRompe">
         Si archivas este expediente no podras volverlo a modificar.
       </p>
       <div className="mt-4">
@@ -29,7 +29,7 @@ export function ArchiveExpedienteForm({ expedienteId, disabled }: ArchiveExpedie
       <button
         type="submit"
         disabled={disabled}
-        className="mt-4 inline-flex h-10 items-center justify-center rounded-md border border-clay px-4 text-sm font-semibold text-clay transition hover:bg-clay hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-4 inline-flex h-10 items-center justify-center rounded-md border border-rojoRompe px-4 text-sm font-semibold text-rojoRompe transition hover:bg-rojoRompe hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         Archivar
       </button>

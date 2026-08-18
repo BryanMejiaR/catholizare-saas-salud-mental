@@ -37,7 +37,7 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
       </div>
 
       {consentimiento?.consent_flow === "standard" ? (
-        <div className="rounded-md border border-moss/20 bg-moss/10 px-3 py-2 text-sm text-ink">
+        <div className="rounded-md border border-azulMedio/20 bg-azulMedio/10 px-3 py-2 text-sm text-ink">
           <p className="font-medium">
             Consentimiento estandar: {consentimiento.status}
           </p>
@@ -63,8 +63,8 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
           onClick={() => setMode("standard")}
           className={`rounded-md border px-4 py-3 text-left text-sm transition ${
             mode === "standard"
-              ? "border-moss bg-moss/10 text-ink"
-              : "border-ink/10 bg-white text-ink/75 hover:border-moss/40"
+              ? "border-azulMedio bg-azulMedio/10 text-ink"
+              : "border-ink/10 bg-white text-ink/75 hover:border-azulMedio/40"
           } disabled:cursor-not-allowed disabled:opacity-60`}
         >
           <span className="block font-semibold">Enviar consentimiento estandar</span>
@@ -78,8 +78,8 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
           onClick={() => setMode("custom")}
           className={`rounded-md border px-4 py-3 text-left text-sm transition ${
             mode === "custom"
-              ? "border-moss bg-moss/10 text-ink"
-              : "border-ink/10 bg-white text-ink/75 hover:border-moss/40"
+              ? "border-azulMedio bg-azulMedio/10 text-ink"
+              : "border-ink/10 bg-white text-ink/75 hover:border-azulMedio/40"
           } disabled:cursor-not-allowed disabled:opacity-60`}
         >
           <span className="block font-semibold">Subir consentimiento personalizado</span>
@@ -113,7 +113,7 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
             name="status"
             disabled={disabled}
             defaultValue={consentimiento?.status ?? expediente.consent_status}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             <option value="pendiente">pendiente</option>
             <option value="firmado_fisico">firmado_fisico</option>
@@ -143,13 +143,13 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
 
               setFileError(null);
             }}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none file:mr-3 file:rounded-md file:border-0 file:bg-moss file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none file:mr-3 file:rounded-md file:border-0 file:bg-azulMedio file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
           <span className="mt-2 block text-xs text-ink/55">
             Formatos permitidos: PDF, JPG, PNG o WEBP. Tamano maximo: {maxFileSizeMb} MB.
           </span>
           {fileError ? (
-            <span className="mt-2 block rounded-md border border-clay/30 bg-clay/10 px-3 py-2 text-xs text-clay">
+            <span className="mt-2 block rounded-md border border-rojoRompe/30 bg-rojoRompe/10 px-3 py-2 text-xs text-rojoRompe">
               {fileError}
             </span>
           ) : null}
@@ -177,7 +177,7 @@ export function ConsentimientoForm({ expediente, disabled = false }: Consentimie
             minLength={10}
             maxLength={20}
             defaultValue={consentimiento?.acceptance_actor_rfc ?? ""}
-            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 uppercase outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 uppercase outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
           </div>

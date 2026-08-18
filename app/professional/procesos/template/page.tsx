@@ -31,19 +31,19 @@ export default async function ProfessionalProcesoTemplatePage({
   const template = await getLatestProcessTemplate(profile, modelType);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-5xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Enfoques terapeuticos
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Plantilla de proceso</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Plantilla de proceso</h1>
             <p className="mt-2 text-sm text-ink/65">
               Los cambios aplican solo a procesos nuevos. Cada enfoque conserva versiones propias.
             </p>
           </div>
-          <Link href="/professional/procesos" className="text-sm font-medium text-moss">
+          <Link href="/professional/procesos" className="text-sm font-medium text-azulMedio">
             Volver a procesos
           </Link>
         </div>
@@ -57,7 +57,7 @@ export default async function ProfessionalProcesoTemplatePage({
                 href={`/professional/procesos/template?modelType=${type}`}
                 className={`rounded-md border px-3 py-2 text-sm font-medium ${
                   type === modelType
-                    ? "border-moss bg-moss text-white"
+                    ? "border-azulMedio bg-azulMedio text-white"
                     : "border-ink/15 text-ink"
                 }`}
               >

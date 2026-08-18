@@ -137,7 +137,7 @@ export function AssessmentsSection({
               <p className="text-sm leading-6 text-ink/70">{assessment.assessment_purpose}</p>
 
               {assessment.ai_draft_interpretation ? (
-                <div className="rounded-md border border-moss/20 bg-moss/5 p-3">
+                <div className="rounded-md border border-azulMedio/20 bg-azulMedio/5 p-3">
                   <p className="text-xs font-semibold uppercase text-ink/50">Borrador IA</p>
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-ink">
                     {assessment.ai_draft_interpretation}
@@ -172,7 +172,7 @@ function ResultsTable({
 
   if (entries.length === 0) {
     return (
-      <p className="mt-3 rounded-md border border-ink/10 bg-linen px-3 py-2 text-xs text-ink/60">
+      <p className="mt-3 rounded-md border border-ink/10 bg-grisMuyClaro px-3 py-2 text-xs text-ink/60">
         Resultados pendientes de captura o interpretacion.
       </p>
     );
@@ -200,7 +200,7 @@ function ResultsTable({
         <tbody className="divide-y divide-ink/10">
           {entries.map(([key, value]) => (
             <tr key={key}>
-              <th className="w-1/3 bg-linen px-3 py-2 font-medium text-ink/70">{key}</th>
+              <th className="w-1/3 bg-grisMuyClaro px-3 py-2 font-medium text-ink/70">{key}</th>
               <td className="px-3 py-2 text-ink/75">{formatResultValue(value)}</td>
             </tr>
           ))}
@@ -319,7 +319,7 @@ function SimpleTable({ columns, rows }: { columns: string[]; rows: unknown[][] }
   return (
     <div className="overflow-hidden rounded-md border border-ink/10">
       <table className="w-full text-left text-xs">
-        <thead className="bg-linen text-ink/70">
+        <thead className="bg-grisMuyClaro text-ink/70">
           <tr>
             {columns.map((column) => (
               <th key={column} className="px-3 py-2 font-semibold">

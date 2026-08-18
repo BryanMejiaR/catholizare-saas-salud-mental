@@ -31,7 +31,7 @@ function DeleteButton({
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="audience" value={audience} />
       <button
-        className="rounded-md border border-clay/30 px-3 py-1 text-xs font-semibold text-clay"
+        className="min-h-9 rounded-md border border-rojoRompe/30 px-3 text-xs font-semibold text-rojoRompe transition hover:bg-rojoRompe/5"
         type="submit"
       >
         Borrar
@@ -48,8 +48,8 @@ export function AdminProContent({
 }: AdminProContentProps) {
   return (
     <div className="space-y-6">
-      <section className="rounded-lg border border-ink/10 bg-white p-5">
-        <h2 className="text-lg font-semibold text-ink">Recursos registrados</h2>
+      <section className="rounded-lg border border-principal/10 bg-blanco p-5">
+        <h2 className="text-lg font-bold text-principal">Recursos registrados</h2>
         <div className="mt-4 divide-y divide-ink/10">
           {resources.map((resource) => (
             <div key={resource.id} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
@@ -67,8 +67,8 @@ export function AdminProContent({
         </div>
       </section>
 
-      <section className="rounded-lg border border-ink/10 bg-white p-5">
-        <h2 className="text-lg font-semibold text-ink">Banners registrados</h2>
+      <section className="rounded-lg border border-principal/10 bg-blanco p-5">
+        <h2 className="text-lg font-bold text-principal">Banners registrados</h2>
         <div className="mt-4 divide-y divide-ink/10">
           {banners.map((banner) => (
             <div key={banner.id} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
@@ -86,8 +86,8 @@ export function AdminProContent({
         </div>
       </section>
 
-      <section className="rounded-lg border border-ink/10 bg-white p-5">
-        <h2 className="text-lg font-semibold text-ink">Eventos registrados</h2>
+      <section className="rounded-lg border border-principal/10 bg-blanco p-5">
+        <h2 className="text-lg font-bold text-principal">Eventos registrados</h2>
         <div className="mt-4 divide-y divide-ink/10">
           {events.map((event) => (
             <div key={event.id} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">

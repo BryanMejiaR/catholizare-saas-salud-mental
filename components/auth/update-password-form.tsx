@@ -20,7 +20,7 @@ export function UpdatePasswordForm() {
           type="password"
           autoComplete="new-password"
           required
-          className="mt-2 h-11 w-full rounded-md border border-ink/15 px-3 text-ink outline-none transition focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-11 w-full rounded-md border border-ink/15 px-3 text-ink outline-none transition focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -31,7 +31,7 @@ export function UpdatePasswordForm() {
           type="password"
           autoComplete="new-password"
           required
-          className="mt-2 h-11 w-full rounded-md border border-ink/15 px-3 text-ink outline-none transition focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-11 w-full rounded-md border border-ink/15 px-3 text-ink outline-none transition focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 

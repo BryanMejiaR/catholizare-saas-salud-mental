@@ -54,7 +54,7 @@ export function PhoneInput({
           onChange={(event) => setCountryCode(event.target.value)}
           disabled={disabled}
           aria-label={`${label} pais`}
-          className="h-10 w-full rounded-md border border-ink/15 bg-white px-2 text-sm outline-none focus:border-moss focus:ring-2 focus:ring-moss/20 disabled:cursor-not-allowed disabled:bg-ink/5"
+          className="h-10 w-full rounded-md border border-ink/15 bg-white px-2 text-sm outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20 disabled:cursor-not-allowed disabled:bg-ink/5"
         >
           {COUNTRY_CODES.map((country) => (
             <option key={country.value} value={country.value}>
@@ -71,7 +71,7 @@ export function PhoneInput({
           required={required}
           aria-label={`${label} numero`}
           placeholder="Numero"
-          className="h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20 disabled:cursor-not-allowed disabled:bg-ink/5"
+          className="h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20 disabled:cursor-not-allowed disabled:bg-ink/5"
         />
       </div>
     </label>

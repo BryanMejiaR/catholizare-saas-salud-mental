@@ -36,14 +36,14 @@ function TemplatePreview({ template }: { template: NotaTemplate }) {
   return (
     <section className="space-y-4 rounded-lg border border-ink/10 bg-white p-5">
       <div>
-        <h2 className="text-lg font-semibold text-ink">{template.name}</h2>
+        <h2 className="text-lg font-bold text-principal">{template.name}</h2>
         <p className="mt-1 text-sm text-ink/60">
           Version {template.version} - {NOTA_TEMPLATE_MODEL_LABEL[template.model_type]}
         </p>
       </div>
 
       {template.sections.map((section) => (
-        <div key={section.id} className="rounded-md border border-ink/10 bg-linen p-4">
+        <div key={section.id} className="rounded-md border border-ink/10 bg-grisMuyClaro p-4">
           <h3 className="text-sm font-semibold text-ink">{section.title}</h3>
           {section.description ? (
             <p className="mt-1 text-xs text-ink/60">{section.description}</p>
@@ -90,20 +90,20 @@ export default async function ProfessionalNotaTemplatePage({
     source === "empty" ? "Nueva plantilla vacia" : templateName(selectedTemplate, modelType);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Notas clinicas
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Notas clinicas</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Notas clinicas</h1>
             <p className="mt-2 text-sm text-ink/65">
               Visualiza plantillas, consulta versiones y crea nuevas versiones sin modificar las
               anteriores.
             </p>
           </div>
-          <Link href="/professional/notas" className="text-sm font-medium text-moss">
+          <Link href="/professional/notas" className="text-sm font-medium text-azulMedio">
             Volver a notas
           </Link>
         </div>
@@ -117,7 +117,7 @@ export default async function ProfessionalNotaTemplatePage({
                   href={versionHref(modelType, template.version, "view")}
                   className={`rounded-md border px-3 py-2 text-sm font-medium ${
                     selectedTemplate?.version === template.version
-                      ? "border-moss bg-moss/10 text-ink"
+                      ? "border-azulMedio bg-azulMedio/10 text-ink"
                       : "border-ink/10 bg-white text-ink/70"
                   }`}
                 >
@@ -141,7 +141,7 @@ export default async function ProfessionalNotaTemplatePage({
               {selectedTemplate ? (
                 <Link
                   href={versionHref(modelType, selectedTemplate.version, "edit")}
-                  className="rounded-md bg-moss px-4 py-2 text-sm font-semibold text-white"
+                  className="rounded-md bg-azulMedio px-4 py-2 text-sm font-semibold text-white"
                 >
                   Crear nueva nota clinica a partir de esta plantilla
                 </Link>
@@ -174,10 +174,10 @@ export default async function ProfessionalNotaTemplatePage({
 
               return (
                 <article key={type} className="rounded-lg border border-ink/10 bg-white p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-moss">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-azulMedio">
                     {NOTA_TEMPLATE_MODEL_LABEL[type]}
                   </p>
-                  <h2 className="mt-2 text-lg font-semibold text-ink">
+                  <h2 className="mt-2 text-lg font-bold text-principal">
                     {templateName(latest, type)}
                   </h2>
                   <p className="mt-1 text-sm text-ink/60">
@@ -186,13 +186,13 @@ export default async function ProfessionalNotaTemplatePage({
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link
                       href={`/professional/notas/template?modelType=${type}&mode=view`}
-                      className="rounded-md border border-moss/30 px-3 py-2 text-sm font-medium text-moss"
+                      className="rounded-md border border-azulMedio/30 px-3 py-2 text-sm font-medium text-azulMedio"
                     >
                       Visualizar plantilla
                     </Link>
                     <Link
                       href={`/professional/notas/template?modelType=${type}&mode=edit`}
-                      className="rounded-md bg-moss px-3 py-2 text-sm font-semibold text-white"
+                      className="rounded-md bg-azulMedio px-3 py-2 text-sm font-semibold text-white"
                     >
                       Editar plantilla
                     </Link>
@@ -201,14 +201,14 @@ export default async function ProfessionalNotaTemplatePage({
               );
             })}
 
-            <article className="rounded-lg border border-dashed border-moss/40 bg-white p-5">
-              <h2 className="text-lg font-semibold text-ink">Nueva nota clinica</h2>
+            <article className="rounded-lg border border-dashed border-azulMedio/40 bg-white p-5">
+              <h2 className="text-lg font-bold text-principal">Nueva nota clinica</h2>
               <p className="mt-1 text-sm text-ink/60">
                 Crea una plantilla vacia y guarda una nueva version para usarla en notas futuras.
               </p>
               <Link
                 href="/professional/notas/template?modelType=general&mode=edit&source=empty"
-                className="mt-4 inline-flex rounded-md bg-moss px-3 py-2 text-sm font-semibold text-white"
+                className="mt-4 inline-flex rounded-md bg-azulMedio px-3 py-2 text-sm font-semibold text-white"
               >
                 Crear nueva nota con plantilla vacia
               </Link>

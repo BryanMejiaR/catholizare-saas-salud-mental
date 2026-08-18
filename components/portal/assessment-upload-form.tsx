@@ -38,7 +38,7 @@ export function AssessmentUploadForm({ requests, uploads }: AssessmentUploadForm
         </p>
       </div>
 
-      <div className="mt-5 rounded-md border border-dashed border-ink/20 bg-linen p-4">
+      <div className="mt-5 rounded-md border border-dashed border-ink/20 bg-grisMuyClaro p-4">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/50">
           Version de prueba / referencia
         </p>
@@ -76,7 +76,7 @@ export function AssessmentUploadForm({ requests, uploads }: AssessmentUploadForm
         ))}
 
         {state.message ? (
-          <p className={`text-sm ${state.ok ? "text-moss" : "text-clay"}`}>
+          <p className={`text-sm ${state.ok ? "text-azulMedio" : "text-rojoRompe"}`}>
             {state.message}
           </p>
         ) : null}

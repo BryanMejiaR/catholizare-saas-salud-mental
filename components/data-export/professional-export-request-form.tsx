@@ -37,7 +37,7 @@ export function ProfessionalExportRequestForm() {
         <SubmitButton>Enviar solicitud</SubmitButton>
       </div>
       {state.message ? (
-        <p className={`mt-3 text-sm ${state.ok ? "text-moss" : "text-clay"}`}>
+        <p className={`mt-3 text-sm ${state.ok ? "text-azulMedio" : "text-rojoRompe"}`}>
           {state.message}
         </p>
       ) : null}

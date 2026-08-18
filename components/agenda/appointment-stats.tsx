@@ -20,7 +20,7 @@ export function AppointmentStatsPanel({ stats }: AppointmentStatsProps) {
       <h2 className="text-lg font-semibold text-ink">Estadisticas</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {items.map(([key, label]) => (
-          <div key={key} className="rounded-md border border-ink/10 bg-linen p-3">
+          <div key={key} className="rounded-md border border-ink/10 bg-grisMuyClaro p-3">
             <p className="text-xs text-ink/55">{label}</p>
             <p className="mt-1 text-2xl font-semibold text-ink">{stats[key]}</p>
           </div>

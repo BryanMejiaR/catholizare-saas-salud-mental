@@ -51,7 +51,7 @@ export function PortalAppointments({
                   <input type="hidden" name="appointmentId" value={appointment.id} />
                   <button
                     type="submit"
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-ink"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-azulMedio px-4 text-sm font-semibold text-white transition hover:bg-ink"
                   >
                     Iniciar videollamada por Zoom
                   </button>

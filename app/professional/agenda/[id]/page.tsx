@@ -22,10 +22,10 @@ export default async function AppointmentDetailPage({ params }: AppointmentDetai
 
   if (!detail) {
     return (
-      <main className="min-h-screen bg-linen px-6 py-8">
+      <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
         <div className="mx-auto max-w-4xl rounded-lg border border-ink/10 bg-white p-5">
           <h1 className="text-xl font-semibold text-ink">Cita no disponible</h1>
-          <Link href="/professional/agenda" className="mt-4 inline-flex text-sm font-medium text-moss">
+          <Link href="/professional/agenda" className="mt-4 inline-flex text-sm font-medium text-azulMedio">
             Volver a agenda
           </Link>
         </div>
@@ -36,25 +36,25 @@ export default async function AppointmentDetailPage({ params }: AppointmentDetai
   const { appointment, notes } = detail;
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Agenda
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Detalle de cita</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Detalle de cita</h1>
             <p className="mt-2 text-sm text-ink/65">
               {appointment.patient.full_name} - {formatDate(appointment.scheduled_at)}
             </p>
           </div>
-          <Link href="/professional/agenda" className="text-sm font-medium text-moss">
+          <Link href="/professional/agenda" className="text-sm font-medium text-azulMedio">
             Volver a agenda
           </Link>
         </div>
 
         <section className="rounded-lg border border-ink/10 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ink">Informacion de la cita</h2>
+          <h2 className="text-lg font-bold text-principal">Informacion de la cita</h2>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
             <div>
               <dt className="text-ink/55">Estado</dt>
@@ -76,7 +76,7 @@ export default async function AppointmentDetailPage({ params }: AppointmentDetai
         </section>
 
         <section className="rounded-lg border border-ink/10 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ink">Notas clinicas del dia</h2>
+          <h2 className="text-lg font-bold text-principal">Notas clinicas del dia</h2>
           <div className="mt-4 divide-y divide-ink/10">
             {notes.map((note) => (
               <article key={note.id} className="py-4 first:pt-0 last:pb-0">
@@ -90,7 +90,7 @@ export default async function AppointmentDetailPage({ params }: AppointmentDetai
                       {note.clinical_summary ?? "Sin resumen clinico."}
                     </p>
                   </div>
-                  <Link href={`/professional/notas/${note.id}`} className="text-sm font-medium text-moss">
+                  <Link href={`/professional/notas/${note.id}`} className="text-sm font-medium text-azulMedio">
                     Abrir nota
                   </Link>
                 </div>

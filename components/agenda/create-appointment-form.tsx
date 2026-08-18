@@ -41,7 +41,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
 
       <ActionMessage message={state.message} ok={state.ok} />
 
-      <div className="rounded-md border border-moss/20 bg-moss/5 p-3 text-sm leading-6 text-ink/70">
+      <div className="rounded-md border border-azulMedio/20 bg-azulMedio/5 p-3 text-sm leading-6 text-ink/70">
         Si conectas tu cuenta de Google Calendar, las citas que agregues aqui se sincronizaran en tu
         calendario automaticamente.
       </div>
@@ -68,7 +68,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
             type="date"
             required
             defaultValue={defaultDate}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -79,7 +79,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
             type="time"
             required
             defaultValue={defaultTime}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           />
         </label>
 
@@ -88,7 +88,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
           <select
             name="durationMinutes"
             defaultValue="50"
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             <option value="30">30 minutos</option>
             <option value="50">50 minutos</option>
@@ -103,7 +103,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
             name="type"
             value={appointmentType}
             onChange={(event) => setAppointmentType(event.target.value as AppointmentType)}
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             {APPOINTMENT_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -115,7 +115,7 @@ export function CreateAppointmentForm({ patients }: CreateAppointmentFormProps) 
       </div>
 
       {appointmentType === "videollamada" ? (
-        <div className="rounded-md border border-clay/30 bg-clay/10 p-3 text-sm leading-6 text-ink/75">
+        <div className="rounded-md border border-rojoRompe/30 bg-rojoRompe/10 p-3 text-sm leading-6 text-ink/75">
           Si no has conectado tu cuenta de Zoom, la sesion no se creara automaticamente. Puedes
           conectarla para crear la liga de forma automatica o agendar la cita ahora y crear la liga
           por tu cuenta.

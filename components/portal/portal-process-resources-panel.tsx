@@ -24,7 +24,7 @@ export function PortalProcessResourcesPanel({ processes, links }: PortalProcessR
             <article key={process.id} className="rounded-md border border-ink/10 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-ink">{process.model_label}</p>
-                <span className="rounded-full bg-linen px-3 py-1 text-xs font-semibold text-ink/65">
+                <span className="rounded-full bg-grisMuyClaro px-3 py-1 text-xs font-semibold text-ink/65">
                   {process.status}
                 </span>
               </div>
@@ -54,10 +54,10 @@ export function PortalProcessResourcesPanel({ processes, links }: PortalProcessR
               href={link.href}
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-ink/10 p-4 transition hover:border-moss"
+              className="rounded-md border border-ink/10 p-4 transition hover:border-azulMedio"
             >
               <div className="flex items-start gap-3">
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-moss/10 text-xs font-bold text-moss">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-azulMedio/10 text-xs font-bold text-azulMedio">
                   {processIconLabels[link.title] ?? "CT"}
                 </span>
                 <span>

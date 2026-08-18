@@ -31,7 +31,7 @@ export function StartProcessForm({ expedienteId, disabled = false }: StartProces
         <select
           name="modelType"
           disabled={disabled}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         >
           {PROCESS_MODEL_TYPES.map((modelType) => (
             <option key={modelType} value={modelType}>

@@ -79,7 +79,7 @@ export function OperationalReport({ report, showAdvancedMetadata = false }: Oper
         </>
       ) : null}
 
-      <section className="overflow-hidden rounded-lg border border-ink/10 bg-white">
+      <section className="overflow-x-auto rounded-lg border border-principal/10 bg-blanco">
         <div className="p-5">
           <h2 className="text-lg font-semibold text-ink">Actividad por profesional</h2>
           <label className="mt-4 block max-w-md">
@@ -88,7 +88,7 @@ export function OperationalReport({ report, showAdvancedMetadata = false }: Oper
               value={professionalQuery}
               onChange={(event) => setProfessionalQuery(event.target.value)}
               placeholder="Buscar por nombre o correo..."
-              className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+              className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
             />
           </label>
         </div>

@@ -28,7 +28,7 @@ export function SupportTicketForm() {
           <select
             name="category"
             defaultValue="soporte_tecnico"
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             <option value="acceso">Acceso y contrasena</option>
             <option value="pacientes">Pacientes</option>
@@ -47,7 +47,7 @@ export function SupportTicketForm() {
           <select
             name="priority"
             defaultValue="media"
-            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+            className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
           >
             {SUPPORT_TICKET_PRIORITIES.map((priority) => (
               <option key={priority} value={priority}>
@@ -62,7 +62,7 @@ export function SupportTicketForm() {
         <span className="text-sm font-medium text-ink">Asunto</span>
         <input
           name="subject"
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -71,11 +71,11 @@ export function SupportTicketForm() {
         <textarea
           name="description"
           rows={5}
-          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 w-full rounded-md border border-ink/15 px-3 py-2 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
-      <label className="flex items-start gap-3 rounded-md border border-clay/30 bg-clay/10 p-3 text-sm text-ink">
+      <label className="flex items-start gap-3 rounded-md border border-rojoRompe/30 bg-rojoRompe/10 p-3 text-sm text-ink">
         <input name="privacyConfirmation" type="checkbox" className="mt-1" />
         Confirmo que esta solicitud no contiene datos clinicos sensibles, nombres de pacientes,
         imagenes de pruebas, notas clinicas ni expedientes completos.

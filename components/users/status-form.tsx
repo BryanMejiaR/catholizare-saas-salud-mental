@@ -33,7 +33,7 @@ export function StatusForm({ userId, currentStatus }: StatusFormProps) {
             name="accountStatus"
             value={action.status}
             type="submit"
-            className="rounded-md border border-ink/15 px-3 py-1.5 text-sm font-medium text-ink transition hover:border-moss hover:text-moss"
+            className="rounded-md border border-ink/15 px-3 py-1.5 text-sm font-medium text-ink transition hover:border-azulMedio hover:text-azulMedio"
           >
             {action.label}
           </button>

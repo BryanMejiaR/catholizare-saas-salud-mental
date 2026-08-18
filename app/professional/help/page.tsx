@@ -27,25 +27,25 @@ export default async function ProfessionalHelpPage() {
   const help = await getProfessionalHelpDashboard(profile);
 
   return (
-    <main className="min-h-screen bg-linen px-6 py-8">
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-moss">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-azulMedio">
               Centro de ayuda
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-ink">Soporte operativo</h1>
+            <h1 className="mt-1 text-2xl font-bold text-principal sm:text-3xl">Soporte operativo</h1>
             <p className="mt-2 text-sm text-ink/65">
               Guias de uso, preguntas frecuentes y contacto tecnico sin contenido clinico.
             </p>
           </div>
-          <Link href="/professional" className="text-sm font-medium text-moss">
+          <Link href="/professional" className="text-sm font-medium text-azulMedio">
             Volver al panel
           </Link>
         </div>
 
-        <section className="rounded-lg border border-clay/30 bg-clay/10 p-5">
-          <h2 className="text-lg font-semibold text-ink">Separacion clinica</h2>
+        <section className="rounded-lg border border-rojoRompe/30 bg-rojoRompe/10 p-5">
+          <h2 className="text-lg font-bold text-principal">Separacion clinica</h2>
           <p className="mt-2 text-sm leading-6 text-ink/75">
             Este modulo no accede a expedientes, notas, evaluaciones ni imagenes clinicas. Para
             soporte tecnico, describe pasos, errores o pantallas sin incluir datos de Pacientes.
@@ -53,7 +53,7 @@ export default async function ProfessionalHelpPage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-ink">Guias y articulos</h2>
+          <h2 className="text-lg font-bold text-principal">Guias y articulos</h2>
           <HelpArticleList articles={help.articles} />
         </section>
 
@@ -69,7 +69,7 @@ export default async function ProfessionalHelpPage() {
         <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
           <SupportTicketForm />
           <section className="space-y-4">
-            <h2 className="text-lg font-semibold text-ink">Solicitudes recientes</h2>
+            <h2 className="text-lg font-bold text-principal">Solicitudes recientes</h2>
             <SupportTicketList tickets={help.tickets} />
           </section>
         </div>

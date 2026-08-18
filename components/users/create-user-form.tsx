@@ -39,7 +39,7 @@ export function CreateUserForm({
         <input
           name="fullName"
           required
-          className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -49,7 +49,7 @@ export function CreateUserForm({
           name="email"
           type="email"
           required
-          className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-10 w-full rounded-md border border-ink/15 px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         />
       </label>
 
@@ -59,7 +59,7 @@ export function CreateUserForm({
           name="role"
           value={selectedRole}
           onChange={(event) => setSelectedRole(event.target.value as UserRole)}
-          className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-moss focus:ring-2 focus:ring-moss/20"
+          className="mt-2 h-10 w-full rounded-md border border-ink/15 bg-white px-3 outline-none focus:border-azulMedio focus:ring-2 focus:ring-azulMedio/20"
         >
           {roleOptions.map((role) => (
             <option key={role} value={role}>
