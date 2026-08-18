@@ -9,42 +9,76 @@ import { getProfessionalProDashboard } from "@/lib/pro/queries";
 export default async function ProfessionalPage() {
   const profile = await requireRole(["profesional"]);
   const pro = await getProfessionalProDashboard(profile, "dashboard");
+  const firstName = profile.full_name.trim().split(" ")[0] || profile.full_name;
   const menuLinks = [
-    { label: "Pacientes", href: "/professional/patients" },
-    { label: "Expedientes", href: "/professional/expedientes" },
-    { label: "Notas clinicas", href: "/professional/notas" },
-    { label: "Plantilla de notas clinicas", href: "/professional/notas/template" },
-    { label: "Procesos terapeuticos", href: "/professional/procesos" },
-    { label: "Mi Agenda", href: "/professional/agenda" },
-    { label: "Integraciones", href: "/professional/integrations" },
-    { label: "Recursos", href: "/professional/resources" },
-    { label: "Centro de ayuda", href: "/professional/help" },
-    { label: "Solicitar exportacion", href: "/professional/export" }
+    {
+      label: "Pacientes",
+      href: "/professional/patients",
+      description: "Consulta y administra las personas a tu cargo."
+    },
+    {
+      label: "Expedientes",
+      href: "/professional/expedientes",
+      description: "Continua el registro clinico de cada proceso."
+    },
+    {
+      label: "Notas clinicas",
+      href: "/professional/notas",
+      description: "Revisa borradores y notas confirmadas."
+    },
+    {
+      label: "Agenda",
+      href: "/professional/agenda",
+      description: "Organiza tus proximas citas y videollamadas."
+    }
   ];
 
   return (
-    <main className="min-h-[calc(100vh-60px)] bg-blanco px-3 pb-12 pt-8 sm:px-6 md:pt-10">
-      <div className="mx-auto max-w-7xl space-y-10">
-        <div className="rounded-none bg-grisMuyClaro px-4 py-5 sm:px-6">
-          <h1 className="text-[22px] font-bold leading-tight text-texto sm:text-[26px]">
-            Panel del profesional
-          </h1>
-          <p className="mt-3 text-xs font-medium text-grisTextos">
-            Sesion activa para {profile.full_name}.
-          </p>
+    <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-10">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <section className="overflow-hidden rounded-lg bg-principal text-blanco">
+          <div className="grid gap-6 px-5 py-6 sm:px-7 md:grid-cols-[minmax(0,1fr)_300px] md:items-center md:py-8">
+            <div>
+              <p className="text-sm font-semibold text-enfasis">Hola, {firstName}</p>
+              <h1 className="mt-2 max-w-xl text-2xl font-bold leading-tight sm:text-3xl">
+                Tu practica organizada con calma y claridad.
+              </h1>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-blanco/75">
+                Accede a pacientes, expedientes, notas y agenda desde un mismo espacio.
+              </p>
+            </div>
+            <div className="border-l-4 border-enfasis bg-blanco px-4 py-4 text-principal">
+              <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">Sesion activa</p>
+              <p className="mt-2 text-base font-bold">{profile.full_name}</p>
+              <p className="mt-1 text-sm leading-5 text-principal/65">
+                Tu informacion clinica permanece separada de la administracion global.
+              </p>
+            </div>
+          </div>
+        </section>
 
-          <nav className="mt-6 grid grid-cols-2 justify-items-center gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
+        <section>
+          <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">Accesos frecuentes</p>
+          <h2 className="mt-1 text-xl font-bold text-principal">Que necesitas hacer?</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {menuLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="inline-flex min-h-[54px] w-full max-w-[218px] items-center justify-center rounded-full bg-enfasis px-5 py-2 text-center text-[15px] font-medium leading-tight tracking-[0.32em] text-texto transition hover:bg-azulMedio hover:text-blanco sm:text-[18px] lg:text-[22px]"
+                className="group flex min-h-[166px] flex-col border border-principal/10 bg-blanco p-5 transition hover:border-azulMedio"
               >
-                {item.label}
+                <span className="mb-4 h-1 w-10 bg-enfasis" />
+                <span className="font-bold text-principal">{item.label}</span>
+                <span className="mt-2 flex-1 text-sm leading-5 text-principal/60">
+                  {item.description}
+                </span>
+                <span className="mt-4 text-sm font-bold text-azulMedio transition group-hover:text-secundario">
+                  Abrir seccion
+                </span>
               </Link>
             ))}
-          </nav>
-        </div>
+          </div>
+        </section>
 
         <ProBannerList banners={pro.banners} />
         <ProEventsList events={pro.events} />

@@ -25,7 +25,7 @@ export default async function SuperAdminProfessionalProfilePage({
           action={
             <Link
               href="/super-admin/users"
-              className="inline-flex min-h-10 items-center border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 transition hover:border-cyan-600 hover:text-cyan-700"
+              className="inline-flex min-h-10 items-center border border-principal/20 bg-white px-4 text-sm font-bold text-principal transition hover:border-azulMedio hover:text-secundario"
             >
               Volver a usuarios
             </Link>
@@ -34,8 +34,8 @@ export default async function SuperAdminProfessionalProfilePage({
         {summary ? (
           <ProfessionalProfileSummaryCard summary={summary} />
         ) : (
-          <section className="border border-slate-200 bg-white p-5">
-            <p className="text-sm text-slate-600">No fue posible cargar este perfil profesional.</p>
+          <section className="border border-principal/10 bg-white p-5">
+            <p className="text-sm text-principal/65">No fue posible cargar este perfil profesional.</p>
           </section>
         )}
       </div>

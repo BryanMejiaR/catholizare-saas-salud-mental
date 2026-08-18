@@ -26,6 +26,18 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+::selection {
+  background: rgba(19, 218, 251, 0.35);
+  color: #001a55;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(9, 102, 239, 0.3);
+  outline-offset: 2px;
 }

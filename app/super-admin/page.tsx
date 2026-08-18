@@ -8,28 +8,28 @@ const controlAreas = [
     index: "02",
     title: "Usuarios y accesos",
     description: "Administra cuentas de nivel global y revisa perfiles profesionales.",
-    color: "bg-cyan-500"
+    color: "bg-enfasis"
   },
   {
     href: "/super-admin/system-health",
     index: "06",
     title: "Salud del sistema",
     description: "Verifica configuracion, servicios e integraciones esenciales.",
-    color: "bg-emerald-500"
+    color: "bg-secundario"
   },
   {
     href: "/super-admin/audit",
     index: "04",
     title: "Auditoria",
     description: "Consulta los eventos recientes de la plataforma en modo lectura.",
-    color: "bg-amber-500"
+    color: "bg-enfasis"
   },
   {
     href: "/super-admin/exports",
     index: "05",
     title: "Custodia y exportaciones",
     description: "Revisa solicitudes de descarga total y su flujo de aprobacion.",
-    color: "bg-rose-500"
+    color: "bg-rojoRompe"
   }
 ];
 
@@ -46,50 +46,55 @@ export default async function SuperAdminPage() {
 
   return (
     <main className="px-4 py-7 sm:px-7 sm:py-10 xl:px-12 xl:py-12">
-      <div className="mx-auto max-w-[1380px] space-y-12">
-        <header className="grid gap-8 border-b border-slate-200 pb-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <header className="overflow-hidden rounded-lg bg-principal text-blanco">
+          <div className="grid gap-6 px-5 py-6 sm:px-7 md:grid-cols-[minmax(0,1fr)_300px] md:items-center md:py-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-600">
+            <p className="text-sm font-semibold text-enfasis">
               Control global
             </p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
-              Supervision clara.
-              <span className="block text-slate-400">Decisiones responsables.</span>
+            <h1 className="mt-2 max-w-xl text-2xl font-bold leading-tight sm:text-3xl">
+              Supervision clara para decisiones responsables.
             </h1>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-blanco/75">
+              Observa la operacion global sin mezclarla con el contenido clinico privado.
+            </p>
           </div>
-          <div className="border-l-2 border-cyan-500 pl-5">
-            <p className="text-sm font-bold text-slate-950">Sesion de {firstName}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+          <div className="border-l-4 border-enfasis bg-blanco px-4 py-4 text-principal">
+            <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">Sesion activa</p>
+            <p className="mt-2 text-base font-bold">{firstName}</p>
+            <p className="mt-1 text-sm leading-5 text-principal/65">
               Acceso de maxima responsabilidad para la operacion de Catholizare OS.
             </p>
+          </div>
           </div>
         </header>
 
         <section>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+              <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">
                 Prioridad
               </p>
-              <h2 className="mt-2 text-2xl font-black text-slate-950">Controles esenciales</h2>
+              <h2 className="mt-1 text-xl font-bold text-principal">Controles esenciales</h2>
             </div>
-            <p className="text-sm text-slate-500">Acciones sensibles y observabilidad</p>
+            <p className="text-sm text-grisTextos">Acciones sensibles y observabilidad</p>
           </div>
 
-          <div className="mt-6 grid gap-px overflow-hidden border border-slate-200 bg-slate-200 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {controlAreas.map((area) => (
               <Link
                 key={area.href}
                 href={area.href}
-                className="group relative min-h-[270px] bg-white p-6 transition duration-300 hover:z-10 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none"
+                className="group flex min-h-[190px] flex-col border border-principal/10 bg-blanco p-5 transition hover:border-azulMedio"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-slate-400">{area.index}</span>
-                  <span className={`h-3 w-3 rounded-full ${area.color} transition duration-300 group-hover:scale-150 motion-reduce:transform-none`} />
+                  <span className="text-xs font-black text-grisMedio">{area.index}</span>
+                  <span className={`h-2.5 w-2.5 rounded-full ${area.color}`} />
                 </div>
-                <h3 className="mt-16 text-xl font-black text-slate-950">{area.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{area.description}</p>
-                <span className="absolute bottom-6 left-6 text-sm font-black text-slate-950 transition duration-200 group-hover:translate-x-1 group-hover:text-cyan-700 motion-reduce:transform-none">
+                <h3 className="mt-5 text-lg font-bold text-principal">{area.title}</h3>
+                <p className="mt-2 flex-1 text-sm leading-5 text-principal/65">{area.description}</p>
+                <span className="mt-4 text-sm font-bold text-azulMedio transition group-hover:text-secundario">
                   Abrir
                 </span>
               </Link>
@@ -99,20 +104,20 @@ export default async function SuperAdminPage() {
 
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+            <p className="text-xs font-bold uppercase tracking-wider text-azulMedio">
               Gestion
             </p>
-            <h2 className="mt-2 text-2xl font-black text-slate-950">Otras areas</h2>
-            <div className="mt-5 border-t border-slate-300">
+            <h2 className="mt-1 text-xl font-bold text-principal">Otras areas</h2>
+            <div className="mt-5 border-t border-principal/20">
               {secondaryAreas.map((area) => (
                 <Link
                   key={area.href}
                   href={area.href}
-                  className="group grid min-h-16 grid-cols-[48px_minmax(0,1fr)_auto] items-center border-b border-slate-200 transition duration-200 hover:bg-white hover:px-3 motion-reduce:transition-none"
+                  className="group grid min-h-16 grid-cols-[48px_minmax(0,1fr)_auto] items-center border-b border-principal/10 transition duration-200 hover:bg-white hover:px-3 motion-reduce:transition-none"
                 >
-                  <span className="text-xs font-black text-cyan-600">{area.index}</span>
-                  <span className="text-sm font-bold text-slate-900">{area.label}</span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 transition group-hover:text-slate-900">
+                  <span className="text-xs font-black text-azulMedio">{area.index}</span>
+                  <span className="text-sm font-bold text-principal">{area.label}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-grisMedio transition group-hover:text-principal">
                     Abrir
                   </span>
                 </Link>
@@ -120,19 +125,19 @@ export default async function SuperAdminPage() {
             </div>
           </div>
 
-          <aside className="bg-slate-950 p-6 text-white sm:p-8">
+          <aside className="rounded-lg bg-principal p-6 text-blanco sm:p-8">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
+              <span className="h-2 w-2 rounded-full bg-enfasis" />
+              <p className="text-xs font-bold uppercase tracking-wider text-enfasis">
                 Principio activo
               </p>
             </div>
-            <h2 className="mt-6 text-2xl font-black">Privacidad por diseno</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
+            <h2 className="mt-6 text-xl font-bold">Privacidad por diseno</h2>
+            <p className="mt-3 text-sm leading-6 text-blanco/75">
               Esta consola utiliza informacion operativa agregada. El contenido clinico permanece
               separado de la capa global de Catholizare.
             </p>
-            <div className="mt-8 border-t border-white/15 pt-5 text-xs leading-5 text-slate-400">
+            <div className="mt-8 border-t border-blanco/15 pt-5 text-xs leading-5 text-blanco/60">
               Las acciones de alto impacto deben conservar trazabilidad y respetar el principio de
               minimo privilegio.
             </div>

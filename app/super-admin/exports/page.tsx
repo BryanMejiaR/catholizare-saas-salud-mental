@@ -18,25 +18,25 @@ export default async function SuperAdminExportsPage() {
 
         <div className="space-y-4">
           {requests.map((request) => (
-            <article key={request.id} className="border border-slate-200 bg-white p-5 sm:p-6">
+            <article key={request.id} className="border border-principal/10 bg-white p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-950">{request.folio}</h2>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <h2 className="text-lg font-bold text-principal">{request.folio}</h2>
+                  <p className="mt-1 text-sm text-principal/65">
                     {request.professional.full_name} | {request.professional.email}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-grisTextos">
                     Estado: {request.status} | {new Date(request.requested_at).toLocaleString("es-MX")}
                   </p>
                 </div>
               </div>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-principal/75">
                 {request.reason}
               </p>
               {request.status === "solicitada" ? (
                 <ExportRequestReviewForm requestId={request.id} />
               ) : (
-                <p className="mt-3 text-sm text-slate-600">
+                <p className="mt-3 text-sm text-principal/65">
                   {request.status === "aprobada" && request.token_expires_at
                     ? `Aprobada. Link vigente hasta ${new Date(request.token_expires_at).toLocaleString("es-MX")}.`
                     : `Solicitud ${request.status}.`}
@@ -46,7 +46,7 @@ export default async function SuperAdminExportsPage() {
           ))}
 
           {requests.length === 0 ? (
-            <div className="border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600">
+            <div className="border border-principal/10 bg-white px-4 py-8 text-center text-sm text-principal/65">
               No hay solicitudes para mostrar.
             </div>
           ) : null}
